@@ -4,7 +4,9 @@ import { z } from 'zod';
 import { prisma } from '../../../../lib/prisma';
 import { serializeGroup } from '../lib/outputSerializer';
 import { requestJsonValidator } from '../../../../lib/requestValidators';
-import { existingResourceError } from '../../../../lib/errorMessages';
+import { existingResourceError, notFoundError } from '../../../../lib/errorMessages';
+import { getNodeNameFromMask } from '../../../../lib/nameMask';
+import { getIpFromMask } from '../../../../lib/ipMask';
 
 export default new Hono().post(
    '/',
@@ -59,6 +61,24 @@ export default new Hono().post(
          return existingResourceError(c, 'A group with that name already exists');
       }
 
+      // Get types
+      const assetType = await prisma.assetTypes.findUnique({
+         where: {
+            id: 1
+         },
+         include: {
+            AssetTypeFields: true
+         }
+      });
+
+      // Check the type exists
+      if (!assetType) {
+         return notFoundError(c, "Asset type can't be found");
+      }
+
+      // Type field names
+      const fieldsByName = new Map(assetType.AssetTypeFields.map((field) => [field.name, field]));
+
       // Create the new group
       const newGroup = await prisma.groups.create({
          data: {
@@ -71,6 +91,25 @@ export default new Hono().post(
             bmcIpMask: body.bmcIpMask
          }
       });
+
+      // Create nodes
+      for (let i = 1; i < body.size; i++) {
+         await prisma.assets.create({
+            data: {
+               groupId: newGroup.id,
+               assetTypeId: 1,
+               name: getNodeNameFromMask(body.nameMask, i),
+               AssetData: {
+                  create: [
+                     {
+                        fieldId: fieldsByName.get('IpAddress')!.id,
+                        value: getIpFromMask(body.ipMask, i)
+                     }
+                  ]
+               }
+            }
+         });
+      }
 
       return c.json(serializeGroup(newGroup));
    }

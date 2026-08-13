@@ -12,8 +12,7 @@
       ],
       "target": "es2022",
       "minify": true,
-      "clean": true,
-      "splitting": false
+      "clean": true
    },
    "scripts": {
       "prod": "node index.js",
