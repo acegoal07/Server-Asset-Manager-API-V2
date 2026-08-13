@@ -338,6 +338,11 @@ export const openApiComponents = {
                example: 'Production'
             },
 
+            size: {
+               type: 'number',
+               example: 10
+            },
+
             nameMask: {
                type: 'string',
                example: 'prod-*'
@@ -376,6 +381,11 @@ export const openApiComponents = {
                minLength: 1
             },
 
+            size: {
+               type: 'number',
+               example: 10
+            },
+
             nameMask: {
                type: 'string',
                minLength: 1
@@ -410,6 +420,11 @@ export const openApiComponents = {
             name: {
                type: 'string',
                minLength: 1
+            },
+
+            size: {
+               type: 'number',
+               example: 10
             },
 
             nameMask: {

@@ -32,7 +32,7 @@ model AssetTypeFields {
 
 model AssetTypes {
   id              Int               @id @default(autoincrement())
-  name            String?           @unique @db.VarChar(255)
+  name            String?           @unique(map: "name") @db.VarChar(255)
   AssetTypeFields AssetTypeFields[]
   Assets          Assets[]
 }
@@ -55,9 +55,10 @@ model Assets {
 
 model Groups {
   id          Int    @id @default(autoincrement())
-  name        String @unique @db.VarChar(255)
+  name        String @unique(map: "name") @db.VarChar(255)
   nameMask    String @db.VarChar(255)
   ipMask      String @db.VarChar(255)
+  size        Int
   bmcUsername String @db.VarChar(255)
   bmcPassword String @db.VarChar(255)
   bmcIpMask   String @db.VarChar(255)
@@ -89,7 +90,7 @@ model StorageTypeFields {
 
 model StorageTypes {
   id                Int                 @id @default(autoincrement())
-  name              String?             @unique @db.VarChar(255)
+  name              String?             @unique(map: "name") @db.VarChar(255)
   StorageTypeFields StorageTypeFields[]
   Storages          Storages[]
 }

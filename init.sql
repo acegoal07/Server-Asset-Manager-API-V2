@@ -13,6 +13,7 @@ CREATE TABLE Groups (
    name varchar(255) NOT NULL UNIQUE,
    nameMask varchar(255) NOT NULL,
    ipMask varchar(255) NOT NULL,
+   size INT NOT NULL,
    bmcUsername varchar(255) NOT NULL,
    bmcPassword varchar(255) NOT NULL,
    bmcIpMask varchar(255) NOT NULL
