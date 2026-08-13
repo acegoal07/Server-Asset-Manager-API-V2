@@ -114,6 +114,6 @@ export default new Hono().get(
          )
       );
 
-      return c.body(null, 201);
+      return c.json(null, 201);
    }
 );

@@ -111,6 +111,6 @@ export default new Hono().post(
          });
       }
 
-      return c.json(serializeGroup(newGroup));
+      return c.json(serializeGroup(newGroup), 201);
    }
 );
