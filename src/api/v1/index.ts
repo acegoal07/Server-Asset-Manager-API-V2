@@ -1,7 +1,12 @@
 import { Hono } from 'hono';
 
+import assets from './assets';
+import groups from './groups';
+import storages from './storages';
+import types from './types';
+
 export default new Hono()
-   .route('/assets', (await import('./assets')).default)
-   .route('/groups', (await import('./groups')).default)
-   .route('/storages', (await import('./storages')).default)
-   .route('/storages', (await import('./types')).default);
+   .route('/assets', assets)
+   .route('/groups', groups)
+   .route('/storages', storages)
+   .route('/types', types);

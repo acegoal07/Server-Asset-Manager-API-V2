@@ -2,20 +2,24 @@
 import 'dotenv/config';
 
 // CREATE HONO
-const hono = new (await import('hono')).Hono();
+import { Hono } from 'hono';
+const hono = new Hono();
 
 // LOAD MIDDLEWARE
 hono.use('*', (await import('hono/trailing-slash')).trimTrailingSlash());
 hono.use('*', (await import('hono/compress')).compress());
+
+import { cors } from 'hono/cors';
 hono.use(
    '*',
-   (await import('hono/cors')).cors({
+   cors({
       allowMethods: ['POST', 'GET', 'DELETE', 'PATCH', 'PUT', 'OPTIONS']
    })
 );
 
 // LOAD ENDPOINTS
-hono.route('/api/v1', (await import('./api/v1')).default);
+import v1 from './api/v1';
+hono.route('/api/v1', v1);
 
 // HANDLE UNCAUGHT ERRORS
 import { internalServerError } from './lib/errorMessages';
@@ -33,7 +37,9 @@ hono.notFound((c) =>
 );
 
 // START UP SERVER
-(await import('@hono/node-server')).serve({
+import { serve } from '@hono/node-server'
+
+serve({
    fetch: hono.fetch,
    port: Number(process.env.PORT) || 3000
 });

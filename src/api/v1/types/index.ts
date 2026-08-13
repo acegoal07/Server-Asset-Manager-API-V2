@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 
-export default new Hono()
-   .route('/assets', (await import('./assets')).default)
-   .route('/storages', (await import('./storages')).default);
+import assets from './assets';
+import storages from './storages';
+
+export default new Hono().route('/assets', assets).route('/storages', storages);
