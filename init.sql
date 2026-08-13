@@ -10,7 +10,7 @@ USE redfish;
 -- ===========================================================
 CREATE TABLE Groups (
    id INT AUTO_INCREMENT PRIMARY KEY,
-   name varchar(255) NOT NULL,
+   name varchar(255) NOT NULL UNIQUE,
    nameMask varchar(255) NOT NULL,
    ipMask varchar(255) NOT NULL,
    bmcUsername varchar(255) NOT NULL,
