@@ -1,11 +1,10 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import { prisma } from '../../../../../lib/prisma';
-import { storageTypeSerializerArgs } from '../lib/includeSerializer';
-import { serializeStorageType } from '../lib/outputSerializer';
-import { requestQueryValidator } from '../../../../../lib/requestValidators';
-import { notFoundError } from '../../../../../lib/errorMessages';
+import { prisma } from '../../../../lib/prisma';
+import { serializeGroup } from '../lib/outputSerializer';
+import { requestQueryValidator } from '../../../../lib/requestValidators';
+import { notFoundError } from '../../../../lib/errorMessages';
 
 export default new Hono().get(
    '/',
@@ -22,18 +21,17 @@ export default new Hono().get(
       const { id } = c.req.valid('query');
 
       // Get the type from the database
-      const type = await prisma.storageTypes.findUnique({
+      const group = await prisma.groups.findUnique({
          where: {
             id
-         },
-         ...storageTypeSerializerArgs
+         }
       });
 
       // Check if a type exists
-      if (!type) {
-         return notFoundError(c, 'No type with that ID was found');
+      if (!group) {
+         return notFoundError(c, 'No group with that ID was found');
       }
 
-      return c.json(serializeStorageType(type));
+      return c.json(serializeGroup(group));
    }
 );
