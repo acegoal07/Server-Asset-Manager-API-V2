@@ -111,7 +111,6 @@ CREATE TABLE StorageData (
 -- ===========================================================
 INSERT INTO AssetTypes (id, name)
 VALUES (1, 'Server'),
-   (2, 'Chassis'),
    (3, 'Storage Array'),
    (4, 'Network Switch'),
    (5, 'PDU'),
@@ -133,28 +132,13 @@ VALUES (1, 'Hostname', 'string'),
    (1, 'Virtualized', 'boolean'),
    (1, 'Installation Date', 'date');
 -- ===========================================================
--- Chassis
--- ===========================================================
-INSERT INTO AssetTypeFields (assetTypeId, name, type)
-VALUES (2, 'Manufacturer', 'string'),
-   (2, 'Model', 'string'),
-   (2, 'Serial Number', 'string'),
-   (2, 'Rack Units', 'number'),
-   (2, 'Drive Bays', 'number'),
-   (2, 'Power Supply Count', 'number'),
-   (2, 'Installation Date', 'date');
--- ===========================================================
 -- Storage Array
 -- ===========================================================
 INSERT INTO AssetTypeFields (assetTypeId, name, type)
-VALUES (3, 'Manufacturer', 'string'),
+VALUES (3, 'UUID', 'string'),
+   (3, 'IP Address', 'string'),
    (3, 'Model', 'string'),
-   (3, 'Serial Number', 'string'),
-   (3, 'Total Capacity TB', 'number'),
-   (3, 'Drive Count', 'number'),
-   (3, 'RAID Level', 'string'),
-   (3, 'Management Address', 'string'),
-   (3, 'Installation Date', 'date');
+   (3, 'Serial Number', 'number');
 -- ===========================================================
 -- Network Switch
 -- ===========================================================

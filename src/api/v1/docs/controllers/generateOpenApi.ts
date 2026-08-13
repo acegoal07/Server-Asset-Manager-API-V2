@@ -114,10 +114,6 @@ export default new Hono().get('/', async (c) => {
    /*
     * Generate examples for POST /api/assets.
     */
-   type PortTypeExample = {
-      portTypeId: number;
-      count: number;
-   };
 
    const assetExamples: Record<
       string,
@@ -140,7 +136,6 @@ export default new Hono().get('/', async (c) => {
          if (!field.name) {
             continue;
          }
-
          data[field.name] = exampleValue(field.type);
       }
 
@@ -165,7 +160,7 @@ export default new Hono().get('/', async (c) => {
     * Add the generated examples to the
     * POST /api/assets request body.
     */
-   const assetsPath = schema.paths['/api/assets'];
+   const assetsPath = schema.paths['/assets'];
 
    const createAssetOperation = assetsPath?.post;
 
@@ -175,6 +170,70 @@ export default new Hono().get('/', async (c) => {
 
    if (jsonContent) {
       jsonContent.examples = assetExamples;
+   }
+
+   /*
+    * Generate examples for POST /api/storages.
+    */
+
+   const storageTypes = await prisma.storageTypes.findMany({
+      include: {
+         StorageTypeFields: true
+      },
+      orderBy: {
+         id: 'asc'
+      }
+   });
+
+   const storageExamples: Record<
+      string,
+      {
+         summary: string;
+         value: {
+            name: string;
+            notes: string;
+            storageTypeId: number;
+            data: Record<string, string>;
+         };
+      }
+   > = {};
+
+   for (const storageType of storageTypes) {
+      const data: Record<string, string> = {};
+
+      for (const field of storageType.StorageTypeFields) {
+         if (!field.name) {
+            continue;
+         }
+
+         data[field.name] = exampleValue(field.type);
+      }
+
+      storageExamples[`storageType_${storageType.id}`] = {
+         summary: `${storageType.name ?? 'Storage'} example`,
+
+         value: {
+            name: `Example ${storageType.name ?? 'Storage'}`,
+
+            notes: 'Example storage',
+
+            storageTypeId: storageType.id,
+
+            data
+         }
+      };
+   }
+
+   const storagesPath = schema.paths['/storages'];
+
+   const createStorageOperation = storagesPath?.post;
+
+   const storageRequestBody = createStorageOperation?.requestBody;
+
+   const storageJsonContent = storageRequestBody?.content['application/json'];
+
+   if (storageJsonContent) {
+      storageJsonContent.examples = storageExamples;
    }
 
    return c.json(schema);
