@@ -37,7 +37,7 @@ hono.notFound((c) =>
 );
 
 // START UP SERVER
-import { serve } from '@hono/node-server'
+import { serve } from '@hono/node-server';
 
 serve({
    fetch: hono.fetch,

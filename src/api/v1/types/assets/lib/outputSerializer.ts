@@ -1,10 +1,5 @@
 import { Prisma } from '@prisma/client';
-
-export const assetTypeSerializerArgs = Prisma.validator<Prisma.AssetTypesDefaultArgs>()({
-   include: {
-      AssetTypeFields: true
-   }
-});
+import { assetTypeSerializerArgs } from './includeSerializer';
 
 export function serializeAssetType(
    assetType: Prisma.AssetTypesGetPayload<typeof assetTypeSerializerArgs>

@@ -8,7 +8,7 @@ import types from './types';
 
 export default new Hono()
    .route('/assets', assets)
+   .route('/docs', docs)
    .route('/groups', groups)
    .route('/storages', storages)
-   .route('/types', types)
-   .route('/docs', docs);
+   .route('/types', types);
