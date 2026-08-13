@@ -10,7 +10,8 @@ export function serializeAssetType(
       fields: assetType.AssetTypeFields.map((field) => ({
          id: field.id,
          name: field.name,
-         type: field.type
+         type: field.type,
+         fixed: field.fixed
       }))
    };
 }
