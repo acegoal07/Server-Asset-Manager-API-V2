@@ -41,3 +41,13 @@ export const requestQueryValidator = <T extends z.ZodTypeAny>(validator: T) =>
          return invalidQueryRequestError(c, result);
       }
    });
+
+/**
+ * Used to validate the ids in a query
+ * @returns
+ */
+export const requestIdValidator = requestParamValidator(
+   z.object({
+      id: z.number('ID must be a number').int('ID must be an int').positive('ID must be positive')
+   })
+);

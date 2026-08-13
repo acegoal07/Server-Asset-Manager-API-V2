@@ -122,7 +122,9 @@ export default new Hono().get('/', async (c) => {
          value: {
             name: string;
             notes: string;
-            position: number;
+            uSize: number;
+            uTop: number;
+            uBottom: number;
             assetTypeId: number;
             data: Record<string, string>;
          };
@@ -147,7 +149,11 @@ export default new Hono().get('/', async (c) => {
 
             notes: 'Example asset',
 
-            position: 0,
+            uSize: 2,
+
+            uTop: 5,
+
+            uBottom: 3,
 
             assetTypeId: assetType.id,
 
