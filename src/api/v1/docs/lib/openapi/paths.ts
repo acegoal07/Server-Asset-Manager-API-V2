@@ -461,6 +461,75 @@ export const openApiPaths: Record<string, OpenApiPath> = {
          }
       }
    },
+   '/groups/{id}/initialize': {
+      post: {
+         tags: ['Groups'],
+         summary: 'Assign UUIDs to node names',
+         operationId: 'initializeGroup',
+
+         parameters: [
+            {
+               $ref: '#/components/parameters/Id'
+            }
+         ],
+
+         requestBody: {
+            required: true,
+
+            content: {
+               'application/json': {
+                  schema: {
+                     $ref: '#/components/schemas/GroupInit'
+                  }
+               }
+            }
+         },
+
+         responses: {
+            '201': {
+               description: 'Created'
+            },
+            '404': {
+               description: 'Group not found'
+            }
+         }
+      }
+   },
+
+   '/groups/{id}/extend': {
+      post: {
+         tags: ['Groups'],
+         summary: 'Create more notes in a group',
+         operationId: 'extendGroup',
+
+         parameters: [
+            {
+               $ref: '#/components/parameters/Id'
+            }
+         ],
+
+         requestBody: {
+            required: true,
+
+            content: {
+               'application/json': {
+                  schema: {
+                     $ref: '#/components/schemas/GroupInit'
+                  }
+               }
+            }
+         },
+
+         responses: {
+            '201': {
+               description: 'Created'
+            },
+            '404': {
+               description: 'Group not found'
+            }
+         }
+      }
+   },
 
    '/types/assets': {
       get: {

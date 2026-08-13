@@ -641,6 +641,25 @@ export const openApiComponents = {
                }
             }
          }
+      },
+      IdNamePair: {
+         type: 'object',
+
+         properties: {
+            nodeName: {
+               type: 'string'
+            },
+            uuid: {
+               type: 'string'
+            }
+         }
+      },
+      GroupInit: {
+         type: 'array',
+
+         items: {
+            $ref: '#/components/schemas/IdNamePair'
+         }
       }
    } satisfies Record<string, OpenApiSchema>
 };
