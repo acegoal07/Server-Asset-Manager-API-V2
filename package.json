@@ -27,6 +27,7 @@
    "type": "module",
    "dependencies": {
       "@hono/node-server": "^2.0.12",
+      "@hono/swagger-ui": "^0.6.1",
       "@hono/zod-validator": "^0.9.0",
       "@prisma/adapter-mariadb": "^7.9.1",
       "@prisma/client": "^7.9.1",

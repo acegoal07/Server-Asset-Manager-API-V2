@@ -1,3 +1,5 @@
 import { Hono } from 'hono';
 
-export default new Hono();
+import docs from './docs';
+
+export default new Hono().route('/docs', docs);
