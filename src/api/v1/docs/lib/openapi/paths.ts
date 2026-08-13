@@ -345,6 +345,28 @@ export const openApiPaths: Record<string, OpenApiPath> = {
                description: 'Storage not found'
             }
          }
+      },
+
+      delete: {
+         tags: ['Storages'],
+         summary: 'Delete a storage',
+         operationId: 'deleteStorage',
+
+         parameters: [
+            {
+               $ref: '#/components/parameters/Id'
+            }
+         ],
+
+         responses: {
+            '204': {
+               description: 'Storage deleted successfully'
+            },
+
+            '404': {
+               description: 'Storage not found'
+            }
+         }
       }
    },
 
