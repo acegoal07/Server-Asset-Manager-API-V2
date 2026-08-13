@@ -5,7 +5,7 @@ import { assetSerializerArgs, serializeAsset } from '../lib/serialisers';
 import { requestIdValidator } from '../../../../lib/requestValidators';
 import { notFoundError } from '../../../../lib/errorMessages';
 
-export default new Hono().get('/', requestIdValidator, async (c) => {
+export default new Hono().get('/', requestIdValidator({}), async (c) => {
    const { id } = c.req.valid('param');
 
    const asset = await prisma.assets.findUnique({

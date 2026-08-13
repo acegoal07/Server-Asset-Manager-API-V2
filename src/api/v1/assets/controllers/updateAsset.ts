@@ -4,6 +4,7 @@ import { prisma } from '../../../../lib/prisma';
 import { assetSerializerArgs, serializeAsset } from '../lib/serialisers';
 import { updateAssetValidator } from '../lib/validators';
 import { notFoundError } from '../../../../lib/errorMessages';
+import { requestIdValidator } from '../../../../lib/requestValidators';
 
 const validateFieldValue = (type: string | null, value: string): boolean => {
    switch (type) {
@@ -24,17 +25,8 @@ const validateFieldValue = (type: string | null, value: string): boolean => {
    }
 };
 
-export default new Hono().patch('/:id', updateAssetValidator, async (c) => {
-   const id = Number(c.req.param('id'));
-
-   if (!Number.isInteger(id) || id <= 0) {
-      return c.json(
-         {
-            error: 'Invalid asset ID'
-         },
-         400
-      );
-   }
+export default new Hono().patch('/:id', updateAssetValidator, requestIdValidator({}), async (c) => {
+   const { id } = c.req.valid('param');
 
    const body = c.req.valid('json');
 
