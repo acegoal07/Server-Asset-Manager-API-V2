@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 
 import { prisma } from '../../../../../lib/prisma';
 import { assetTypeSerializerArgs } from '../lib/includeSerializer';
 import { serializeAssetType } from '../lib/outputSerializer';
 import { requestQueryValidator } from '../../../../../lib/requestValidators';
-import { z } from 'zod';
 import { notFoundError } from '../../../../../lib/errorMessages';
 
 export default new Hono().get(
