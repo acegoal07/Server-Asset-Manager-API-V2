@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { prisma } from '../../../../lib/prisma';
 import { storageSerializerArgs, serializeStorage } from '../lib/serialisers';
 import { storageValidator } from '../lib/validators';
+import { notFoundError } from '../../../../lib/errorMessages';
 
 const validateFieldValue = (type: string | null, value: string): boolean => {
    switch (type) {
@@ -36,12 +37,7 @@ export default new Hono().post('/', storageValidator, async (c) => {
    });
 
    if (!storageType) {
-      return c.json(
-         {
-            error: 'Storage type not found'
-         },
-         404
-      );
+      return notFoundError(c, `Could not find storage type with id: ${body.storageTypeId}.`);
    }
 
    const fieldsByName = new Map(storageType.StorageTypeFields.map((field) => [field.name, field]));

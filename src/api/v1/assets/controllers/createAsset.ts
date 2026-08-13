@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { prisma } from '../../../../lib/prisma';
 import { assetSerializerArgs, serializeAsset } from '../lib/serialisers';
 import { assetValidator } from '../lib/validators';
+import { notFoundError } from '../../../../lib/errorMessages';
 
 const validateFieldValue = (type: string | null, value: string): boolean => {
    switch (type) {
@@ -36,12 +37,7 @@ export default new Hono().post('/', assetValidator, async (c) => {
    });
 
    if (!assetType) {
-      return c.json(
-         {
-            error: 'Asset type not found'
-         },
-         404
-      );
+      return notFoundError(c, `Asset type with id: ${body.assetTypeId} could not be found.`);
    }
    const fieldsByName = new Map(assetType.AssetTypeFields.map((field) => [field.name, field]));
 
