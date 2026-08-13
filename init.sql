@@ -10,12 +10,12 @@ USE redfish;
 -- ===========================================================
 CREATE TABLE Groups (
    id INT AUTO_INCREMENT PRIMARY KEY,
-   name string NOT NULL,
-   nameMask string NOT NULL,
-   ipMask string NOT NULL,
-   bmcUsername string NOT NULL,
-   bmcPassword string NOT NULL,
-   bmcIpMask string NOT NULL
+   name varchar(255) NOT NULL,
+   nameMask varchar(255) NOT NULL,
+   ipMask varchar(255) NOT NULL,
+   bmcUsername varchar(255) NOT NULL,
+   bmcPassword varchar(255) NOT NULL,
+   bmcIpMask varchar(255) NOT NULL
 );
 -- ===========================================================
 -- Asset Types
@@ -99,12 +99,12 @@ CREATE TABLE StorageTypeFields (
 -- ===========================================================
 CREATE TABLE StorageData (
    id INT AUTO_INCREMENT PRIMARY KEY,
-   assetId INT NOT NULL,
+   storageId INT NOT NULL,
    fieldId INT NOT NULL,
    value VARCHAR(255),
-   CONSTRAINT uq_asset_field UNIQUE (assetId, fieldId),
-   CONSTRAINT fk_assetData_asset FOREIGN KEY (assetId) REFERENCES Assets (id) ON DELETE CASCADE,
-   CONSTRAINT fk_assetData_field FOREIGN KEY (fieldId) REFERENCES AssetTypeFields (id) ON DELETE CASCADE
+   CONSTRAINT uq_storage_field UNIQUE (storageId, fieldId),
+   CONSTRAINT fk_storageData_storage FOREIGN KEY (storageId) REFERENCES Storages (id) ON DELETE CASCADE,
+   CONSTRAINT fk_storageData_field FOREIGN KEY (fieldId) REFERENCES StorageTypeFields (id) ON DELETE CASCADE
 );
 -- ===========================================================
 -- Seed Asset Types
@@ -235,7 +235,6 @@ VALUES (10, 'Manufacturer', 'string'),
    (10, 'Brush Type', 'string'),
    (10, 'Installation Date', 'date');
 INSERT INTO StorageTypes (id, name)
-VALUES (1, 'Rack'),
-   INSERT INTO StorageTypeFields (storageTypeId, name, type)
-VALUES (1, 'U Size', 'number'),
-   (1, '', 'number'),
+VALUES (1, 'Rack');
+INSERT INTO StorageTypeFields (storageTypeId, name, type)
+VALUES (1, 'U Size', 'number');

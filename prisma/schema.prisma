@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model AssetData {
+  id              Int             @id @default(autoincrement())
+  assetId         Int
+  fieldId         Int
+  value           String?         @db.VarChar(255)
+  Assets          Assets          @relation(fields: [assetId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_assetData_asset")
+  AssetTypeFields AssetTypeFields @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_assetData_field")
+
+  @@unique([assetId, fieldId], map: "uq_asset_field")
+  @@index([fieldId], map: "fk_assetData_field")
+}
+
+model AssetTypeFields {
+  id          Int         @id @default(autoincrement())
+  assetTypeId Int
+  name        String?     @db.VarChar(255)
+  type        String?     @db.VarChar(255)
+  fixed       Boolean?    @default(false)
+  AssetData   AssetData[]
+  AssetTypes  AssetTypes  @relation(fields: [assetTypeId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_assetTypeField_assetType")
+
+  @@unique([assetTypeId, name], map: "uq_assetTypeField_name")
+}
+
+model AssetTypes {
+  id              Int               @id @default(autoincrement())
+  name            String?           @db.VarChar(255)
+  AssetTypeFields AssetTypeFields[]
+  Assets          Assets[]
+}
+
+model Assets {
+  id          Int         @id @default(autoincrement())
+  groupId     Int?
+  name        String      @db.VarChar(255)
+  notes       String?     @db.Text
+  uTop        Int         @default(0)
+  uBottom     Int         @default(0)
+  uSize       Int         @default(1)
+  assetTypeId Int?
+  AssetData   AssetData[]
+  AssetTypes  AssetTypes? @relation(fields: [assetTypeId], references: [id], onUpdate: Restrict, map: "fk_assets_assetType")
+
+  @@unique([groupId, name], map: "uq_group_name")
+  @@index([assetTypeId], map: "fk_assets_assetType")
+}
+
+model Groups {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(255)
+  nameMask    String @db.VarChar(255)
+  ipMask      String @db.VarChar(255)
+  bmcUsername String @db.VarChar(255)
+  bmcPassword String @db.VarChar(255)
+  bmcIpMask   String @db.VarChar(255)
+}
+
+model StorageData {
+  id                Int               @id @default(autoincrement())
+  storageId         Int
+  fieldId           Int
+  value             String?           @db.VarChar(255)
+  StorageTypeFields StorageTypeFields @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_storageData_field")
+  Storages          Storages          @relation(fields: [storageId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_storageData_storage")
+
+  @@unique([storageId, fieldId], map: "uq_storage_field")
+  @@index([fieldId], map: "fk_storageData_field")
+}
+
+model StorageTypeFields {
+  id            Int           @id @default(autoincrement())
+  storageTypeId Int
+  name          String?       @db.VarChar(255)
+  type          String?       @db.VarChar(255)
+  fixed         Boolean?      @default(false)
+  StorageData   StorageData[]
+  StorageTypes  StorageTypes  @relation(fields: [storageTypeId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_storageTypeField_storageType")
+
+  @@unique([storageTypeId, name], map: "uq_storageTypeField_name")
+}
+
+model StorageTypes {
+  id                Int                 @id @default(autoincrement())
+  name              String?             @db.VarChar(255)
+  StorageTypeFields StorageTypeFields[]
+  Storages          Storages[]
+}
+
+model Storages {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  notes         String?       @db.Text
+  storageTypeId Int?
+  StorageData   StorageData[]
+  StorageTypes  StorageTypes? @relation(fields: [storageTypeId], references: [id], onUpdate: Restrict, map: "fk_storages_storageType")
+
+  @@index([storageTypeId], map: "fk_storages_storageType")
+}
