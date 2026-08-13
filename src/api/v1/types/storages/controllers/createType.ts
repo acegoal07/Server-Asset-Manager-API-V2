@@ -28,7 +28,7 @@ export default new Hono().post(
                      .min(1, { error: 'Type cannot be empty' })
                })
             )
-            .optional()
+            .default([])
       })
    ),
    async (c) => {
@@ -56,11 +56,10 @@ export default new Hono().post(
             name: body.name,
             AssetTypeFields: {
                createMany: {
-                  data:
-                     body.fields?.map((field) => ({
-                        name: field.name,
-                        type: field.type
-                     })) ?? []
+                  data: body.fields?.map((field) => ({
+                     name: field.name,
+                     type: field.type
+                  }))
                }
             }
          },
