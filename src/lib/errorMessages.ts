@@ -13,7 +13,7 @@ export function invalidParametersRequestError(
 ) {
    return c.json(
       {
-         error: 'INVALID_PARAMETERS',
+         error: 'INVALID_REQUEST_PARAMETERS',
          message: 'One or more request parameters are invalid.',
          details: result.error.issues
       },
@@ -31,7 +31,7 @@ export function invalidParametersRequestError(
 export function invalidJsonRequestError(c: Context, result: { error: { issues: unknown[] } }) {
    return c.json(
       {
-         error: 'INVALID_JSON_BODY',
+         error: 'INVALID_REQUEST_JSON',
          message: 'One or more request fields are invalid.',
          details: result.error.issues
       },
@@ -49,7 +49,7 @@ export function invalidJsonRequestError(c: Context, result: { error: { issues: u
 export function invalidQueryRequestError(c: Context, result: { error: { issues: unknown[] } }) {
    return c.json(
       {
-         error: 'INVALID_QUERY',
+         error: 'INVALID_REQUEST_QUERY',
          message: 'One or more of the queries is invalid.',
          details: result.error.issues
       },
