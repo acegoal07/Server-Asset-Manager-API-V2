@@ -1,3 +1,4 @@
+// LOAD ENV FILE
 import 'dotenv/config';
 
 // CREATE HONO
@@ -26,7 +27,7 @@ hono.notFound((c) =>
    c.json(
       {
          error: 'Not Found',
-         message: `You've almost made it to V4, check the swagger`
+         message: `You've almost made it to V4, if there is supposed to be something here let Alex or Oscar know it might be broken :)`
       },
       404
    )
