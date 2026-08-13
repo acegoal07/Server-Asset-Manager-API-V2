@@ -194,6 +194,30 @@ export const openApiComponents = {
          }
       },
 
+      WhoAmIRes: {
+         type: 'object',
+
+         properties: {
+            id: {
+               type: 'integer',
+               example: 1
+            },
+
+            name: {
+               type: 'string',
+               example: 'Node01'
+            },
+
+            ipAddress: {
+               type: 'string'
+            },
+
+            bmcIp: {
+               type: 'string'
+            }
+         }
+      },
+
       Storage: {
          type: 'object',
 
@@ -699,6 +723,21 @@ export const openApiComponents = {
 
          items: {
             $ref: '#/components/schemas/IdNamePair'
+         }
+      },
+      GroupNames: {
+         type: 'array',
+         items: {
+            type: 'object',
+
+            properties: {
+               name: {
+                  type: 'string'
+               },
+               available: {
+                  type: 'boolean'
+               }
+            }
          }
       }
    } satisfies Record<string, OpenApiSchema>

@@ -530,6 +530,66 @@ export const openApiPaths: Record<string, OpenApiPath> = {
          }
       }
    },
+   '/groups/{id}/names': {
+      get: {
+         tags: ['Groups'],
+         summary: 'Get the available node names for a group',
+         operationId: 'groupNames',
+
+         parameters: [
+            {
+               $ref: '#/components/parameters/Id'
+            }
+         ],
+
+         responses: {
+            '200': {
+               description: 'List of names',
+
+               content: {
+                  'application/json': {
+                     schema: {
+                        $ref: '#/components/schemas/GroupNames'
+                     }
+                  }
+               }
+            },
+            '404': {
+               description: 'Group not found'
+            }
+         }
+      }
+   },
+   '/groups/{id}/whoami/{uuid}': {
+      get: {
+         tags: ['Groups'],
+         summary: 'Get information about a node based on its uuid',
+         operationId: 'groupWhoami',
+
+         parameters: [
+            {
+               $ref: '#/components/parameters/Id'
+            }
+         ],
+
+         responses: {
+            '200': {
+               description: 'Information about a node',
+
+               content: {
+                  'application/json': {
+                     schema: {
+                        $ref: '#/components/schemas/WhoAmIRes'
+                     }
+                  }
+               }
+            },
+            '404': {
+               description: 'Group not found'
+            }
+         }
+      }
+   },
 
    '/types/assets': {
       get: {
