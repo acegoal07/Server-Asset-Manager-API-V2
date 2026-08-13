@@ -22,7 +22,7 @@ CREATE TABLE Groups (
 -- ===========================================================
 CREATE TABLE AssetTypes (
    id INT AUTO_INCREMENT PRIMARY KEY,
-   name VARCHAR(255)
+   name VARCHAR(255) UNIQUE
 );
 -- ===========================================================
 -- Assets
@@ -69,7 +69,7 @@ CREATE TABLE AssetData (
 -- ===========================================================
 CREATE TABLE StorageTypes (
    id INT AUTO_INCREMENT PRIMARY KEY,
-   name VARCHAR(255)
+   name VARCHAR(255) UNIQUE
 );
 -- ===========================================================
 -- Storages

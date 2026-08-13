@@ -32,7 +32,7 @@ model AssetTypeFields {
 
 model AssetTypes {
   id              Int               @id @default(autoincrement())
-  name            String?           @db.VarChar(255)
+  name            String?           @unique @db.VarChar(255)
   AssetTypeFields AssetTypeFields[]
   Assets          Assets[]
 }
@@ -89,7 +89,7 @@ model StorageTypeFields {
 
 model StorageTypes {
   id                Int                 @id @default(autoincrement())
-  name              String?             @db.VarChar(255)
+  name              String?             @unique @db.VarChar(255)
   StorageTypeFields StorageTypeFields[]
   Storages          Storages[]
 }
