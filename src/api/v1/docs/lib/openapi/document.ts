@@ -13,7 +13,7 @@ export const openApiSchema: OpenApiDocument = {
 
    servers: [
       {
-         url: 'http://localhost:3000/api/v1'
+         url: `http://${process.env.CURRENT_IP}:3000/api/v1`
       }
    ],
 
