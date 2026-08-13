@@ -553,11 +553,17 @@ export const openApiPaths: Record<string, OpenApiPath> = {
 
          requestBody: {
             required: true,
-
             content: {
                'application/json': {
                   schema: {
-                     $ref: '#/components/schemas/GroupInit'
+                     type: 'object',
+                     properties: {
+                        additional: {
+                           type: 'number',
+                           nullable: false,
+                           minimum: 1
+                        }
+                     }
                   }
                }
             }

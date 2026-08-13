@@ -2,19 +2,12 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
-import { requestJsonValidator, requestQueryValidator } from '../../../../lib/requestValidators';
+import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
 import { notFoundError } from '../../../../lib/errorMessages';
 
 export default new Hono().get(
    '/',
-   requestQueryValidator(
-      z.object({
-         id: z.coerce
-            .number({ error: 'ID must be a number' })
-            .int({ error: 'ID must be a whole number' })
-            .positive({ error: 'ID must be greater than 0' })
-      })
-   ),
+   requestIdValidator,
    requestJsonValidator(
       z
          .array(
@@ -33,7 +26,7 @@ export default new Hono().get(
    ),
    async (c) => {
       // Get Request information
-      const { id } = c.req.valid('query');
+      const { id } = c.req.valid('param');
       const body = c.req.valid('json');
 
       // Get the group from the database
@@ -97,8 +90,8 @@ export default new Hono().get(
                where: {
                   groupId_name: {
                      groupId: 1,
-                     name: 'foo',
-                  },
+                     name: 'foo'
+                  }
                },
                data: {
                   AssetData: {

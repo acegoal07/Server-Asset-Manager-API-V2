@@ -4,19 +4,12 @@ import { z } from 'zod';
 import { prisma } from '../../../../../lib/prisma';
 import { storageTypeSerializerArgs } from '../lib/includeSerializer';
 import { serializeStorageType } from '../lib/outputSerializer';
-import { requestJsonValidator, requestQueryValidator } from '../../../../../lib/requestValidators';
+import { requestIdValidator, requestJsonValidator } from '../../../../../lib/requestValidators';
 import { notFoundError } from '../../../../../lib/errorMessages';
 
 export default new Hono().patch(
    '/',
-   requestQueryValidator(
-      z.object({
-         id: z.coerce
-            .number({ error: 'ID must be a number' })
-            .int({ error: 'ID must be a whole number' })
-            .positive({ error: 'ID must be greater than 0' })
-      })
-   ),
+   requestIdValidator,
    requestJsonValidator(
       z
          .object({
@@ -53,7 +46,7 @@ export default new Hono().patch(
    ),
    async (c) => {
       // Get request information
-      const { id } = c.req.valid('query');
+      const { id } = c.req.valid('param');
       const body = c.req.valid('json');
 
       // Try and get the type from the database
