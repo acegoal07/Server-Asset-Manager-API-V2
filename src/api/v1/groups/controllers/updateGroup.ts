@@ -8,7 +8,7 @@ import { existingResourceError, notFoundError } from '../../../../lib/errorMessa
 
 export default new Hono().patch(
    '/',
-   requestIdValidator,
+   requestIdValidator({}),
    requestJsonValidator(
       z
          .object({

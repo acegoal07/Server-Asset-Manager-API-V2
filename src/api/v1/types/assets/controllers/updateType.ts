@@ -9,7 +9,7 @@ import { notFoundError } from '../../../../../lib/errorMessages';
 
 export default new Hono().patch(
    '/',
-   requestIdValidator,
+   requestIdValidator({}),
    requestJsonValidator(
       z
          .object({

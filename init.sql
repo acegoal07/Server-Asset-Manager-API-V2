@@ -150,8 +150,9 @@ VALUES
 INSERT INTO
    AssetTypeFields (assetTypeId, name, type, fixed)
 VALUES
-   (1, 'IpAddress', 'string', TRUE),
+   (1, 'IPAddress', 'string', FALSE),
    (1, 'UUID', 'string', TRUE),
+   (1, 'BMC IP', 'string', FALSE),
    (1, 'Manufacturer', 'string', FALSE),
    (1, 'Model', 'string', FALSE),
    (1, 'CPU Cores', 'number', FALSE),

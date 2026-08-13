@@ -102,8 +102,12 @@ export default new Hono().post(
                AssetData: {
                   create: [
                      {
-                        fieldId: fieldsByName.get('IpAddress')!.id,
+                        fieldId: fieldsByName.get('IPAddress')!.id,
                         value: getIpFromMask(body.ipMask, i)
+                     },
+                     {
+                        fieldId: fieldsByName.get('BMC IP')!.id,
+                        value: getIpFromMask(body.bmcIpMask, i)
                      }
                   ]
                }

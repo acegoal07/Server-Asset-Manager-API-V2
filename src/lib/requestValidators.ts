@@ -46,11 +46,14 @@ export const requestQueryValidator = <T extends z.ZodTypeAny>(validator: T) =>
  * Used to validate the ids in a query
  * @returns
  */
-export const requestIdValidator = requestParamValidator(
-   z.object({
-      id: z.coerce
-         .number('ID must be a number')
-         .int('ID must be an int')
-         .positive('ID must be positive')
-   })
-);
+export const requestIdValidator = <T extends z.ZodRawShape>(extra: T = {} as T) => {
+   return requestParamValidator(
+      z.object({
+         id: z.coerce
+            .number({ error: 'ID must be a number' })
+            .int({ error: 'ID must be a whole number' })
+            .positive({ error: 'ID must be greater than 0' }),
+         ...extra
+      })
+   );
+};

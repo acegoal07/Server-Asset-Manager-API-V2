@@ -8,7 +8,7 @@ import { notFoundError } from '../../../../lib/errorMessages';
 
 export default new Hono().get(
    '/',
-   requestIdValidator,
+   requestIdValidator({}),
    requestJsonValidator(
       z.object({
          additional: z

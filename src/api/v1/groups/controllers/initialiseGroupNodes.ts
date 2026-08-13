@@ -7,7 +7,7 @@ import { notFoundError } from '../../../../lib/errorMessages';
 
 export default new Hono().get(
    '/',
-   requestIdValidator,
+   requestIdValidator({}),
    requestJsonValidator(
       z
          .array(
@@ -89,8 +89,8 @@ export default new Hono().get(
             prisma.assets.update({
                where: {
                   groupId_name: {
-                     groupId: 1,
-                     name: 'foo'
+                     groupId: id,
+                     name: asset.nodeName
                   }
                },
                data: {
