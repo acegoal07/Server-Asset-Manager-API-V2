@@ -15,8 +15,7 @@ hono.use(
 );
 
 // LOAD ENDPOINTS
-import v1 from './api/v1';
-hono.route('/api/v1', v1);
+hono.route('/api/v1', (await import('./api/v1')).default);
 
 // HANDLE UNCAUGHT ERRORS
 import { internalServerError } from './lib/errorMessages';
