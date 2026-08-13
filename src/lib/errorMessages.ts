@@ -89,3 +89,18 @@ export function notFoundError(c: Context, message?: string) {
       404
    );
 }
+
+/**
+ * Responds with a existing resource error message
+ * @param c
+ * @returns
+ */
+export function existingResourceError(c: Context, message?: string) {
+   return c.json(
+      {
+         error: 'CONFLATING_RESOURCE',
+         message: message || 'There is already a resource in the database'
+      },
+      409
+   );
+}
