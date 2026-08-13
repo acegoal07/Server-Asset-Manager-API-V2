@@ -375,21 +375,6 @@ export const openApiComponents = {
             ipMask: {
                type: 'string',
                example: '10.0.0.*'
-            },
-
-            bmcUsername: {
-               type: 'string',
-               example: 'admin'
-            },
-
-            bmcPassword: {
-               type: 'string',
-               example: 'secret'
-            },
-
-            bmcIpMask: {
-               type: 'string',
-               example: '10.0.1.*'
             }
          }
       },
