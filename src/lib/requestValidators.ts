@@ -48,6 +48,9 @@ export const requestQueryValidator = <T extends z.ZodTypeAny>(validator: T) =>
  */
 export const requestIdValidator = requestParamValidator(
    z.object({
-      id: z.number('ID must be a number').int('ID must be an int').positive('ID must be positive')
+      id: z.coerce
+         .number('ID must be a number')
+         .int('ID must be an int')
+         .positive('ID must be positive')
    })
 );

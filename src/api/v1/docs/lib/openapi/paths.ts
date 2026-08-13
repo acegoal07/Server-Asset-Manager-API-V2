@@ -161,6 +161,27 @@ export const openApiPaths: Record<string, OpenApiPath> = {
                description: 'Asset not found'
             }
          }
+      },
+      delete: {
+         tags: ['Assets'],
+         summary: 'Delete an asset',
+         operationId: 'deleteAsset',
+
+         parameters: [
+            {
+               $ref: '#/components/parameters/Id'
+            }
+         ],
+
+         responses: {
+            '204': {
+               description: 'Asset deleted successfully'
+            },
+
+            '404': {
+               description: 'Asset not found'
+            }
+         }
       }
    },
 

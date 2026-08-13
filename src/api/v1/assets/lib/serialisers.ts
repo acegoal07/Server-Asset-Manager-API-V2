@@ -13,14 +13,6 @@ const assetSerializerArgs = Prisma.validator<Prisma.AssetsDefaultArgs>()({
 
 type AssetForSerialization = Prisma.AssetsGetPayload<typeof assetSerializerArgs>;
 
-const assetInclude = {
-   AssetData: {
-      include: {
-         AssetTypeFields: true
-      }
-   }
-};
-
 function serializeAsset(asset: AssetForSerialization) {
    return {
       id: asset.id,
@@ -42,4 +34,4 @@ function serializeAsset(asset: AssetForSerialization) {
    };
 }
 
-export { assetInclude, AssetForSerialization, serializeAsset, assetSerializerArgs };
+export { AssetForSerialization, serializeAsset, assetSerializerArgs };
