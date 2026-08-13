@@ -478,6 +478,11 @@ export const openApiComponents = {
             type: {
                type: 'string',
                nullable: true
+            },
+
+            fixed: {
+               type: 'boolean',
+               nullable: false
             }
          }
       },
@@ -495,7 +500,6 @@ export const openApiComponents = {
 
             fields: {
                type: 'array',
-               minItems: 1,
 
                items: {
                   $ref: '#/components/schemas/AssetTypeFieldInput'
@@ -531,7 +535,15 @@ export const openApiComponents = {
                minLength: 1
             },
 
-            fields: {
+            deleteFields: {
+               type: 'array',
+               items: {
+                  type: 'number',
+                  minimum: 1
+               }
+            },
+
+            addFields: {
                type: 'array',
 
                items: {
@@ -580,6 +592,11 @@ export const openApiComponents = {
             type: {
                type: 'string',
                nullable: true
+            },
+
+            fixed: {
+               type: 'boolean',
+               nullable: false
             }
          }
       },
@@ -597,7 +614,6 @@ export const openApiComponents = {
 
             fields: {
                type: 'array',
-               minItems: 1,
 
                items: {
                   $ref: '#/components/schemas/StorageTypeFieldInput'
@@ -633,15 +649,24 @@ export const openApiComponents = {
                minLength: 1
             },
 
-            fields: {
+            deleteFields: {
+               type: 'array',
+               items: {
+                  type: 'number',
+                  minimum: 1
+               }
+            },
+
+            addFields: {
                type: 'array',
 
                items: {
-                  $ref: '#/components/schemas/StorageTypeFieldInput'
+                  $ref: '#/components/schemas/AssetTypeFieldInput'
                }
             }
          }
       },
+
       IdNamePair: {
          type: 'object',
 
