@@ -162,6 +162,7 @@ export const openApiPaths: Record<string, OpenApiPath> = {
             }
          }
       },
+
       delete: {
          tags: ['Assets'],
          summary: 'Delete an asset',
@@ -496,6 +497,28 @@ export const openApiPaths: Record<string, OpenApiPath> = {
                      }
                   }
                }
+            },
+
+            '404': {
+               description: 'Group not found'
+            }
+         }
+      },
+
+      delete: {
+         tags: ['groups'],
+         summary: 'Delete a group',
+         operationId: 'deleteGroup',
+
+         parameters: [
+            {
+               $ref: '#/components/parameters/Id'
+            }
+         ],
+
+         responses: {
+            '204': {
+               description: 'Group deleted successfully'
             },
 
             '404': {
