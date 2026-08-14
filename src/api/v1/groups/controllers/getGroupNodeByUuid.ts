@@ -63,6 +63,7 @@ export default new Hono().get(
          id: node.id,
          name: node.name,
          data: node.AssetData.map((data) => ({
+            name: data.AssetTypeFields.name,
             value: data.value,
             type: data.AssetTypeFields.type
          }))

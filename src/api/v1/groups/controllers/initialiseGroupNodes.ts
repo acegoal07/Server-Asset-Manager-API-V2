@@ -5,7 +5,7 @@ import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
 import { notFoundError } from '../../../../lib/errorMessages';
 
-export default new Hono().get(
+export default new Hono().post(
    '/',
    requestIdValidator({}),
    requestJsonValidator(
