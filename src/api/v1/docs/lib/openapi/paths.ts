@@ -506,7 +506,7 @@ export const openApiPaths: Record<string, OpenApiPath> = {
       },
 
       delete: {
-         tags: ['groups'],
+         tags: ['Groups'],
          summary: 'Delete a group',
          operationId: 'deleteGroup',
 
