@@ -47,8 +47,9 @@ CREATE TABLE
       uBottom INT NOT NULL DEFAULT 0,
       uSize INT NOT NULL DEFAULT 1,
       assetTypeId INT,
-      CONSTRAINT uq_group_name UNIQUE (groupId, name),
-      CONSTRAINT fk_assets_assetType FOREIGN KEY (assetTypeId) REFERENCES AssetTypes (id) ON DELETE SET NULL
+      CONSTRAINT fk_assets_groupId FOREIGN KEY (groupId) REFERENCES Groups (id) ON DELETE CASCADE,
+      CONSTRAINT fk_assets_assetType FOREIGN KEY (assetTypeId) REFERENCES AssetTypes (id) ON DELETE SET NULL,
+      CONSTRAINT uq_group_name UNIQUE (groupId, name)
    );
 
 -- ===========================================================

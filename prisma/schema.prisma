@@ -48,20 +48,22 @@ model Assets {
   assetTypeId Int?
   AssetData   AssetData[]
   AssetTypes  AssetTypes? @relation(fields: [assetTypeId], references: [id], onUpdate: Restrict, map: "fk_assets_assetType")
+  Groups      Groups?     @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_assets_groupId")
 
   @@unique([groupId, name], map: "uq_group_name")
   @@index([assetTypeId], map: "fk_assets_assetType")
 }
 
 model Groups {
-  id          Int    @id @default(autoincrement())
-  name        String @unique(map: "name") @db.VarChar(255)
-  nameMask    String @db.VarChar(255)
-  ipMask      String @db.VarChar(255)
+  id          Int      @id @default(autoincrement())
+  name        String   @unique(map: "name") @db.VarChar(255)
+  nameMask    String   @db.VarChar(255)
+  ipMask      String   @db.VarChar(255)
   size        Int
-  bmcUsername String @db.VarChar(255)
-  bmcPassword String @db.VarChar(255)
-  bmcIpMask   String @db.VarChar(255)
+  bmcUsername String   @db.VarChar(255)
+  bmcPassword String   @db.VarChar(255)
+  bmcIpMask   String   @db.VarChar(255)
+  Assets      Assets[]
 }
 
 model StorageData {
