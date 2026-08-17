@@ -9,7 +9,7 @@ import { checkMaskForSize, getIpFromMask } from '../../../../lib/ipMask';
 import { getAssetFieldByName, getAssetTypeByID } from '../../../../lib/assetFields';
 import { getNodeNameFromMask } from '../../../../lib/nameMask';
 
-export default new Hono().get(
+export default new Hono().post(
    '/',
    requestIdValidator({}),
    requestJsonValidator(
