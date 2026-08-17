@@ -60,14 +60,17 @@ export default new Hono().get(
             return notFoundError(c, 'No node was found with that ID');
          }
 
+         // Get all the data fields
+         const assetData = node.AssetData.map((data) => ({
+            name: data.AssetTypeFields.name,
+            value: data.value
+         }));
+
          return c.json({
             id: node.id,
             name: node.name,
-            data: node.AssetData.map((data) => ({
-               name: data.AssetTypeFields.name,
-               value: data.value,
-               type: data.AssetTypeFields.type
-            }))
+            ipAddress: assetData.find((data) => data.name === 'IPAddress')?.value,
+            bmcIp: assetData.find((data) => data.name === 'BMC IP')?.value
          });
       } catch (err) {
          return internalServerError(c, err);

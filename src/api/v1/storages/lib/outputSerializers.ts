@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import { storageSerializerArgs } from "./includeSerializers";
+import { Prisma } from '@prisma/client';
+import { storageSerializerArgs } from './includeSerializers';
 
 export function serializeStorage(storage: Prisma.StoragesGetPayload<typeof storageSerializerArgs>) {
    return {
