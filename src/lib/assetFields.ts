@@ -40,7 +40,7 @@ export const validateFieldValue = (type: string | null, value: string): boolean 
  * @param id
  * @returns
  */
-export async function getAssetType(id: number): Promise<AssetTypeWithFields | null> {
+export async function getAssetTypeByID(id: number): Promise<AssetTypeWithFields | null> {
    // Get types from the database
    const assetType = await prisma.assetTypes.findUnique({
       where: {

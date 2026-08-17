@@ -11,6 +11,7 @@ import {
 } from '../../../../lib/errorMessages';
 import { getNodeNameFromMask } from '../../../../lib/nameMask';
 import { getIpFromMask } from '../../../../lib/ipMask';
+import { getAssetTypeByID, getFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().post(
    '/',
@@ -67,24 +68,12 @@ export default new Hono().post(
          }
 
          // Get types
-         const assetType = await prisma.assetTypes.findUnique({
-            where: {
-               id: 1
-            },
-            include: {
-               AssetTypeFields: true
-            }
-         });
+         const assetType = await getAssetTypeByID(1);
 
          // Check the type exists
          if (!assetType) {
             return notFoundError(c, "Asset type can't be found");
          }
-
-         // Type field names
-         const fieldsByName = new Map(
-            assetType.AssetTypeFields.map((field) => [field.name, field])
-         );
 
          // Create the new group
          const newGroup = await prisma.groups.create({
@@ -109,11 +98,11 @@ export default new Hono().post(
                   AssetData: {
                      create: [
                         {
-                           fieldId: fieldsByName.get('IPAddress')!.id,
+                           fieldId: getFieldByName(assetType, 'IPAddress')!.id,
                            value: getIpFromMask(body.ipMask, i)
                         },
                         {
-                           fieldId: fieldsByName.get('BMC IP')!.id,
+                           fieldId: getFieldByName(assetType, 'BMC IP')!.id,
                            value: getIpFromMask(body.bmcIpMask, i)
                         }
                      ]

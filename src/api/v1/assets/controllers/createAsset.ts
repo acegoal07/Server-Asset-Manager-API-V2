@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
 import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
-import { getAssetType, getFieldByName, validateFieldValue } from '../../../../lib/assetFields';
+import { getAssetTypeByID, getFieldByName, validateFieldValue } from '../../../../lib/assetFields';
 import { requestJsonValidator } from '../../../../lib/requestValidators';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
@@ -45,7 +45,7 @@ export default new Hono().post(
          const body = c.req.valid('json');
 
          // Get assetType
-         const assetType = await getAssetType(body.assetTypeId);
+         const assetType = await getAssetTypeByID(body.assetTypeId);
 
          // Check that a assetType was found
          if (!assetType) {
