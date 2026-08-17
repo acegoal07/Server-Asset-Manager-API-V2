@@ -25,22 +25,29 @@ function truncate(value: unknown): unknown {
 }
 
 export const debugLogger: MiddlewareHandler = async (c, next) => {
-   console.log(`\n→ ${c.req.method} ${c.req.path}`);
+   const start = performance.now();
+
+   let body: unknown = undefined;
 
    const contentType = c.req.header('content-type') ?? '';
 
    if (contentType.includes('application/json')) {
       try {
-         // Clone so we don't consume the request body
-         const body = await c.req.raw.clone().json();
-
-         console.log('Body:', truncate(body));
+         body = truncate(await c.req.raw.clone().json());
       } catch {
-         console.log('Body: <invalid JSON>');
+         body = '<invalid JSON>';
       }
-   } else {
-      console.log('Body: <not JSON>');
    }
 
    await next();
+
+   const duration = Math.round(performance.now() - start);
+
+   const lines = [
+      `→ ${c.req.method} ${c.req.path}`,
+      `Body: ${body !== undefined ? JSON.stringify(body, null, 2) : '<none>'}`,
+      `← ${c.res.status} ${duration}ms`
+   ];
+
+   console.log(`\n${lines.join('\n')}\n`);
 };
