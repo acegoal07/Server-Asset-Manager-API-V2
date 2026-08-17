@@ -1,6 +1,8 @@
 // LOAD ENV FILE
 import 'dotenv/config';
 
+import { debugLogger } from './lib/loggingMiddleware';
+
 // CREATE HONO
 import { Hono } from 'hono';
 const hono = new Hono();
@@ -8,6 +10,7 @@ const hono = new Hono();
 // LOAD MIDDLEWARE
 hono.use('*', (await import('hono/trailing-slash')).trimTrailingSlash());
 hono.use('*', (await import('hono/compress')).compress());
+hono.use('*', debugLogger);
 
 import { cors } from 'hono/cors';
 hono.use(
