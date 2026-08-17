@@ -39,6 +39,20 @@ function parseOctet(part: string): {
    };
 }
 
+export function checkMaskForSize(mask: string, size: number): boolean {
+   const parts = mask.split('.');
+
+   if (parts.length !== 4) {
+      throw new Error('IP mask must contain exactly four octets');
+   }
+
+   const ranges = parts.map(parseOctet);
+
+   const totalAddresses = ranges.reduce((total, range) => total * (range.max - range.min + 1), 1);
+
+   return totalAddresses >= size;
+}
+
 export function getIpFromMask(mask: string, nodeNumber: number): string {
    if (!Number.isInteger(nodeNumber) || nodeNumber < 1) {
       throw new Error('Node number must be a positive integer');

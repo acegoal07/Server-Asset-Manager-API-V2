@@ -5,12 +5,13 @@ import { prisma } from '../../../../lib/prisma';
 import { serializeGroup } from '../lib/outputSerializer';
 import { requestJsonValidator } from '../../../../lib/requestValidators';
 import {
+   customError,
    existingResourceError,
    internalServerError,
    notFoundError
 } from '../../../../lib/errorMessages';
 import { getNodeNameFromMask } from '../../../../lib/nameMask';
-import { getIpFromMask } from '../../../../lib/ipMask';
+import { checkMaskForSize, getIpFromMask } from '../../../../lib/ipMask';
 import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().post(
@@ -54,6 +55,28 @@ export default new Hono().post(
       try {
          // Get request information
          const body = c.req.valid('json');
+
+         // Check ip mask supports size
+         if (!checkMaskForSize(body.ipMask, body.size)) {
+            return customError(
+               c,
+               'INCOMPATIBLE_IP_MASK',
+               'The IP mask provided does not support the size of the group.',
+               null,
+               400
+            );
+         }
+
+         // Check bmc ip mask supports size
+         if (!checkMaskForSize(body.bmcIpMask, body.size)) {
+            return customError(
+               c,
+               'INCOMPATIBLE_BMC_IP_MASK',
+               'The BMC IP mask provided does not support the size of the group.',
+               null,
+               400
+            );
+         }
 
          // Check if a group with the same name exists
          const existingGroup = await prisma.groups.findUnique({
