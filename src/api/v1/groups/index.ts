@@ -13,7 +13,7 @@ import deleteGroup from './controllers/deleteGroup';
 export default new Hono()
    .route('/:id/whoami/:uuid', getGroupNodeByUUID)
    .route('/:id/extend', extendGroup)
-   .route('/:id/initialise', initialiseGroupNodes)
+   .route('/:id/initialize', initialiseGroupNodes)
    .route('/:id/names', getAvailableGroupNames)
    .route('/:id', updateGroup)
    .route('/:id', getGroupById)
