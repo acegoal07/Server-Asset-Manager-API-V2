@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import getAssetById from './controllers/getAssetById';
-import getAssets from './controllers/getAssets';
+import getAssets from './controllers/getAllAssets';
 import createAsset from './controllers/createAsset';
 import deleteAsset from './controllers/deleteAsset';
 import updateAsset from './controllers/updateAsset';

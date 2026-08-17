@@ -5,7 +5,7 @@ import createGroup from './controllers/createGroup';
 import getGroupById from './controllers/getGroupById';
 import updateGroup from './controllers/updateGroup';
 import extendGroup from './controllers/extendGroup';
-import initialiseGroupNodes from './controllers/initialiseGroupNodes';
+import initialiseGroupNodes from './controllers/initializeGroupNodes';
 import getAvailableGroupNames from './controllers/getAvailableGroupNames';
 import getGroupNodeByUUID from './controllers/getGroupNodeByUUID';
 import deleteGroup from './controllers/deleteGroup';

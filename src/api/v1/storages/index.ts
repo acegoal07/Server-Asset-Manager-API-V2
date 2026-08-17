@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import getStorageById from './controllers/getStorageById';
-import getStorages from './controllers/getStorages';
+import getStorages from './controllers/getAllStorages';
 import createStorage from './controllers/createStorage';
 import updateStorage from './controllers/updateStorage';
 import deleteStorage from './controllers/deleteStorage';
