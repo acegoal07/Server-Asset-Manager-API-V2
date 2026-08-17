@@ -106,7 +106,7 @@ export default new Hono().post(
                         },
                         {
                            fieldId: getAssetFieldByName(assetType, 'BMC IP')!.id,
-                           value: getIpFromMask(body.bmcIpMask, i)
+                           value: body.bmcIpMask == null ? '' : getIpFromMask(body.bmcIpMask, i)
                         }
                      ]
                   }
