@@ -38,7 +38,6 @@ hono.notFound((c) =>
 
 // START UP SERVER
 import { serve } from '@hono/node-server';
-
 serve({
    fetch: hono.fetch,
    port: Number(process.env.PORT) || 3000
