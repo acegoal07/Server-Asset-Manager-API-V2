@@ -3,7 +3,11 @@ import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
 import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
-import { getAssetTypeByID, getAssetFieldByName, validateAssetFieldValue } from '../../../../lib/assetFields';
+import {
+   getAssetTypeByID,
+   getAssetFieldByName,
+   validateAssetFieldValue
+} from '../../../../lib/assetFields';
 import { requestJsonValidator } from '../../../../lib/requestValidators';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
