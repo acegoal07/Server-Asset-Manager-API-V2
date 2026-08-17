@@ -16,7 +16,7 @@ type AssetTypeWithFields = Prisma.AssetTypesGetPayload<{
  * @param value
  * @returns
  */
-export const validateFieldValue = (type: string | null, value: string): boolean => {
+export const validateAssetFieldValue = (type: string | null, value: string): boolean => {
    switch (type) {
       case 'string':
          return true;
@@ -65,7 +65,7 @@ export async function getAssetTypeByID(id: number): Promise<AssetTypeWithFields 
  * @param name
  * @returns
  */
-export function getFieldByName(assetType: AssetTypeWithFields | null, name: string) {
+export function getAssetFieldByName(assetType: AssetTypeWithFields | null, name: string) {
    const names = new Map(assetType?.AssetTypeFields.map((field) => [field.name, field]));
 
    return names.get(name);

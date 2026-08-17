@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator } from '../../../../lib/requestValidators';
 import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
-import { getAssetTypeByID, getFieldByName } from '../../../../lib/assetFields';
+import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().get('/', requestIdValidator({}), async (c) => {
    try {
@@ -45,7 +45,7 @@ export default new Hono().get('/', requestIdValidator({}), async (c) => {
          groupNodes.map((node) => ({
             name: node.name,
             available: !node.AssetData.some(
-               (data) => data.fieldId === getFieldByName(assetType, 'UUID')?.id
+               (data) => data.fieldId === getAssetFieldByName(assetType, 'UUID')?.id
             )
          }))
       );

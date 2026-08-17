@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../../../../lib/prisma';
 import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
-import { getFieldByName, validateFieldValue } from '../../../../lib/assetFields';
+import { getAssetFieldByName, validateAssetFieldValue } from '../../../../lib/assetFields';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
 
@@ -75,7 +75,7 @@ export default new Hono().patch(
 
             // Go through all the fields and validate them
             for (const [name, value] of Object.entries(body.data)) {
-               const field = getFieldByName(asset.AssetTypes, name);
+               const field = getAssetFieldByName(asset.AssetTypes, name);
 
                if (!field) {
                   errors[name] = 'Field does not exist on this asset type';
@@ -83,7 +83,7 @@ export default new Hono().patch(
                   continue;
                }
 
-               if (!validateFieldValue(field.type, value)) {
+               if (!validateAssetFieldValue(field.type, value)) {
                   errors[name] = `Value does not match field type "${field.type}"`;
                }
             }
@@ -123,7 +123,7 @@ export default new Hono().patch(
             // update asset fields
             if (body.data) {
                for (const [name, value] of Object.entries(body.data)) {
-                  const field = getFieldByName(asset.AssetTypes, name)!;
+                  const field = getAssetFieldByName(asset.AssetTypes, name)!;
                   await tx.assetData.upsert({
                      where: {
                         assetId_fieldId: {

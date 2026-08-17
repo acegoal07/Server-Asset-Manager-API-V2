@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
 import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
-import { getAssetTypeByID, getFieldByName, validateFieldValue } from '../../../../lib/assetFields';
+import { getAssetTypeByID, getAssetFieldByName, validateAssetFieldValue } from '../../../../lib/assetFields';
 import { requestJsonValidator } from '../../../../lib/requestValidators';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
@@ -57,14 +57,14 @@ export default new Hono().post(
 
          // Go through all the fields and check them for errors
          for (const [name, value] of Object.entries(body.data)) {
-            const field = getFieldByName(assetType, name);
+            const field = getAssetFieldByName(assetType, name);
 
             if (!field) {
                errors[name] = 'Field does not exist on this asset type';
                continue;
             }
 
-            if (!validateFieldValue(field.type, value)) {
+            if (!validateAssetFieldValue(field.type, value)) {
                errors[name] = `Value does not match field type "${field.type}"`;
             }
          }
@@ -85,7 +85,7 @@ export default new Hono().post(
                assetTypeId: body.assetTypeId,
                AssetData: {
                   create: Object.entries(body.data).map(([name, value]) => {
-                     const field = getFieldByName(assetType, name)!;
+                     const field = getAssetFieldByName(assetType, name)!;
 
                      return {
                         fieldId: field.id,

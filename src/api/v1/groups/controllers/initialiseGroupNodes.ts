@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
 import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
-import { getAssetTypeByID, getFieldByName } from '../../../../lib/assetFields';
+import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().post(
    '/',
@@ -89,7 +89,7 @@ export default new Hono().post(
                      AssetData: {
                         create: [
                            {
-                              fieldId: getFieldByName(assetType, 'UUID')!.id,
+                              fieldId: getAssetFieldByName(assetType, 'UUID')!.id,
                               value: asset.uuid
                            }
                         ]

@@ -11,7 +11,7 @@ import {
 } from '../../../../lib/errorMessages';
 import { getNodeNameFromMask } from '../../../../lib/nameMask';
 import { getIpFromMask } from '../../../../lib/ipMask';
-import { getAssetTypeByID, getFieldByName } from '../../../../lib/assetFields';
+import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().post(
    '/',
@@ -98,11 +98,11 @@ export default new Hono().post(
                   AssetData: {
                      create: [
                         {
-                           fieldId: getFieldByName(assetType, 'IPAddress')!.id,
+                           fieldId: getAssetFieldByName(assetType, 'IPAddress')!.id,
                            value: getIpFromMask(body.ipMask, i)
                         },
                         {
-                           fieldId: getFieldByName(assetType, 'BMC IP')!.id,
+                           fieldId: getAssetFieldByName(assetType, 'BMC IP')!.id,
                            value: getIpFromMask(body.bmcIpMask, i)
                         }
                      ]
