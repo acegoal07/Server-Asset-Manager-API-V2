@@ -565,7 +565,7 @@ export const openApiPaths: Record<string, OpenApiPath> = {
    '/groups/{id}/extend': {
       post: {
          tags: ['Groups'],
-         summary: 'Create more notes in a group',
+         summary: 'Create more nodes in a group',
          operationId: 'extendGroup',
 
          parameters: [
