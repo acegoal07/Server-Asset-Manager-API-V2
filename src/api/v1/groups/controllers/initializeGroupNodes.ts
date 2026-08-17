@@ -83,11 +83,12 @@ export default new Hono().post(
          }
 
          // Nodes that have already been initialised
-         const initializedNodes = body.filter((node) => {
-            const asset = existingNodeMap.get(node.nodeName);
-
-            return asset?.AssetData.some((data) => data.fieldId === uuidFieldId);
-         });
+         const initializedNodes = body
+            .filter((node) => {
+               const asset = existingNodeMap.get(node.nodeName);
+               return asset?.AssetData.some((data) => data.fieldId === uuidFieldId);
+            })
+            .map((node) => node.nodeName);
 
          // Return the nodes that have been initialized
          if (initializedNodes.length > 0) {
