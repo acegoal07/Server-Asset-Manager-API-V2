@@ -37,17 +37,17 @@ export default new Hono().post(
             .string({ error: 'BMC username must be a string' })
             .trim()
             .min(1, { error: 'Name cannot be empty' })
-            .optional(),
+            .default(''),
          bmcPassword: z
             .string({ error: 'BMC password must be a string' })
             .trim()
             .min(1, { error: 'Name cannot be empty' })
-            .optional(),
+            .default(''),
          bmcIpMask: z
             .string({ error: 'BMC IP mask must be a string' })
             .trim()
             .min(1, { error: 'Name cannot be empty' })
-            .optional()
+            .default('')
       })
    ),
    async (c) => {
@@ -85,9 +85,9 @@ export default new Hono().post(
                size: body.size,
                nameMask: body.nameMask,
                ipMask: body.ipMask,
-               bmcUsername: body.bmcUsername || '',
-               bmcPassword: body.bmcPassword || '',
-               bmcIpMask: body.bmcIpMask || ''
+               bmcUsername: body.bmcUsername,
+               bmcPassword: body.bmcPassword,
+               bmcIpMask: body.bmcIpMask
             }
          });
 
@@ -106,7 +106,7 @@ export default new Hono().post(
                         },
                         {
                            fieldId: getAssetFieldByName(assetType, 'BMC IP')!.id,
-                           value: body.bmcIpMask == null ? '' : getIpFromMask(body.bmcIpMask, i)
+                           value: !body.bmcIpMask ? '' : getIpFromMask(body.bmcIpMask, i)
                         }
                      ]
                   }
