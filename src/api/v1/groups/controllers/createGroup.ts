@@ -85,9 +85,9 @@ export default new Hono().post(
                size: body.size,
                nameMask: body.nameMask,
                ipMask: body.ipMask,
-               bmcUsername: body.bmcUsername,
-               bmcPassword: body.bmcPassword,
-               bmcIpMask: body.bmcIpMask
+               bmcUsername: body.bmcUsername || '',
+               bmcPassword: body.bmcPassword || '',
+               bmcIpMask: body.bmcIpMask || ''
             }
          });
 
