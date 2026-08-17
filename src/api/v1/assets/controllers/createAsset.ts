@@ -75,7 +75,7 @@ export default new Hono().post(
 
          // If there is any error return the information
          if (Object.keys(errors).length > 0) {
-            return customError(c, 'INVALID_ASSET_DATA', null, errors, 400);
+            return customError(c, { error: 'INVALID_ASSET_DATA', details: errors, code: 400 });
          }
 
          // Create asset in the database

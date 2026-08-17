@@ -95,26 +95,22 @@ export default new Hono().patch(
          // If there is a new name mask validate it supports the size
          if (body.nameMask) {
             if (!checkNameMaskForSize(body.nameMask, existingGroup.size)) {
-               return customError(
-                  c,
-                  'INCOMPATIBLE_NAME_MASK',
-                  'The NAME mask provided does not support the size of the group.',
-                  null,
-                  400
-               );
+               return customError(c, {
+                  error: 'INCOMPATIBLE_NAME_MASK',
+                  message: 'The NAME mask provided does not support the size of the group.',
+                  code: 400
+               });
             }
          }
 
          // If there is a new IP mask validate it supports the size
          if (body.ipMask) {
             if (!checkIpMaskForSize(body.ipMask, existingGroup.size)) {
-               return customError(
-                  c,
-                  'INCOMPATIBLE_IP_MASK',
-                  'The IP mask provided does not support the size of the group.',
-                  null,
-                  400
-               );
+               return customError(c, {
+                  error: 'INCOMPATIBLE_IP_MASK',
+                  message: 'The IP mask provided does not support the size of the group.',
+                  code: 400
+               });
             }
          }
 
@@ -122,13 +118,11 @@ export default new Hono().patch(
          if (body.bmcIpMask) {
             // Check bmc ip mask supports size
             if (!checkIpMaskForSize(body.bmcIpMask, existingGroup.size)) {
-               return customError(
-                  c,
-                  'INCOMPATIBLE_BMC_IP_MASK',
-                  'The BMC IP mask provided does not support the size of the group.',
-                  null,
-                  400
-               );
+               return customError(c, {
+                  error: 'INCOMPATIBLE_BMC_IP_MASK',
+                  message: 'The BMC IP mask provided does not support the size of the group.',
+                  code: 400
+               });
             }
          }
 

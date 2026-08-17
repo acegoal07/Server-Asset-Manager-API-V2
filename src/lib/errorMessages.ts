@@ -9,10 +9,17 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
  */
 export function customError(
    c: Context,
-   error: string,
-   message?: string | null,
-   details?: unknown | null,
-   code?: ContentfulStatusCode | 500
+   {
+      error,
+      message,
+      details,
+      code = 500
+   }: {
+      error: string;
+      message?: string;
+      details?: unknown;
+      code?: ContentfulStatusCode;
+   }
 ) {
    return c.json(
       {
@@ -35,13 +42,12 @@ export function invalidParametersRequestError(
    c: Context,
    result: { error: { issues: unknown[] } }
 ) {
-   return customError(
-      c,
-      'INVALID_REQUEST_PARAMETERS',
-      'One or more of the queries is invalid.',
-      result.error.issues,
-      400
-   );
+   return customError(c, {
+      error: 'INVALID_REQUEST_PARAMETERS',
+      message: 'One or more of the queries is invalid.',
+      details: result.error.issues,
+      code: 400
+   });
 }
 
 /**
@@ -52,13 +58,12 @@ export function invalidParametersRequestError(
  * @returns
  */
 export function invalidJsonRequestError(c: Context, result: { error: { issues: unknown[] } }) {
-   return customError(
-      c,
-      'INVALID_REQUEST_JSON',
-      'One or more of the queries is invalid.',
-      result.error.issues,
-      400
-   );
+   return customError(c, {
+      error: 'INVALID_REQUEST_JSON',
+      message: 'One or more of the queries is invalid.',
+      details: result.error.issues,
+      code: 400
+   });
 }
 
 /**
@@ -69,13 +74,12 @@ export function invalidJsonRequestError(c: Context, result: { error: { issues: u
  * @returns
  */
 export function invalidQueryRequestError(c: Context, result: { error: { issues: unknown[] } }) {
-   return customError(
-      c,
-      'INVALID_REQUEST_QUERY',
-      'One or more of the queries is invalid.',
-      result.error.issues,
-      400
-   );
+   return customError(c, {
+      error: 'INVALID_REQUEST_QUERY',
+      message: 'One or more of the queries is invalid.',
+      details: result.error.issues,
+      code: 400
+   });
 }
 
 /**
@@ -87,7 +91,10 @@ export function invalidQueryRequestError(c: Context, result: { error: { issues: 
 export function internalServerError(c: Context, err: unknown) {
    console.error(err);
 
-   return customError(c, 'INTERNAL_SERVER_ERROR', 'An unexpected error occurred.', null);
+   return customError(c, {
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'An unexpected error occurred.'
+   });
 }
 
 /**
@@ -96,13 +103,11 @@ export function internalServerError(c: Context, err: unknown) {
  * @returns
  */
 export function notFoundError(c: Context, message?: string) {
-   return customError(
-      c,
-      'NOT_FOUND',
-      message || 'The requested resource does not exist.',
-      null,
-      404
-   );
+   return customError(c, {
+      error: 'NOT_FOUND',
+      message: message || 'The requested resource does not exist.',
+      code: 404
+   });
 }
 
 /**
@@ -111,11 +116,9 @@ export function notFoundError(c: Context, message?: string) {
  * @returns
  */
 export function existingResourceError(c: Context, message?: string) {
-   return customError(
-      c,
-      'CONFLATING_RESOURCE',
-      message || 'There is already a resource in the database',
-      null,
-      409
-   );
+   return customError(c, {
+      error: 'CONFLATING_RESOURCE',
+      message: message || 'There is already a resource in the database',
+      code: 409
+   });
 }

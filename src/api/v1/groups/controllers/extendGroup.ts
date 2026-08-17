@@ -46,24 +46,20 @@ export default new Hono().post(
 
          // Check name mask supports size
          if (!checkNameMaskForSize(group.nameMask, group.size + body.additional)) {
-            return customError(
-               c,
-               'INCOMPATIBLE_NAME_MASK',
-               'The NAME mask provided does not support the size of the group.',
-               null,
-               400
-            );
+            return customError(c, {
+               error: 'INCOMPATIBLE_NAME_MASK',
+               message: 'The NAME mask provided does not support the size of the group.',
+               code: 400
+            });
          }
 
          // Check ip mask supports size
          if (!checkIpMaskForSize(group.ipMask, group.size + body.additional)) {
-            return customError(
-               c,
-               'INCOMPATIBLE_IP_MASK',
-               'The IP mask provided does not support the size of the group.',
-               null,
-               400
-            );
+            return customError(c, {
+               error: 'INCOMPATIBLE_IP_MASK',
+               message: 'The IP mask provided does not support the size of the group.',
+               code: 400
+            });
          }
 
          // Check bmc ip mask supports size
@@ -71,13 +67,11 @@ export default new Hono().post(
             group.bmcIpMask &&
             !checkIpMaskForSize(group.bmcIpMask, group.size + body.additional)
          ) {
-            return customError(
-               c,
-               'INCOMPATIBLE_BMC_IP_MASK',
-               'The BMC IP mask provided does not support the size of the group.',
-               null,
-               400
-            );
+            return customError(c, {
+               error: 'INCOMPATIBLE_BMC_IP_MASK',
+               message: 'The BMC IP mask provided does not support the size of the group.',
+               code: 400
+            });
          }
 
          // Update the group

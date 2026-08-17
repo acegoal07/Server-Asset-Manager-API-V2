@@ -58,35 +58,29 @@ export default new Hono().post(
 
          // Check name mask supports size
          if (!checkNameMaskForSize(body.nameMask, body.size)) {
-            return customError(
-               c,
-               'INCOMPATIBLE_NAME_MASK',
-               'The NAME mask provided does not support the size of the group.',
-               null,
-               400
-            );
+            return customError(c, {
+               error: 'INCOMPATIBLE_NAME_MASK',
+               message: 'The NAME mask provided does not support the size of the group.',
+               code: 400
+            });
          }
 
          // Check ip mask supports size
          if (!checkIpMaskForSize(body.ipMask, body.size)) {
-            return customError(
-               c,
-               'INCOMPATIBLE_IP_MASK',
-               'The IP mask provided does not support the size of the group.',
-               null,
-               400
-            );
+            return customError(c, {
+               error: 'INCOMPATIBLE_IP_MASK',
+               message: 'The IP mask provided does not support the size of the group.',
+               code: 400
+            });
          }
 
          // Check bmc ip mask supports size
          if (body.bmcIpMask && !checkIpMaskForSize(body.bmcIpMask, body.size)) {
-            return customError(
-               c,
-               'INCOMPATIBLE_BMC_IP_MASK',
-               'The BMC IP mask provided does not support the size of the group.',
-               null,
-               400
-            );
+            return customError(c, {
+               error: 'INCOMPATIBLE_BMC_IP_MASK',
+               message: 'The BMC IP mask provided does not support the size of the group.',
+               code: 400
+            });
          }
 
          // Check if a group with the same name exists
