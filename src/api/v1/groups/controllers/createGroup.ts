@@ -68,7 +68,7 @@ export default new Hono().post(
          }
 
          // Check bmc ip mask supports size
-         if (!checkMaskForSize(body.bmcIpMask, body.size)) {
+         if (body.bmcIpMask && !checkMaskForSize(body.bmcIpMask, body.size)) {
             return customError(
                c,
                'INCOMPATIBLE_BMC_IP_MASK',

@@ -5,10 +5,12 @@ import { prisma } from '../../../../lib/prisma';
 import { serializeGroup } from '../lib/outputSerializer';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
 import {
+   customError,
    existingResourceError,
    internalServerError,
    notFoundError
 } from '../../../../lib/errorMessages';
+import { checkMaskForSize } from '../../../../lib/ipMask';
 
 export default new Hono().patch(
    '/',
@@ -20,11 +22,6 @@ export default new Hono().patch(
                .string({ error: 'Name must be a string' })
                .trim()
                .min(1, { error: 'Name cannot be empty' })
-               .optional(),
-            size: z
-               .number({ error: 'Size must be a number' })
-               .int({ error: 'Size must be a whole number' })
-               .min(1, { error: 'Size must be greater than 0' })
                .optional(),
             nameMask: z
                .string({ error: 'Name mask must be a string' })
@@ -68,7 +65,8 @@ export default new Hono().patch(
                id
             },
             select: {
-               id: true
+               id: true,
+               size: true
             }
          });
 
@@ -93,6 +91,33 @@ export default new Hono().patch(
             }
          }
 
+         // If there is a new IP mask validate it supports the size
+         if (body.ipMask) {
+            if (!checkMaskForSize(body.ipMask, existingGroup.size)) {
+               return customError(
+                  c,
+                  'INCOMPATIBLE_IP_MASK',
+                  'The IP mask provided does not support the size of the group.',
+                  null,
+                  400
+               );
+            }
+         }
+
+         // If there is a new BMC IP mask validate it supports the size
+         if (body.bmcIpMask) {
+            // Check bmc ip mask supports size
+            if (!checkMaskForSize(body.bmcIpMask, existingGroup.size)) {
+               return customError(
+                  c,
+                  'INCOMPATIBLE_BMC_IP_MASK',
+                  'The BMC IP mask provided does not support the size of the group.',
+                  null,
+                  400
+               );
+            }
+         }
+
          // Update the group
          const updatedGroup = await prisma.groups.update({
             where: {
@@ -101,9 +126,6 @@ export default new Hono().patch(
             data: {
                ...(body.name !== undefined && {
                   name: body.name
-               }),
-               ...(body.size !== undefined && {
-                  size: body.size
                }),
                ...(body.nameMask !== undefined && {
                   nameMask: body.nameMask
