@@ -8,7 +8,7 @@ import { requestIdValidator, requestJsonValidator } from '../../../../lib/reques
 import { getFieldByName, validateFieldValue } from '../../../../lib/assetFields';
 
 export default new Hono().patch(
-   '/:id',
+   '/',
    requestIdValidator({}),
    requestJsonValidator(
       z
