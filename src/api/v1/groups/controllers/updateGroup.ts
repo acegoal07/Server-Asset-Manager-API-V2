@@ -10,7 +10,8 @@ import {
    internalServerError,
    notFoundError
 } from '../../../../lib/errorMessages';
-import { checkMaskForSize } from '../../../../lib/ipMask';
+import { checkIpMaskForSize } from '../../../../lib/ipMask';
+import { checkNameMaskForSize } from '../../../../lib/nameMask';
 
 export default new Hono().patch(
    '/',
@@ -91,9 +92,22 @@ export default new Hono().patch(
             }
          }
 
+         // If there is a new name mask validate it supports the size
+         if (body.nameMask) {
+            if (!checkNameMaskForSize(body.nameMask, existingGroup.size)) {
+               return customError(
+                  c,
+                  'INCOMPATIBLE_NAME_MASK',
+                  'The NAME mask provided does not support the size of the group.',
+                  null,
+                  400
+               );
+            }
+         }
+
          // If there is a new IP mask validate it supports the size
          if (body.ipMask) {
-            if (!checkMaskForSize(body.ipMask, existingGroup.size)) {
+            if (!checkIpMaskForSize(body.ipMask, existingGroup.size)) {
                return customError(
                   c,
                   'INCOMPATIBLE_IP_MASK',
@@ -107,7 +121,7 @@ export default new Hono().patch(
          // If there is a new BMC IP mask validate it supports the size
          if (body.bmcIpMask) {
             // Check bmc ip mask supports size
-            if (!checkMaskForSize(body.bmcIpMask, existingGroup.size)) {
+            if (!checkIpMaskForSize(body.bmcIpMask, existingGroup.size)) {
                return customError(
                   c,
                   'INCOMPATIBLE_BMC_IP_MASK',

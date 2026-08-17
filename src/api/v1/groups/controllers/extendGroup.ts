@@ -5,9 +5,9 @@ import { prisma } from '../../../../lib/prisma';
 import { serializeGroup } from '../lib/outputSerializer';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
 import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
-import { checkMaskForSize, getIpFromMask } from '../../../../lib/ipMask';
+import { checkIpMaskForSize, getIpFromMask } from '../../../../lib/ipMask';
 import { getAssetFieldByName, getAssetTypeByID } from '../../../../lib/assetFields';
-import { getNodeNameFromMask } from '../../../../lib/nameMask';
+import { checkNameMaskForSize, getNodeNameFromMask } from '../../../../lib/nameMask';
 
 export default new Hono().post(
    '/',
@@ -34,7 +34,8 @@ export default new Hono().post(
             select: {
                size: true,
                ipMask: true,
-               bmcIpMask: true
+               bmcIpMask: true,
+               nameMask: true
             }
          });
 
@@ -43,8 +44,19 @@ export default new Hono().post(
             return notFoundError(c, 'No group with that ID was found');
          }
 
+         // Check name mask supports size
+         if (!checkNameMaskForSize(group.nameMask, group.size + body.additional)) {
+            return customError(
+               c,
+               'INCOMPATIBLE_NAME_MASK',
+               'The NAME mask provided does not support the size of the group.',
+               null,
+               400
+            );
+         }
+
          // Check ip mask supports size
-         if (!checkMaskForSize(group.ipMask, group.size + body.additional)) {
+         if (!checkIpMaskForSize(group.ipMask, group.size + body.additional)) {
             return customError(
                c,
                'INCOMPATIBLE_IP_MASK',
@@ -55,7 +67,10 @@ export default new Hono().post(
          }
 
          // Check bmc ip mask supports size
-         if (group.bmcIpMask && !checkMaskForSize(group.bmcIpMask, group.size + body.additional)) {
+         if (
+            group.bmcIpMask &&
+            !checkIpMaskForSize(group.bmcIpMask, group.size + body.additional)
+         ) {
             return customError(
                c,
                'INCOMPATIBLE_BMC_IP_MASK',

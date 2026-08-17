@@ -1,3 +1,16 @@
+export function checkNameMaskForSize(mask: string, size: number): boolean {
+   const match = mask.match(/^([^\\[]+)\[(\d+)-(\d+):(\d+)\]([^\]]*)$/);
+
+   if (!match) {
+      throw new Error('Invalid name mask. Expected format like arun[1-20:2]');
+   }
+
+   const start = Number(match[2]);
+   const end = Number(match[3]);
+
+   return size <= end - start + 1;
+}
+
 export function getNodeNameFromMask(mask: string, nodeNumber: number): string {
    const match = mask.match(/^([^\\[]+)\[(\d+)-(\d+):(\d+)\]([^\]]*)$/);
 

@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
-import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
+import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
 import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().post(
@@ -54,18 +54,10 @@ export default new Hono().post(
                   in: nodeNames
                }
             },
-            select: {
-               name: true
+            include: {
+               AssetData: true
             }
          });
-
-         // Check for missing nodes
-         const existingNodeNames = new Set(existingNodes.map((asset) => asset.name));
-         const missingNodes = nodeNames.filter((name) => !existingNodeNames.has(name));
-
-         if (missingNodes.length > 0) {
-            return notFoundError(c, `The following nodes do not exist: ${missingNodes.join(', ')}`);
-         }
 
          // Get types
          const assetType = await getAssetTypeByID(1);
@@ -73,6 +65,48 @@ export default new Hono().post(
          // Check the type exists
          if (!assetType) {
             return notFoundError(c, "Asset type can't be found");
+         }
+
+         const uuidFieldId = getAssetFieldByName(assetType, 'UUID')?.id;
+
+         // Map existing node name -> existing node
+         const existingNodeMap = new Map(
+            existingNodes.map((asset) => [asset.name, asset])
+         );
+
+         // Nodes that don't exist
+         const missingNodes = body.map(
+            (node) => node.nodeName
+         ).filter(
+            (name) => !existingNodeMap.has(name)
+         );
+
+         // Return nodes that don't exist
+         if (missingNodes.length > 0) {
+            return notFoundError(
+               c,
+               `The following nodes do not exist: ${missingNodes.join(', ')}`
+            );
+         }
+
+         // Nodes that have already been initialised
+         const initializedNodes = body.filter((node) => {
+            const asset = existingNodeMap.get(node.nodeName);
+
+            return asset?.AssetData.some(
+               (data) => data.fieldId === uuidFieldId
+            );
+         });
+
+         // Return the nodes that have been initialized
+         if (initializedNodes.length > 0) {
+            return customError(
+               c,
+               'ALREADY_INITIALIZED_NODE',
+               `The following nodes have already been initialised: ${initializedNodes.join(', ')}`,
+               null,
+               409
+            );
          }
 
          // Add the UUID to all the nodes
@@ -89,7 +123,7 @@ export default new Hono().post(
                      AssetData: {
                         create: [
                            {
-                              fieldId: getAssetFieldByName(assetType, 'UUID')!.id,
+                              fieldId: uuidFieldId!,
                               value: asset.uuid
                            }
                         ]

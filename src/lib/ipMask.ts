@@ -39,7 +39,7 @@ function parseOctet(part: string): {
    };
 }
 
-export function checkMaskForSize(mask: string, size: number): boolean {
+export function checkIpMaskForSize(mask: string, size: number): boolean {
    const parts = mask.split('.');
 
    if (parts.length !== 4) {

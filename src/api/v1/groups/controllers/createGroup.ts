@@ -10,8 +10,8 @@ import {
    internalServerError,
    notFoundError
 } from '../../../../lib/errorMessages';
-import { getNodeNameFromMask } from '../../../../lib/nameMask';
-import { checkMaskForSize, getIpFromMask } from '../../../../lib/ipMask';
+import { checkNameMaskForSize, getNodeNameFromMask } from '../../../../lib/nameMask';
+import { checkIpMaskForSize, getIpFromMask } from '../../../../lib/ipMask';
 import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().post(
@@ -56,8 +56,19 @@ export default new Hono().post(
          // Get request information
          const body = c.req.valid('json');
 
+         // Check name mask supports size
+         if (!checkNameMaskForSize(body.nameMask, body.size)) {
+            return customError(
+               c,
+               'INCOMPATIBLE_NAME_MASK',
+               'The NAME mask provided does not support the size of the group.',
+               null,
+               400
+            );
+         }
+
          // Check ip mask supports size
-         if (!checkMaskForSize(body.ipMask, body.size)) {
+         if (!checkIpMaskForSize(body.ipMask, body.size)) {
             return customError(
                c,
                'INCOMPATIBLE_IP_MASK',
@@ -68,7 +79,7 @@ export default new Hono().post(
          }
 
          // Check bmc ip mask supports size
-         if (body.bmcIpMask && !checkMaskForSize(body.bmcIpMask, body.size)) {
+         if (body.bmcIpMask && !checkIpMaskForSize(body.bmcIpMask, body.size)) {
             return customError(
                c,
                'INCOMPATIBLE_BMC_IP_MASK',
