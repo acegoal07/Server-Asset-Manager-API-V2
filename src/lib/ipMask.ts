@@ -1,9 +1,7 @@
-type OctetRange = {
+function parseOctet(part: string): {
    min: number;
    max: number;
-};
-
-function parseOctet(part: string): OctetRange {
+} {
    // * means the full octet range
    if (part === '*') {
       return {

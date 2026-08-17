@@ -56,7 +56,9 @@ export default new Hono().patch(
             where: {
                id
             },
-            ...storageTypeSerializerArgs
+            select: {
+               id: true
+            }
          });
 
          // Check that the type exists
@@ -70,17 +72,23 @@ export default new Hono().patch(
                id
             },
             data: {
-               name: body.name ?? existingType.name,
+               ...(body.name !== undefined && {
+                  name: body.name
+               }),
                StorageTypeFields: {
-                  deleteMany: body.deleteFields?.map((id) => ({
-                     id
-                  })),
-                  createMany: {
-                     data: body.addFields?.map((field) => ({
-                        name: field.name,
-                        type: field.type
+                  ...(body.deleteFields.length > 0 && {
+                     deleteMany: body.deleteFields?.map((id) => ({
+                        id
                      }))
-                  }
+                  }),
+                  ...(body.addFields.length > 0 && {
+                     createMany: {
+                        data: body.addFields?.map((field) => ({
+                           name: field.name,
+                           type: field.type
+                        }))
+                     }
+                  })
                }
             },
             ...storageTypeSerializerArgs

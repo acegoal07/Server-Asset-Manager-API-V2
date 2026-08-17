@@ -7,11 +7,11 @@ import updateGroup from './controllers/updateGroup';
 import extendGroup from './controllers/extendGroup';
 import initialiseGroupNodes from './controllers/initialiseGroupNodes';
 import getAvailableGroupNames from './controllers/getAvailableGroupNames';
-import getGroupNodeByUuid from './controllers/getGroupNodeByUuid';
+import getGroupNodeByUUID from './controllers/getGroupNodeByUUID';
 import deleteGroup from './controllers/deleteGroup';
 
 export default new Hono()
-   .route('/:id/whoami/:uuid', getGroupNodeByUuid)
+   .route('/:id/whoami/:uuid', getGroupNodeByUUID)
    .route('/:id/extend', extendGroup)
    .route('/:id/initialise', initialiseGroupNodes)
    .route('/:id/names', getAvailableGroupNames)

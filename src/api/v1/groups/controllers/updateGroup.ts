@@ -66,6 +66,9 @@ export default new Hono().patch(
          const existingGroup = await prisma.groups.findUnique({
             where: {
                id
+            },
+            select: {
+               id: true
             }
          });
 
@@ -96,13 +99,27 @@ export default new Hono().patch(
                id
             },
             data: {
-               name: body.name ?? existingGroup.name,
-               size: body.size ?? existingGroup.size,
-               nameMask: body.nameMask ?? existingGroup.nameMask,
-               ipMask: body.ipMask ?? existingGroup.ipMask,
-               bmcUsername: body.bmcUsername ?? existingGroup.bmcUsername,
-               bmcPassword: body.bmcPassword ?? existingGroup.bmcPassword,
-               bmcIpMask: body.bmcIpMask ?? existingGroup.bmcIpMask
+               ...(body.name !== undefined && {
+                  name: body.name
+               }),
+               ...(body.size !== undefined && {
+                  size: body.size
+               }),
+               ...(body.nameMask !== undefined && {
+                  nameMask: body.nameMask
+               }),
+               ...(body.ipMask !== undefined && {
+                  ipMask: body.ipMask
+               }),
+               ...(body.bmcUsername !== undefined && {
+                  bmcUsername: body.bmcUsername
+               }),
+               ...(body.bmcPassword !== undefined && {
+                  bmcPassword: body.bmcPassword
+               }),
+               ...(body.bmcIpMask !== undefined && {
+                  bmcIpMask: body.bmcIpMask
+               })
             }
          });
 

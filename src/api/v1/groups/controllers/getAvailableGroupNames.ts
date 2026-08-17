@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator } from '../../../../lib/requestValidators';
 import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
+import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().get('/', requestIdValidator({}), async (c) => {
    try {
@@ -22,22 +23,13 @@ export default new Hono().get('/', requestIdValidator({}), async (c) => {
       }
 
       // Get types
-      const assetType = await prisma.assetTypes.findUnique({
-         where: {
-            id: 1
-         },
-         include: {
-            AssetTypeFields: true
-         }
-      });
+
+      const assetType = await getAssetTypeByID(1);
 
       // Check the type exists
       if (!assetType) {
          return notFoundError(c, "Asset type can't be found");
       }
-
-      // Type field names
-      const fieldsByName = new Map(assetType.AssetTypeFields.map((field) => [field.name, field]));
 
       // Get all the nodes from the group
       const groupNodes = await prisma.assets.findMany({
@@ -52,7 +44,9 @@ export default new Hono().get('/', requestIdValidator({}), async (c) => {
       return c.json(
          groupNodes.map((node) => ({
             name: node.name,
-            available: !node.AssetData.some((data) => data.fieldId === fieldsByName.get('UUID')?.id)
+            available: !node.AssetData.some(
+               (data) => data.fieldId === getAssetFieldByName(assetType, 'UUID')?.id
+            )
          }))
       );
    } catch (err) {

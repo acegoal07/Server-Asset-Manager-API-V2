@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
 import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
+import { getAssetTypeByID, getAssetFieldByName } from '../../../../lib/assetFields';
 
 export default new Hono().post(
    '/',
@@ -67,24 +68,12 @@ export default new Hono().post(
          }
 
          // Get types
-         const assetType = await prisma.assetTypes.findUnique({
-            where: {
-               id: 1
-            },
-            include: {
-               AssetTypeFields: true
-            }
-         });
+         const assetType = await getAssetTypeByID(1);
 
          // Check the type exists
          if (!assetType) {
             return notFoundError(c, "Asset type can't be found");
          }
-
-         // Type field names
-         const fieldsByName = new Map(
-            assetType.AssetTypeFields.map((field) => [field.name, field])
-         );
 
          // Add the UUID to all the nodes
          await prisma.$transaction(
@@ -100,7 +89,7 @@ export default new Hono().post(
                      AssetData: {
                         create: [
                            {
-                              fieldId: fieldsByName.get('UUID')!.id,
+                              fieldId: getAssetFieldByName(assetType, 'UUID')!.id,
                               value: asset.uuid
                            }
                         ]

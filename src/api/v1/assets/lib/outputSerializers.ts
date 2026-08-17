@@ -1,19 +1,7 @@
 import { Prisma } from '@prisma/client';
+import { assetSerializerArgs } from './includeSerializers';
 
-const assetSerializerArgs = Prisma.validator<Prisma.AssetsDefaultArgs>()({
-   include: {
-      AssetTypes: true,
-      AssetData: {
-         include: {
-            AssetTypeFields: true
-         }
-      }
-   }
-});
-
-type AssetForSerialization = Prisma.AssetsGetPayload<typeof assetSerializerArgs>;
-
-function serializeAsset(asset: AssetForSerialization) {
+export function serializeAsset(asset: Prisma.AssetsGetPayload<typeof assetSerializerArgs>) {
    return {
       id: asset.id,
       name: asset.name,
@@ -33,5 +21,3 @@ function serializeAsset(asset: AssetForSerialization) {
       }))
    };
 }
-
-export { AssetForSerialization, serializeAsset, assetSerializerArgs };
