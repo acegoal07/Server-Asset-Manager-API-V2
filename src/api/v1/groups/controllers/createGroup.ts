@@ -92,7 +92,7 @@ export default new Hono().post(
          });
 
          // Create nodes
-         for (let i = 1; i < body.size; i++) {
+         for (let i = 1; i < body.size + 1; i++) {
             await prisma.assets.create({
                data: {
                   groupId: newGroup.id,
