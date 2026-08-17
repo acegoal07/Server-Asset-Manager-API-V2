@@ -35,15 +35,18 @@ export default new Hono().post(
          bmcUsername: z
             .string({ error: 'BMC username must be a string' })
             .trim()
-            .min(1, { error: 'Name cannot be empty' }),
+            .min(1, { error: 'Name cannot be empty' })
+            .optional(),
          bmcPassword: z
             .string({ error: 'BMC password must be a string' })
             .trim()
-            .min(1, { error: 'Name cannot be empty' }),
+            .min(1, { error: 'Name cannot be empty' })
+            .optional(),
          bmcIpMask: z
             .string({ error: 'BMC IP mask must be a string' })
             .trim()
             .min(1, { error: 'Name cannot be empty' })
+            .optional()
       })
    ),
    async (c) => {
