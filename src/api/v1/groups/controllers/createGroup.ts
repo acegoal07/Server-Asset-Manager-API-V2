@@ -4,7 +4,11 @@ import { z } from 'zod';
 import { prisma } from '../../../../lib/prisma';
 import { serializeGroup } from '../lib/outputSerializer';
 import { requestJsonValidator } from '../../../../lib/requestValidators';
-import { existingResourceError, notFoundError } from '../../../../lib/errorMessages';
+import {
+   existingResourceError,
+   internalServerError,
+   notFoundError
+} from '../../../../lib/errorMessages';
 import { getNodeNameFromMask } from '../../../../lib/nameMask';
 import { getIpFromMask } from '../../../../lib/ipMask';
 
@@ -43,78 +47,84 @@ export default new Hono().post(
       })
    ),
    async (c) => {
-      // Get request information
-      const body = c.req.valid('json');
+      try {
+         // Get request information
+         const body = c.req.valid('json');
 
-      // Check if a group with the same name exists
-      const existingGroup = await prisma.groups.findUnique({
-         where: {
-            name: body.name
-         },
-         select: {
-            id: true
-         }
-      });
-
-      // Check if a group exists
-      if (existingGroup) {
-         return existingResourceError(c, 'A group with that name already exists');
-      }
-
-      // Get types
-      const assetType = await prisma.assetTypes.findUnique({
-         where: {
-            id: 1
-         },
-         include: {
-            AssetTypeFields: true
-         }
-      });
-
-      // Check the type exists
-      if (!assetType) {
-         return notFoundError(c, "Asset type can't be found");
-      }
-
-      // Type field names
-      const fieldsByName = new Map(assetType.AssetTypeFields.map((field) => [field.name, field]));
-
-      // Create the new group
-      const newGroup = await prisma.groups.create({
-         data: {
-            name: body.name,
-            size: body.size,
-            nameMask: body.nameMask,
-            ipMask: body.ipMask,
-            bmcUsername: body.bmcUsername,
-            bmcPassword: body.bmcPassword,
-            bmcIpMask: body.bmcIpMask
-         }
-      });
-
-      // Create nodes
-      for (let i = 1; i < body.size; i++) {
-         await prisma.assets.create({
-            data: {
-               groupId: newGroup.id,
-               assetTypeId: 1,
-               name: getNodeNameFromMask(body.nameMask, i),
-               AssetData: {
-                  create: [
-                     {
-                        fieldId: fieldsByName.get('IPAddress')!.id,
-                        value: getIpFromMask(body.ipMask, i)
-                     },
-                     {
-                        fieldId: fieldsByName.get('BMC IP')!.id,
-                        value: getIpFromMask(body.bmcIpMask, i)
-                     }
-                  ]
-               }
+         // Check if a group with the same name exists
+         const existingGroup = await prisma.groups.findUnique({
+            where: {
+               name: body.name
+            },
+            select: {
+               id: true
             }
          });
-      }
 
-      return c.json(serializeGroup(newGroup), 201);
+         // Check if a group exists
+         if (existingGroup) {
+            return existingResourceError(c, 'A group with that name already exists');
+         }
+
+         // Get types
+         const assetType = await prisma.assetTypes.findUnique({
+            where: {
+               id: 1
+            },
+            include: {
+               AssetTypeFields: true
+            }
+         });
+
+         // Check the type exists
+         if (!assetType) {
+            return notFoundError(c, "Asset type can't be found");
+         }
+
+         // Type field names
+         const fieldsByName = new Map(
+            assetType.AssetTypeFields.map((field) => [field.name, field])
+         );
+
+         // Create the new group
+         const newGroup = await prisma.groups.create({
+            data: {
+               name: body.name,
+               size: body.size,
+               nameMask: body.nameMask,
+               ipMask: body.ipMask,
+               bmcUsername: body.bmcUsername,
+               bmcPassword: body.bmcPassword,
+               bmcIpMask: body.bmcIpMask
+            }
+         });
+
+         // Create nodes
+         for (let i = 1; i < body.size; i++) {
+            await prisma.assets.create({
+               data: {
+                  groupId: newGroup.id,
+                  assetTypeId: 1,
+                  name: getNodeNameFromMask(body.nameMask, i),
+                  AssetData: {
+                     create: [
+                        {
+                           fieldId: fieldsByName.get('IPAddress')!.id,
+                           value: getIpFromMask(body.ipMask, i)
+                        },
+                        {
+                           fieldId: fieldsByName.get('BMC IP')!.id,
+                           value: getIpFromMask(body.bmcIpMask, i)
+                        }
+                     ]
+                  }
+               }
+            });
+         }
+
+         return c.json(serializeGroup(newGroup), 201);
+      } catch (err) {
+         return internalServerError(c, err);
+      }
    }
 );

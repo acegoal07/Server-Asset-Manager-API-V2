@@ -5,7 +5,7 @@ import { prisma } from '../../../../../lib/prisma';
 import { storageTypeSerializerArgs } from '../lib/includeSerializer';
 import { serializeStorageType } from '../lib/outputSerializer';
 import { requestJsonValidator } from '../../../../../lib/requestValidators';
-import { existingResourceError } from '../../../../../lib/errorMessages';
+import { existingResourceError, internalServerError } from '../../../../../lib/errorMessages';
 
 export default new Hono().post(
    '/',
@@ -32,40 +32,44 @@ export default new Hono().post(
       })
    ),
    async (c) => {
-      // Get request information
-      const body = c.req.valid('json');
+      try {
+         // Get request information
+         const body = c.req.valid('json');
 
-      // Check if a type with the same name exists
-      const existingType = await prisma.storageTypes.findUnique({
-         where: {
-            name: body.name
-         },
-         select: {
-            id: true
-         }
-      });
-
-      // Check if a type already exists
-      if (existingType) {
-         return existingResourceError(c, 'A type with that name already exists');
-      }
-
-      // Create the type
-      const newType = await prisma.storageTypes.create({
-         data: {
-            name: body.name,
-            AssetTypeFields: {
-               createMany: {
-                  data: body.fields?.map((field) => ({
-                     name: field.name,
-                     type: field.type
-                  }))
-               }
+         // Check if a type with the same name exists
+         const existingType = await prisma.storageTypes.findUnique({
+            where: {
+               name: body.name
+            },
+            select: {
+               id: true
             }
-         },
-         ...storageTypeSerializerArgs
-      });
+         });
 
-      return c.json(serializeStorageType(newType), 201);
+         // Check if a type already exists
+         if (existingType) {
+            return existingResourceError(c, 'A type with that name already exists');
+         }
+
+         // Create the type
+         const newType = await prisma.storageTypes.create({
+            data: {
+               name: body.name,
+               AssetTypeFields: {
+                  createMany: {
+                     data: body.fields?.map((field) => ({
+                        name: field.name,
+                        type: field.type
+                     }))
+                  }
+               }
+            },
+            ...storageTypeSerializerArgs
+         });
+
+         return c.json(serializeStorageType(newType), 201);
+      } catch (err) {
+         return internalServerError(c, err);
+      }
    }
 );

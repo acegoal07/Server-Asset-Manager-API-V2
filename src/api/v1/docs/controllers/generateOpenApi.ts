@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 
 import { prisma } from '../../../../lib/prisma';
 import { openApiSchema, type OpenApiSchema, type OpenApiDocument } from '../lib/openapi';
+import { internalServerError } from '../../../../lib/errorMessages';
 
 const openApiType = (
    type: string | null
@@ -62,185 +63,189 @@ const schemaName = (name: string | null, id: number): string => {
 };
 
 export default new Hono().get('/', async (c) => {
-   const assetTypes = await prisma.assetTypes.findMany({
-      include: {
-         AssetTypeFields: true
-      },
-      orderBy: {
-         id: 'asc'
-      }
-   });
+   try {
+      const assetTypes = await prisma.assetTypes.findMany({
+         include: {
+            AssetTypeFields: true
+         },
+         orderBy: {
+            id: 'asc'
+         }
+      });
 
-   const schema: OpenApiDocument = structuredClone(openApiSchema);
+      const schema: OpenApiDocument = structuredClone(openApiSchema);
 
-   const schemas: Record<string, OpenApiSchema> = schema.components.schemas;
+      const schemas: Record<string, OpenApiSchema> = schema.components.schemas;
 
-   /*
-    * Generate schemas for each database asset type.
-    */
-   for (const assetType of assetTypes) {
-      const properties: Record<string, OpenApiSchema> = {};
+      /*
+       * Generate schemas for each database asset type.
+       */
+      for (const assetType of assetTypes) {
+         const properties: Record<string, OpenApiSchema> = {};
 
-      const required: string[] = [];
+         const required: string[] = [];
 
-      for (const field of assetType.AssetTypeFields) {
-         if (!field.name) {
-            continue;
+         for (const field of assetType.AssetTypeFields) {
+            if (!field.name) {
+               continue;
+            }
+
+            properties[field.name] = {
+               ...openApiType(field.type),
+               description: `Asset field of type "${field.type ?? 'string'}"`,
+               example: exampleValue(field.type)
+            };
+
+            required.push(field.name);
          }
 
-         properties[field.name] = {
-            ...openApiType(field.type),
-            description: `Asset field of type "${field.type ?? 'string'}"`,
-            example: exampleValue(field.type)
-         };
+         const name = schemaName(assetType.name, assetType.id);
 
-         required.push(field.name);
-      }
+         schemas[name] = {
+            type: 'object',
+            properties,
 
-      const name = schemaName(assetType.name, assetType.id);
-
-      schemas[name] = {
-         type: 'object',
-         properties,
-
-         ...(required.length > 0
-            ? {
-                 required
-              }
-            : {})
-      };
-   }
-
-   /*
-    * Generate examples for POST /api/assets.
-    */
-
-   const assetExamples: Record<
-      string,
-      {
-         summary: string;
-         value: {
-            name: string;
-            notes: string;
-            uSize: number;
-            uTop: number;
-            uBottom: number;
-            assetTypeId: number;
-            data: Record<string, string>;
+            ...(required.length > 0
+               ? {
+                    required
+                 }
+               : {})
          };
       }
-   > = {};
 
-   for (const assetType of assetTypes) {
-      const data: Record<string, string> = {};
+      /*
+       * Generate examples for POST /api/assets.
+       */
 
-      for (const field of assetType.AssetTypeFields) {
-         if (!field.name) {
-            continue;
+      const assetExamples: Record<
+         string,
+         {
+            summary: string;
+            value: {
+               name: string;
+               notes: string;
+               uSize: number;
+               uTop: number;
+               uBottom: number;
+               assetTypeId: number;
+               data: Record<string, string>;
+            };
          }
-         data[field.name] = exampleValue(field.type);
-      }
+      > = {};
 
-      assetExamples[`assetType_${assetType.id}`] = {
-         summary: `${assetType.name ?? 'Asset'} example`,
+      for (const assetType of assetTypes) {
+         const data: Record<string, string> = {};
 
-         value: {
-            name: `Example ${assetType.name ?? 'Asset'}`,
-
-            notes: 'Example asset',
-
-            uSize: 2,
-
-            uTop: 5,
-
-            uBottom: 3,
-
-            assetTypeId: assetType.id,
-
-            data
+         for (const field of assetType.AssetTypeFields) {
+            if (!field.name) {
+               continue;
+            }
+            data[field.name] = exampleValue(field.type);
          }
-      };
-   }
 
-   /*
-    * Add the generated examples to the
-    * POST /api/assets request body.
-    */
-   const assetsPath = schema.paths['/assets'];
+         assetExamples[`assetType_${assetType.id}`] = {
+            summary: `${assetType.name ?? 'Asset'} example`,
 
-   const createAssetOperation = assetsPath?.post;
+            value: {
+               name: `Example ${assetType.name ?? 'Asset'}`,
 
-   const requestBody = createAssetOperation?.requestBody;
+               notes: 'Example asset',
 
-   const jsonContent = requestBody?.content['application/json'];
+               uSize: 2,
 
-   if (jsonContent) {
-      jsonContent.examples = assetExamples;
-   }
+               uTop: 5,
 
-   /*
-    * Generate examples for POST /api/storages.
-    */
+               uBottom: 3,
 
-   const storageTypes = await prisma.storageTypes.findMany({
-      include: {
-         StorageTypeFields: true
-      },
-      orderBy: {
-         id: 'asc'
-      }
-   });
+               assetTypeId: assetType.id,
 
-   const storageExamples: Record<
-      string,
-      {
-         summary: string;
-         value: {
-            name: string;
-            notes: string;
-            storageTypeId: number;
-            data: Record<string, string>;
+               data
+            }
          };
       }
-   > = {};
 
-   for (const storageType of storageTypes) {
-      const data: Record<string, string> = {};
+      /*
+       * Add the generated examples to the
+       * POST /api/assets request body.
+       */
+      const assetsPath = schema.paths['/assets'];
 
-      for (const field of storageType.StorageTypeFields) {
-         if (!field.name) {
-            continue;
-         }
+      const createAssetOperation = assetsPath?.post;
 
-         data[field.name] = exampleValue(field.type);
+      const requestBody = createAssetOperation?.requestBody;
+
+      const jsonContent = requestBody?.content['application/json'];
+
+      if (jsonContent) {
+         jsonContent.examples = assetExamples;
       }
 
-      storageExamples[`storageType_${storageType.id}`] = {
-         summary: `${storageType.name ?? 'Storage'} example`,
+      /*
+       * Generate examples for POST /api/storages.
+       */
 
-         value: {
-            name: `Example ${storageType.name ?? 'Storage'}`,
-
-            notes: 'Example storage',
-
-            storageTypeId: storageType.id,
-
-            data
+      const storageTypes = await prisma.storageTypes.findMany({
+         include: {
+            StorageTypeFields: true
+         },
+         orderBy: {
+            id: 'asc'
          }
-      };
+      });
+
+      const storageExamples: Record<
+         string,
+         {
+            summary: string;
+            value: {
+               name: string;
+               notes: string;
+               storageTypeId: number;
+               data: Record<string, string>;
+            };
+         }
+      > = {};
+
+      for (const storageType of storageTypes) {
+         const data: Record<string, string> = {};
+
+         for (const field of storageType.StorageTypeFields) {
+            if (!field.name) {
+               continue;
+            }
+
+            data[field.name] = exampleValue(field.type);
+         }
+
+         storageExamples[`storageType_${storageType.id}`] = {
+            summary: `${storageType.name ?? 'Storage'} example`,
+
+            value: {
+               name: `Example ${storageType.name ?? 'Storage'}`,
+
+               notes: 'Example storage',
+
+               storageTypeId: storageType.id,
+
+               data
+            }
+         };
+      }
+
+      const storagesPath = schema.paths['/storages'];
+
+      const createStorageOperation = storagesPath?.post;
+
+      const storageRequestBody = createStorageOperation?.requestBody;
+
+      const storageJsonContent = storageRequestBody?.content['application/json'];
+
+      if (storageJsonContent) {
+         storageJsonContent.examples = storageExamples;
+      }
+
+      return c.json(schema);
+   } catch (err) {
+      return internalServerError(c, err);
    }
-
-   const storagesPath = schema.paths['/storages'];
-
-   const createStorageOperation = storagesPath?.post;
-
-   const storageRequestBody = createStorageOperation?.requestBody;
-
-   const storageJsonContent = storageRequestBody?.content['application/json'];
-
-   if (storageJsonContent) {
-      storageJsonContent.examples = storageExamples;
-   }
-
-   return c.json(schema);
 });

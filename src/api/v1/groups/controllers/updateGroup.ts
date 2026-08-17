@@ -4,7 +4,11 @@ import { z } from 'zod';
 import { prisma } from '../../../../lib/prisma';
 import { serializeGroup } from '../lib/outputSerializer';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
-import { existingResourceError, notFoundError } from '../../../../lib/errorMessages';
+import {
+   existingResourceError,
+   internalServerError,
+   notFoundError
+} from '../../../../lib/errorMessages';
 
 export default new Hono().patch(
    '/',
@@ -53,54 +57,58 @@ export default new Hono().patch(
          })
    ),
    async (c) => {
-      // Get Request information
-      const { id } = c.req.valid('param');
-      const body = c.req.valid('json');
+      try {
+         // Get Request information
+         const { id } = c.req.valid('param');
+         const body = c.req.valid('json');
 
-      // Get the group from the database
-      const existingGroup = await prisma.groups.findUnique({
-         where: {
-            id
-         }
-      });
-
-      // Check that the group exists
-      if (!existingGroup) {
-         return notFoundError(c, 'No group with that ID was found');
-      }
-
-      // If there is a new name check it doesn't already exists
-      if (body.name) {
+         // Get the group from the database
          const existingGroup = await prisma.groups.findUnique({
             where: {
-               name: body.name
-            },
-            select: {
-               id: true
+               id
             }
          });
 
-         if (existingGroup) {
-            return existingResourceError(c, 'A group already exists with that name');
+         // Check that the group exists
+         if (!existingGroup) {
+            return notFoundError(c, 'No group with that ID was found');
          }
+
+         // If there is a new name check it doesn't already exists
+         if (body.name) {
+            const existingGroup = await prisma.groups.findUnique({
+               where: {
+                  name: body.name
+               },
+               select: {
+                  id: true
+               }
+            });
+
+            if (existingGroup) {
+               return existingResourceError(c, 'A group already exists with that name');
+            }
+         }
+
+         // Update the group
+         const updatedGroup = await prisma.groups.update({
+            where: {
+               id
+            },
+            data: {
+               name: body.name ?? existingGroup.name,
+               size: body.size ?? existingGroup.size,
+               nameMask: body.nameMask ?? existingGroup.nameMask,
+               ipMask: body.ipMask ?? existingGroup.ipMask,
+               bmcUsername: body.bmcUsername ?? existingGroup.bmcUsername,
+               bmcPassword: body.bmcPassword ?? existingGroup.bmcPassword,
+               bmcIpMask: body.bmcIpMask ?? existingGroup.bmcIpMask
+            }
+         });
+
+         return c.json(serializeGroup(updatedGroup));
+      } catch (err) {
+         return internalServerError(c, err);
       }
-
-      // Update the group
-      const updatedGroup = await prisma.groups.update({
-         where: {
-            id
-         },
-         data: {
-            name: body.name ?? existingGroup.name,
-            size: body.size ?? existingGroup.size,
-            nameMask: body.nameMask ?? existingGroup.nameMask,
-            ipMask: body.ipMask ?? existingGroup.ipMask,
-            bmcUsername: body.bmcUsername ?? existingGroup.bmcUsername,
-            bmcPassword: body.bmcPassword ?? existingGroup.bmcPassword,
-            bmcIpMask: body.bmcIpMask ?? existingGroup.bmcIpMask
-         }
-      });
-
-      return c.json(serializeGroup(updatedGroup));
    }
 );

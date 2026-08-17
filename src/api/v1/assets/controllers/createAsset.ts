@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { prisma } from '../../../../lib/prisma';
 import { assetSerializerArgs, serializeAsset } from '../lib/serialisers';
 import { assetValidator } from '../lib/validators';
-import { notFoundError } from '../../../../lib/errorMessages';
+import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
 
 const validateFieldValue = (type: string | null, value: string): boolean => {
    switch (type) {
@@ -25,6 +25,7 @@ const validateFieldValue = (type: string | null, value: string): boolean => {
 };
 
 export default new Hono().post('/', assetValidator, async (c) => {
+   try {
    const body = c.req.valid('json');
 
    const assetType = await prisma.assetTypes.findUnique({
@@ -91,4 +92,7 @@ export default new Hono().post('/', assetValidator, async (c) => {
    });
 
    return c.json(serializeAsset(asset), 201);
+} catch (err) {
+   return internalServerError(c, err)
+}
 });

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator } from '../../../../lib/requestValidators';
-import { notFoundError } from '../../../../lib/errorMessages';
+import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
 import { z } from 'zod';
 
 export default new Hono().get(
@@ -14,59 +14,63 @@ export default new Hono().get(
          .min(1, { error: 'UUID cannot be empty' })
    }),
    async (c) => {
-      // Get Request information
-      const { id, uuid } = c.req.valid('param');
+      try {
+         // Get Request information
+         const { id, uuid } = c.req.valid('param');
 
-      // Get the group from the database
-      const group = await prisma.groups.findUnique({
-         where: {
-            id
-         },
-         select: {
-            id: true
+         // Get the group from the database
+         const group = await prisma.groups.findUnique({
+            where: {
+               id
+            },
+            select: {
+               id: true
+            }
+         });
+
+         // Check if a group exists
+         if (!group) {
+            return notFoundError(c, 'No group with that ID was found');
          }
-      });
 
-      // Check if a group exists
-      if (!group) {
-         return notFoundError(c, 'No group with that ID was found');
-      }
-
-      // Get the node
-      const node = await prisma.assets.findFirst({
-         where: {
-            groupId: id,
-            AssetData: {
-               some: {
-                  value: uuid,
-                  AssetTypeFields: {
-                     name: 'UUID'
+         // Get the node
+         const node = await prisma.assets.findFirst({
+            where: {
+               groupId: id,
+               AssetData: {
+                  some: {
+                     value: uuid,
+                     AssetTypeFields: {
+                        name: 'UUID'
+                     }
+                  }
+               }
+            },
+            include: {
+               AssetData: {
+                  include: {
+                     AssetTypeFields: true
                   }
                }
             }
-         },
-         include: {
-            AssetData: {
-               include: {
-                  AssetTypeFields: true
-               }
-            }
+         });
+
+         // Check the node exists
+         if (!node) {
+            return notFoundError(c, 'No node was found with that ID');
          }
-      });
 
-      // Check the node exists
-      if (!node) {
-         return notFoundError(c, 'No node was found with that ID');
+         return c.json({
+            id: node.id,
+            name: node.name,
+            data: node.AssetData.map((data) => ({
+               name: data.AssetTypeFields.name,
+               value: data.value,
+               type: data.AssetTypeFields.type
+            }))
+         });
+      } catch (err) {
+         return internalServerError(c, err);
       }
-
-      return c.json({
-         id: node.id,
-         name: node.name,
-         data: node.AssetData.map((data) => ({
-            name: data.AssetTypeFields.name,
-            value: data.value,
-            type: data.AssetTypeFields.type
-         }))
-      });
    }
 );

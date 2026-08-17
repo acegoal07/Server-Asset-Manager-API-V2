@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
-import { notFoundError } from '../../../../lib/errorMessages';
+import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
 
 export default new Hono().post(
    '/',
@@ -25,88 +25,94 @@ export default new Hono().post(
          .min(1, { error: 'At least one node needs to be provided for initialise' })
    ),
    async (c) => {
-      // Get Request information
-      const { id } = c.req.valid('param');
-      const body = c.req.valid('json');
+      try {
+         // Get Request information
+         const { id } = c.req.valid('param');
+         const body = c.req.valid('json');
 
-      // Get the group from the database
-      const group = await prisma.groups.findUnique({
-         where: {
-            id
-         },
-         select: {
-            id: true
-         }
-      });
-
-      // Check that the group exists
-      if (!group) {
-         return notFoundError(c, 'No group with that ID was found');
-      }
-
-      // Get the assets from the database
-      const nodeNames = body.map((asset) => asset.nodeName);
-      const existingNodes = await prisma.assets.findMany({
-         where: {
-            name: {
-               in: nodeNames
+         // Get the group from the database
+         const group = await prisma.groups.findUnique({
+            where: {
+               id
+            },
+            select: {
+               id: true
             }
-         },
-         select: {
-            name: true
+         });
+
+         // Check that the group exists
+         if (!group) {
+            return notFoundError(c, 'No group with that ID was found');
          }
-      });
 
-      // Check for missing nodes
-      const existingNodeNames = new Set(existingNodes.map((asset) => asset.name));
-      const missingNodes = nodeNames.filter((name) => !existingNodeNames.has(name));
-
-      if (missingNodes.length > 0) {
-         return notFoundError(c, `The following nodes do not exist: ${missingNodes.join(', ')}`);
-      }
-
-      // Get types
-      const assetType = await prisma.assetTypes.findUnique({
-         where: {
-            id: 1
-         },
-         include: {
-            AssetTypeFields: true
-         }
-      });
-
-      // Check the type exists
-      if (!assetType) {
-         return notFoundError(c, "Asset type can't be found");
-      }
-
-      // Type field names
-      const fieldsByName = new Map(assetType.AssetTypeFields.map((field) => [field.name, field]));
-
-      // Add the UUID to all the nodes
-      await prisma.$transaction(
-         body.map((asset) =>
-            prisma.assets.update({
-               where: {
-                  groupId_name: {
-                     groupId: id,
-                     name: asset.nodeName
-                  }
-               },
-               data: {
-                  AssetData: {
-                     create: [
-                        {
-                           fieldId: fieldsByName.get('UUID')!.id,
-                           value: asset.uuid
-                        }
-                     ]
-                  }
+         // Get the assets from the database
+         const nodeNames = body.map((asset) => asset.nodeName);
+         const existingNodes = await prisma.assets.findMany({
+            where: {
+               name: {
+                  in: nodeNames
                }
-            })
-         )
-      );
+            },
+            select: {
+               name: true
+            }
+         });
 
-      return c.json(null, 201);
+         // Check for missing nodes
+         const existingNodeNames = new Set(existingNodes.map((asset) => asset.name));
+         const missingNodes = nodeNames.filter((name) => !existingNodeNames.has(name));
+
+         if (missingNodes.length > 0) {
+            return notFoundError(c, `The following nodes do not exist: ${missingNodes.join(', ')}`);
+         }
+
+         // Get types
+         const assetType = await prisma.assetTypes.findUnique({
+            where: {
+               id: 1
+            },
+            include: {
+               AssetTypeFields: true
+            }
+         });
+
+         // Check the type exists
+         if (!assetType) {
+            return notFoundError(c, "Asset type can't be found");
+         }
+
+         // Type field names
+         const fieldsByName = new Map(
+            assetType.AssetTypeFields.map((field) => [field.name, field])
+         );
+
+         // Add the UUID to all the nodes
+         await prisma.$transaction(
+            body.map((asset) =>
+               prisma.assets.update({
+                  where: {
+                     groupId_name: {
+                        groupId: id,
+                        name: asset.nodeName
+                     }
+                  },
+                  data: {
+                     AssetData: {
+                        create: [
+                           {
+                              fieldId: fieldsByName.get('UUID')!.id,
+                              value: asset.uuid
+                           }
+                        ]
+                     }
+                  }
+               })
+            )
+         );
+
+         return c.json(null, 201);
+      } catch (err) {
+         return internalServerError(c, err);
+      }
    }
 );

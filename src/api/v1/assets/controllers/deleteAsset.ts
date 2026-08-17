@@ -2,26 +2,30 @@ import { Hono } from 'hono';
 
 import { prisma } from '../../../../lib/prisma';
 import { requestIdValidator } from '../../../../lib/requestValidators';
-import { notFoundError } from '../../../../lib/errorMessages';
+import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
 
 export default new Hono().delete('/', requestIdValidator({}), async (c) => {
-   const { id } = c.req.valid('param');
+   try {
+      const { id } = c.req.valid('param');
 
-   const asset = await prisma.assets.findUnique({
-      where: {
-         id
+      const asset = await prisma.assets.findUnique({
+         where: {
+            id
+         }
+      });
+
+      if (!asset) {
+         return notFoundError(c, `Asset with id: ${id} could not be found.`);
       }
-   });
 
-   if (!asset) {
-      return notFoundError(c, `Asset with id: ${id} could not be found.`);
+      await prisma.assets.delete({
+         where: {
+            id
+         }
+      });
+
+      return c.body(null, 204);
+   } catch (err) {
+      return internalServerError(c, err);
    }
-
-   await prisma.assets.delete({
-      where: {
-         id
-      }
-   });
-
-   return c.body(null, 204);
 });

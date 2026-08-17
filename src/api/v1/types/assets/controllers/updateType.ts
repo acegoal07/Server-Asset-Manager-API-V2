@@ -5,7 +5,7 @@ import { prisma } from '../../../../../lib/prisma';
 import { assetTypeSerializerArgs } from '../lib/includeSerializer';
 import { serializeAssetType } from '../lib/outputSerializer';
 import { requestIdValidator, requestJsonValidator } from '../../../../../lib/requestValidators';
-import { notFoundError } from '../../../../../lib/errorMessages';
+import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 
 export default new Hono().patch(
    '/',
@@ -45,45 +45,49 @@ export default new Hono().patch(
          })
    ),
    async (c) => {
-      // Get request information
-      const { id } = c.req.valid('param');
-      const body = c.req.valid('json');
+      try {
+         // Get request information
+         const { id } = c.req.valid('param');
+         const body = c.req.valid('json');
 
-      // Try and get the type from the database
-      const existingType = await prisma.assetTypes.findUnique({
-         where: {
-            id
-         },
-         ...assetTypeSerializerArgs
-      });
+         // Try and get the type from the database
+         const existingType = await prisma.assetTypes.findUnique({
+            where: {
+               id
+            },
+            ...assetTypeSerializerArgs
+         });
 
-      // Check that the type exists
-      if (!existingType) {
-         return notFoundError(c, 'No type with that ID was found');
-      }
+         // Check that the type exists
+         if (!existingType) {
+            return notFoundError(c, 'No type with that ID was found');
+         }
 
-      // Update type
-      const updatedType = await prisma.assetTypes.update({
-         where: {
-            id
-         },
-         data: {
-            name: body.name ?? existingType.name,
-            AssetTypeFields: {
-               deleteMany: body.deleteFields?.map((id) => ({
-                  id
-               })),
-               createMany: {
-                  data: body.addFields?.map((field) => ({
-                     name: field.name,
-                     type: field.type
-                  }))
+         // Update type
+         const updatedType = await prisma.assetTypes.update({
+            where: {
+               id
+            },
+            data: {
+               name: body.name ?? existingType.name,
+               AssetTypeFields: {
+                  deleteMany: body.deleteFields?.map((id) => ({
+                     id
+                  })),
+                  createMany: {
+                     data: body.addFields?.map((field) => ({
+                        name: field.name,
+                        type: field.type
+                     }))
+                  }
                }
-            }
-         },
-         ...assetTypeSerializerArgs
-      });
+            },
+            ...assetTypeSerializerArgs
+         });
 
-      return c.json(serializeAssetType(updatedType));
+         return c.json(serializeAssetType(updatedType));
+      } catch (err) {
+         return internalServerError(c, err);
+      }
    }
 );
