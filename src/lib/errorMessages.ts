@@ -1,4 +1,5 @@
-import { Context } from 'hono';
+import type { Context } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 /**
  * Responds with an invalid parameters error message populated with the issues from
@@ -102,5 +103,28 @@ export function existingResourceError(c: Context, message?: string) {
          message: message || 'There is already a resource in the database'
       },
       409
+   );
+}
+
+/**
+ * Allows you to create a custom error response
+ * @param c
+ * @param error
+ * @param details
+ */
+export function customError(
+   c: Context,
+   error: string,
+   message?: string | null,
+   details?: unknown | null,
+   code?: ContentfulStatusCode | 500
+) {
+   return c.json(
+      {
+         error,
+         message,
+         details
+      },
+      code
    );
 }

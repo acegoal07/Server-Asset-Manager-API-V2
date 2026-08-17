@@ -1,98 +1,104 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
-import { assetSerializerArgs, serializeAsset } from '../lib/serialisers';
-import { assetValidator } from '../lib/validators';
-import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
+import { assetSerializerArgs, serializeAsset } from '../lib/serializers';
+import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
+import { getAssetType, getFieldByName, validateFieldValue } from '../../../../lib/assetFields';
+import { requestJsonValidator } from '../../../../lib/requestValidators';
 
-const validateFieldValue = (type: string | null, value: string): boolean => {
-   switch (type) {
-      case 'string':
-         return true;
+export default new Hono().post(
+   '/',
+   requestJsonValidator(
+      z.object({
+         name: z
+            .string({ error: 'Name must be a string' })
+            .min(1, { error: 'Name cannot be empty' }),
+         notes: z.string({ error: 'Notes must be a string' }).nullable().optional(),
+         uSize: z
+            .number({ error: 'uSize must be a number' })
+            .int({ error: 'uSize must be an integer' })
+            .default(1),
+         uTop: z
+            .number({ error: 'uTop must be a number' })
+            .int({ error: 'uTop must be an integer' })
+            .default(0),
+         uBottom: z
+            .number({ error: 'uBottom must be a number' })
+            .int({ error: 'uBottom must be an integer' })
+            .default(0),
+         assetTypeId: z
+            .number({ error: 'Asset Type ID must be a number' })
+            .int({ error: 'Asset Type ID must be an integer' })
+            .positive({ error: 'Asset Type ID must be greater than 0' }),
+         data: z.record(
+            z.string({ error: 'Data field name must be a string' }),
+            z.string({ error: 'Data field value must be a string' }),
+            { error: 'Data must be an object containing string values' }
+         )
+      })
+   ),
+   async (c) => {
+      try {
+         // Get request information
+         const body = c.req.valid('json');
 
-      case 'number':
-         return !Number.isNaN(Number(value));
+         // Get assetType
+         const assetType = await getAssetType(body.assetTypeId);
 
-      case 'boolean':
-         return value === 'true' || value === 'false';
-
-      case 'date':
-         return !Number.isNaN(Date.parse(value));
-
-      default:
-         return false;
-   }
-};
-
-export default new Hono().post('/', assetValidator, async (c) => {
-   try {
-   const body = c.req.valid('json');
-
-   const assetType = await prisma.assetTypes.findUnique({
-      where: {
-         id: body.assetTypeId
-      },
-      include: {
-         AssetTypeFields: true
-      }
-   });
-
-   if (!assetType) {
-      return notFoundError(c, `Asset type with id: ${body.assetTypeId} could not be found.`);
-   }
-   const fieldsByName = new Map(assetType.AssetTypeFields.map((field) => [field.name, field]));
-
-   const errors: Record<string, string> = {};
-
-   for (const [name, value] of Object.entries(body.data)) {
-      const field = fieldsByName.get(name);
-
-      if (!field) {
-         errors[name] = 'Field does not exist on this asset type';
-         continue;
-      }
-
-      if (!validateFieldValue(field.type, value)) {
-         errors[name] = `Value does not match field type "${field.type}"`;
-      }
-   }
-
-   if (Object.keys(errors).length > 0) {
-      return c.json(
-         {
-            error: 'Invalid asset data',
-            fields: errors
-         },
-         400
-      );
-   }
-
-   const asset = await prisma.assets.create({
-      data: {
-         name: body.name,
-         notes: body.notes,
-         uSize: body.uSize,
-         uTop: body.uTop,
-         uBottom: body.uBottom,
-         assetTypeId: body.assetTypeId,
-
-         AssetData: {
-            create: Object.entries(body.data).map(([name, value]) => {
-               const field = fieldsByName.get(name)!;
-
-               return {
-                  fieldId: field.id,
-                  value
-               };
-            })
+         // Check that a assetType was found
+         if (!assetType) {
+            return notFoundError(c, `Asset type with id: ${body.assetTypeId} could not be found.`);
          }
-      },
 
-      ...assetSerializerArgs
-   });
+         // Create an error record
+         const errors: Record<string, string> = {};
 
-   return c.json(serializeAsset(asset), 201);
-} catch (err) {
-   return internalServerError(c, err)
-}
-});
+         // Go through all the fields and check them for errors
+         for (const [name, value] of Object.entries(body.data)) {
+            const field = getFieldByName(assetType, name);
+
+            if (!field) {
+               errors[name] = 'Field does not exist on this asset type';
+               continue;
+            }
+
+            if (!validateFieldValue(field.type, value)) {
+               errors[name] = `Value does not match field type "${field.type}"`;
+            }
+         }
+
+         // If there is any error return the information
+         if (Object.keys(errors).length > 0) {
+            return customError(c, 'INVALID_ASSET_DATA', null, errors, 400);
+         }
+
+         // Create asset in the database
+         const asset = await prisma.assets.create({
+            data: {
+               name: body.name,
+               notes: body.notes,
+               uSize: body.uSize,
+               uTop: body.uTop,
+               uBottom: body.uBottom,
+               assetTypeId: body.assetTypeId,
+               AssetData: {
+                  create: Object.entries(body.data).map(([name, value]) => {
+                     const field = getFieldByName(assetType, name)!;
+
+                     return {
+                        fieldId: field.id,
+                        value
+                     };
+                  })
+               }
+            },
+            ...assetSerializerArgs
+         });
+
+         return c.json(serializeAsset(asset), 201);
+      } catch (err) {
+         return internalServerError(c, err);
+      }
+   }
+);
