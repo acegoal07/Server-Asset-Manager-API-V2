@@ -2,9 +2,10 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
-import { assetSerializerArgs, serializeAsset } from '../lib/serializers';
 import { internalServerError } from '../../../../lib/errorMessages';
 import { requestQueryValidator } from '../../../../lib/requestValidators';
+import { assetSerializerArgs } from '../lib/includeSerializers';
+import { serializeAsset } from '../lib/outputSerializers';
 
 export default new Hono().get(
    '/',

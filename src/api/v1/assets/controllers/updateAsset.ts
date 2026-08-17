@@ -2,10 +2,11 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { prisma } from '../../../../lib/prisma';
-import { assetSerializerArgs, serializeAsset } from '../lib/serializers';
 import { customError, internalServerError, notFoundError } from '../../../../lib/errorMessages';
 import { requestIdValidator, requestJsonValidator } from '../../../../lib/requestValidators';
 import { getFieldByName, validateFieldValue } from '../../../../lib/assetFields';
+import { assetSerializerArgs } from '../lib/includeSerializers';
+import { serializeAsset } from '../lib/outputSerializers';
 
 export default new Hono().patch(
    '/',

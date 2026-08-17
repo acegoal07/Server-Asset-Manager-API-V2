@@ -1,9 +1,10 @@
 import { Hono } from 'hono';
 
 import { prisma } from '../../../../lib/prisma';
-import { assetSerializerArgs, serializeAsset } from '../lib/serializers';
 import { requestIdValidator } from '../../../../lib/requestValidators';
 import { internalServerError, notFoundError } from '../../../../lib/errorMessages';
+import { assetSerializerArgs } from '../lib/includeSerializers';
+import { serializeAsset } from '../lib/outputSerializers';
 
 export default new Hono().get('/', requestIdValidator({}), async (c) => {
    try {
