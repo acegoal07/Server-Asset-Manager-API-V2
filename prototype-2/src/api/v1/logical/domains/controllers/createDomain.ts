@@ -11,22 +11,6 @@ export default new Hono().post(
             .string({ error: 'Name must be string' })
             .trim()
             .min(1, { error: 'Name cannot be empty' }),
-         domainId: z
-            .number({ error: 'Domain ID must be a number' })
-            .int({ error: 'Domain ID must be an integer' })
-            .positive({ error: 'Domain ID must be greater than 0' }),
-         nodeNameMask: z
-            .string({ error: 'Node name mask must be a string' })
-            .trim()
-            .min(1, { error: 'Node name mask cannot be empty' }),
-         nodeIpMask: z
-            .string({ error: 'Node IP mask must be a string' })
-            .trim()
-            .min(1, { error: 'Node IP mask cannot be empty' }),
-         nodeCount: z
-            .number({ error: 'Node count must be a number' })
-            .int({ error: 'Node count must be an integer' })
-            .positive({ error: 'Node count must be greater than 0' }),
          dataFields: z
             .array(
                z.object({
@@ -51,7 +35,6 @@ export default new Hono().post(
       // Get request information
       const body = c.req.valid('json');
 
-      // Get the index from how many genders a domain has + 1
       // Create the dataField link?
       // const domain = await prisma.domains.create({
       //    data: {

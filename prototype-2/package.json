@@ -1,6 +1,6 @@
 {
    "name": "server-assets-manager",
-   "version": "4.0.0",
+   "version": "5.0.0",
    "main": "dist/index.js",
    "tsup": {
       "entry": [
@@ -31,6 +31,7 @@
       "@hono/zod-validator": "^0.9.0",
       "@prisma/adapter-mariadb": "^7.9.1",
       "@prisma/client": "^7.9.1",
+      "deepmerge": "^4.3.1",
       "dotenv": "^17.4.2",
       "hono": "^4.12.32",
       "zod": "^4.4.3"
