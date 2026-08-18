@@ -5,7 +5,7 @@ import {
    BadRequestErrorSchema,
    ConflictErrorSchema,
    InternalServerErrorSchema
-} from '../../../../../lib/openApi';
+} from '../../../../../lib/openApiSchemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({

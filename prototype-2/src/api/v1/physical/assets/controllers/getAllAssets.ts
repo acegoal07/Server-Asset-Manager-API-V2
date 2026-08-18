@@ -4,7 +4,7 @@ import { prisma } from '../../../../../lib/prisma';
 import { internalServerError } from '../../../../../lib/errorMessages';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
-import { InternalServerErrorSchema } from '../../../../../lib/openApi';
+import { InternalServerErrorSchema } from '../../../../../lib/openApiSchemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({
