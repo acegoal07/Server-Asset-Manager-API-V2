@@ -1,3 +1,6 @@
 import { Hono } from 'hono';
 
-export default new Hono();
+import createGender from './controllers/createGender';
+
+export default new Hono()
+   .route('/', createGender);

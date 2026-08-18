@@ -33,7 +33,7 @@ hono.notFound((c) =>
    c.json(
       {
          error: 'Not Found',
-         message: `You've almost made it to V4, if there is supposed to be something here let Alex or Oscar know it might be broken :)`
+         message: `You've almost made it to V5 some how. Like DJ Khaled said once "another one"`
       },
       404
    )
