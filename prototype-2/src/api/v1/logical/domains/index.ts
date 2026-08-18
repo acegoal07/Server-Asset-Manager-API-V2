@@ -1,5 +1,5 @@
-import { Hono } from 'hono';
+import { OpenAPIHono } from '@hono/zod-openapi';
 
 import createDomain from './controllers/createDomain';
 
-export default new Hono().route('/', createDomain);
+export default new OpenAPIHono().route('/', createDomain);

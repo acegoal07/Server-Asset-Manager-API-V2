@@ -2,8 +2,8 @@
 import 'dotenv/config';
 
 // CREATE HONO
-import { Hono } from 'hono';
-const hono = new Hono();
+import { OpenAPIHono } from '@hono/zod-openapi';
+const hono = new OpenAPIHono();
 
 // LOAD MIDDLEWARE
 hono.use('*', (await import('hono/trailing-slash')).trimTrailingSlash());
@@ -37,6 +37,23 @@ hono.notFound((c) =>
       },
       404
    )
+);
+
+// ADD API DOCS
+hono.doc('/openapi.json', {
+   openapi: '3.0.0',
+   info: {
+      version: '1.0.0',
+      title: 'My API'
+   }
+});
+
+import { Scalar } from '@scalar/hono-api-reference';
+hono.get(
+   '/docs',
+   Scalar({
+      url: '/openapi.json'
+   })
 );
 
 // START UP SERVER

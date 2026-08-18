@@ -1,10 +1,9 @@
-import { Hono } from 'hono';
-
+import { OpenAPIHono } from '@hono/zod-openapi';
 import domains from './domains';
 import genders from './genders';
 import subGenders from './subGenders';
 
-export default new Hono()
+export default new OpenAPIHono()
    .route('/domains', domains)
    .route('/genders', genders)
    .route('/subgenders', subGenders);
