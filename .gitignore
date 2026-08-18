@@ -1,6 +1,1 @@
-node_modules
-dist/
-/src/generated/prisma
-package-lock.json
-.vscode/
 *.DS_Store
