@@ -11,17 +11,11 @@ USE redfish;
 -- ===========================================================
 CREATE TABLE Assets (
    id INT AUTO_INCREMENT PRIMARY KEY,
-   groupId INT NULL,
    name VARCHAR(255) NOT NULL,
    notes TEXT NULL,
    uTop INT NOT NULL DEFAULT 0,
    uBottom INT NOT NULL DEFAULT 0,
-   uSize INT NOT NULL DEFAULT 1,
-   assetTypeId INT,
-   CONSTRAINT fk_assets_groupId FOREIGN KEY (groupId) REFERENCES Groups (id) ON DELETE CASCADE,
-   CONSTRAINT fk_assets_assetType FOREIGN KEY (assetTypeId) REFERENCES AssetTypes (id) ON DELETE
-   SET NULL,
-      CONSTRAINT uq_group_name UNIQUE (groupId, name)
+   uSize INT NOT NULL DEFAULT 1
 );
 -- ===========================================================
 -- Data
@@ -58,10 +52,10 @@ CREATE TABLE PrimaryGenders (
    domainId INT NOT NULL,
    name VARCHAR(255) NOT NULL,
    dataId int NOT NULL,
-   index INT NOT NULL,
+   genderIndex INT NOT NULL,
    CONSTRAINT uq_name_domainid UNIQUE (name, domainId),
-   CONSTRAINT fk_gender_data FOREIGN KEY (dataId) REFERENCES Data (id),
-   CONSTRAINT fk_gender_domain FOREIGN KEY (domainId) REFERENCES Domains (id)
+   CONSTRAINT fk_primarygender_data FOREIGN KEY (dataId) REFERENCES Data (id),
+   CONSTRAINT fk_primarygender_domain FOREIGN KEY (domainId) REFERENCES Domains (id)
 );
 -- ===========================================================
 -- SubGenders
@@ -82,8 +76,8 @@ CREATE TABLE GenderHierarchy (
    primaryGenderId INT NOT NULL,
    subgenderId INT NOT NULL,
    priority INT NOT NULL DEFAULT 0,
-   PRIMARY KEY (nodeId, genderId),
-   UNIQUE (nodeId, priority),
+   PRIMARY KEY (primaryGenderId, subgenderId),
+   UNIQUE (primaryGenderId, priority),
    CONSTRAINT fk_primarygender_heirarchy FOREIGN KEY (primaryGenderId) REFERENCES PrimaryGenders (id) ON DELETE CASCADE,
    CONSTRAINT fk_subgender_heirarchy FOREIGN KEY (subgenderId) REFERENCES SubGenders (id) ON DELETE CASCADE
 );
@@ -95,9 +89,8 @@ CREATE TABLE Nodes (
    primaryGenderId INT NOT NULL,
    name VARCHAR(255) NOT NULL,
    dataId int NOT NULL,
-   index INT NOT NULL,
-   CONSTRAINT uq_name_domainid UNIQUE (name, domainId),
-   CONSTRAINT fk_gender_data FOREIGN KEY (dataId) REFERENCES Data (id)
+   nodeIndex INT NOT NULL,
+   CONSTRAINT fk_nodes_data FOREIGN KEY (dataId) REFERENCES Data (id)
 );
 -- ===========================================================
 -- AssetNode
@@ -107,5 +100,5 @@ CREATE TABLE AssetNode (
    assetId INT NOT NULL,
    PRIMARY KEY (nodeId, assetId),
    CONSTRAINT fk_node_assetnode FOREIGN KEY (nodeId) REFERENCES Nodes (id) ON DELETE CASCADE,
-   CONSTRAINT fk_asset_assetnode FOREIGN KEY (assetId) REFERENCES Asset (id) ON DELETE CASCADE
+   CONSTRAINT fk_asset_assetnode FOREIGN KEY (assetId) REFERENCES Assets (id) ON DELETE CASCADE
 );

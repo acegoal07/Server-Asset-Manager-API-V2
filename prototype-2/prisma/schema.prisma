@@ -5,3 +5,109 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+model AssetNode {
+  nodeId  Int
+  assetId Int
+  Assets  Assets @relation(fields: [assetId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_asset_assetnode")
+  Nodes   Nodes  @relation(fields: [nodeId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_node_assetnode")
+
+  @@id([nodeId, assetId])
+  @@index([assetId], map: "fk_asset_assetnode")
+}
+
+model Assets {
+  id        Int         @id @default(autoincrement())
+  name      String      @db.VarChar(255)
+  notes     String?     @db.Text
+  uTop      Int         @default(0)
+  uBottom   Int         @default(0)
+  uSize     Int         @default(1)
+  AssetNode AssetNode[]
+}
+
+model Data {
+  id             Int              @id @default(autoincrement())
+  DataFields     DataFields[]
+  Domains        Domains[]
+  Nodes          Nodes[]
+  PrimaryGenders PrimaryGenders[]
+  SubGenders     SubGenders[]
+}
+
+model DataFields {
+  id         Int     @id @default(autoincrement())
+  dataId     Int
+  name       String  @db.VarChar(255)
+  identifier String  @db.VarChar(255)
+  type       String  @db.VarChar(255)
+  value      String? @db.VarChar(511)
+  deletable  Boolean @default(false)
+  Data       Data    @relation(fields: [dataId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_datafield_data")
+
+  @@unique([dataId, identifier], map: "uq_identifier_dataid")
+}
+
+model Domains {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(255)
+  dataId         Int
+  Data           Data             @relation(fields: [dataId], references: [id], onUpdate: Restrict, map: "fk_domain_data")
+  PrimaryGenders PrimaryGenders[]
+  SubGenders     SubGenders[]
+
+  @@index([dataId], map: "fk_domain_data")
+}
+
+model GenderHierarchy {
+  primaryGenderId Int
+  subgenderId     Int
+  priority        Int            @default(0)
+  PrimaryGenders  PrimaryGenders @relation(fields: [primaryGenderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_primarygender_heirarchy")
+  SubGenders      SubGenders     @relation(fields: [subgenderId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_subgender_heirarchy")
+
+  @@id([primaryGenderId, subgenderId])
+  @@unique([primaryGenderId, priority], map: "primaryGenderId")
+  @@index([subgenderId], map: "fk_subgender_heirarchy")
+}
+
+model Nodes {
+  id              Int         @id @default(autoincrement())
+  primaryGenderId Int
+  name            String      @db.VarChar(255)
+  dataId          Int
+  nodeIndex       Int
+  AssetNode       AssetNode[]
+  Data            Data        @relation(fields: [dataId], references: [id], onUpdate: Restrict, map: "fk_nodes_data")
+
+  @@index([dataId], map: "fk_nodes_data")
+}
+
+model PrimaryGenders {
+  id              Int               @id @default(autoincrement())
+  domainId        Int
+  name            String            @db.VarChar(255)
+  dataId          Int
+  genderIndex     Int
+  GenderHierarchy GenderHierarchy[]
+  Data            Data              @relation(fields: [dataId], references: [id], onUpdate: Restrict, map: "fk_primarygender_data")
+  Domains         Domains           @relation(fields: [domainId], references: [id], onUpdate: Restrict, map: "fk_primarygender_domain")
+
+  @@unique([name, domainId], map: "uq_name_domainid")
+  @@index([dataId], map: "fk_primarygender_data")
+  @@index([domainId], map: "fk_primarygender_domain")
+}
+
+model SubGenders {
+  id              Int               @id @default(autoincrement())
+  domainId        Int
+  name            String            @db.VarChar(255)
+  dataId          Int
+  GenderHierarchy GenderHierarchy[]
+  Data            Data              @relation(fields: [dataId], references: [id], onUpdate: Restrict, map: "fk_subgender_data")
+  Domains         Domains           @relation(fields: [domainId], references: [id], onUpdate: Restrict, map: "fk_subgender_domain")
+
+  @@unique([name, domainId], map: "uq_name_domainid")
+  @@index([dataId], map: "fk_subgender_data")
+  @@index([domainId], map: "fk_subgender_domain")
+}
