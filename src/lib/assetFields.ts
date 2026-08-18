@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 
 /**
@@ -51,12 +51,7 @@ export async function getAssetTypeByID(id: number): Promise<AssetTypeWithFields 
       }
    });
 
-   // Check if there is an assetType
-   if (!assetType) {
-      return null;
-   }
-
-   return assetType;
+   return assetType ?? null;
 }
 
 /**
@@ -65,8 +60,5 @@ export async function getAssetTypeByID(id: number): Promise<AssetTypeWithFields 
  * @param name
  * @returns
  */
-export function getAssetFieldByName(assetType: AssetTypeWithFields | null, name: string) {
-   const names = new Map(assetType?.AssetTypeFields.map((field) => [field.name, field]));
-
-   return names.get(name);
-}
+export const getAssetFieldByName = (assetType: AssetTypeWithFields | null, name: string) =>
+   new Map(assetType?.AssetTypeFields.map((field) => [field.name, field])).get(name);

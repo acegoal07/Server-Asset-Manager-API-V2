@@ -29,9 +29,7 @@ export const debugLogger: MiddlewareHandler = async (c, next) => {
 
    let body: unknown = undefined;
 
-   const contentType = c.req.header('content-type') ?? '';
-
-   if (contentType.includes('application/json')) {
+   if ((c.req.header('content-type') ?? '').includes('application/json')) {
       try {
          body = truncate(await c.req.raw.clone().json());
       } catch {
@@ -41,12 +39,10 @@ export const debugLogger: MiddlewareHandler = async (c, next) => {
 
    await next();
 
-   const duration = Math.round(performance.now() - start);
-
    const lines = [
       `→ ${c.req.method} ${c.req.path}`,
       `Body: ${body !== undefined ? JSON.stringify(body, null, 2) : '<none>'}`,
-      `← ${c.res.status} ${duration}ms`
+      `← ${c.res.status} ${Math.round(performance.now() - start)}ms`
    ];
 
    console.log(`\n${lines.join('\n')}\n`);

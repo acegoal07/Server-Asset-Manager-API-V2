@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
+
 import {
    invalidJsonRequestError,
    invalidParametersRequestError,
@@ -11,7 +12,7 @@ import {
  * @param validator
  * @returns
  */
-export const requestParamValidator = <T extends z.ZodTypeAny>(validator: T) =>
+export const requestParamValidator = <T extends z.ZodType>(validator: T) =>
    zValidator('param', validator, (result, c) => {
       if (!result.success) {
          return invalidParametersRequestError(c, result);
@@ -23,7 +24,7 @@ export const requestParamValidator = <T extends z.ZodTypeAny>(validator: T) =>
  * @param validator
  * @returns
  */
-export const requestJsonValidator = <T extends z.ZodTypeAny>(validator: T) =>
+export const requestJsonValidator = <T extends z.ZodType>(validator: T) =>
    zValidator('json', validator, (result, c) => {
       if (!result.success) {
          return invalidJsonRequestError(c, result);
@@ -35,7 +36,7 @@ export const requestJsonValidator = <T extends z.ZodTypeAny>(validator: T) =>
  * @param validator
  * @returns
  */
-export const requestQueryValidator = <T extends z.ZodTypeAny>(validator: T) =>
+export const requestQueryValidator = <T extends z.ZodType>(validator: T) =>
    zValidator('query', validator, (result, c) => {
       if (!result.success) {
          return invalidQueryRequestError(c, result);
@@ -44,6 +45,7 @@ export const requestQueryValidator = <T extends z.ZodTypeAny>(validator: T) =>
 
 /**
  * Used to validate the ids in a query
+ * @param extra
  * @returns
  */
 export const requestIdValidator = <T extends z.ZodRawShape>(extra: T = {} as T) => {

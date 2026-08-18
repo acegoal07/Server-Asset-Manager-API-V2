@@ -2,7 +2,6 @@ function parseOctet(part: string): {
    min: number;
    max: number;
 } {
-   // * means the full octet range
    if (part === '*') {
       return {
          min: 0,
@@ -26,7 +25,6 @@ function parseOctet(part: string): {
       };
    }
 
-   // Otherwise it should be one fixed octet
    const value = Number(part);
 
    if (!Number.isInteger(value) || value < 0 || value > 255) {
@@ -48,9 +46,7 @@ export function checkIpMaskForSize(mask: string, size: number): boolean {
 
    const ranges = parts.map(parseOctet);
 
-   const totalAddresses = ranges.reduce((total, range) => total * (range.max - range.min + 1), 1);
-
-   return totalAddresses >= size;
+   return ranges.reduce((total, range) => total * (range.max - range.min + 1), 1) >= size;
 }
 
 export function getIpFromMask(mask: string, nodeNumber: number): string {

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 
 /**
@@ -51,12 +51,7 @@ export async function getStorageTypeByID(id: number): Promise<StorageTypeWithFie
       }
    });
 
-   // Check if there is an storage type
-   if (!storageType) {
-      return null;
-   }
-
-   return storageType;
+   return storageType ?? null;
 }
 
 /**
@@ -65,8 +60,5 @@ export async function getStorageTypeByID(id: number): Promise<StorageTypeWithFie
  * @param name
  * @returns
  */
-export function getStorageFieldByName(storageType: StorageTypeWithFields | null, name: string) {
-   const names = new Map(storageType?.StorageTypeFields.map((field) => [field.name, field]));
-
-   return names.get(name);
-}
+export const getStorageFieldByName = (storageType: StorageTypeWithFields | null, name: string) =>
+   new Map(storageType?.StorageTypeFields.map((field) => [field.name, field])).get(name);
