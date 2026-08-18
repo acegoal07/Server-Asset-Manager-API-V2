@@ -1,6 +1,11 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 import { prisma } from '../../../../../lib/prisma';
+import {
+   BadRequestErrorSchema,
+   ConflictErrorSchema,
+   InternalServerErrorSchema
+} from '../../../../../lib/openApi';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -51,39 +56,9 @@ export default new OpenAPIHono().openapi(
                }
             }
          },
-         400: {
-            description: 'Invalid request',
-            content: {
-               'application/json': {
-                  schema: z.object({
-                     error: z.string(),
-                     message: z.string()
-                  })
-               }
-            }
-         },
-         409: {
-            description: 'Domain already exists',
-            content: {
-               'application/json': {
-                  schema: z.object({
-                     error: z.string(),
-                     message: z.string()
-                  })
-               }
-            }
-         },
-         500: {
-            description: 'Internal server error',
-            content: {
-               'application/json': {
-                  schema: z.object({
-                     error: z.string(),
-                     message: z.string()
-                  })
-               }
-            }
-         }
+         ...BadRequestErrorSchema,
+         ...ConflictErrorSchema,
+         ...InternalServerErrorSchema
       }
    }),
    async (c) => {
@@ -92,7 +67,6 @@ export default new OpenAPIHono().openapi(
       const newDomain = await prisma.domains.create({
          data: {
             name: body.name,
-
             Data: {
                create: {
                   DataFields: {

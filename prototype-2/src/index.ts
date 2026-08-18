@@ -49,7 +49,7 @@ hono.doc('/openapi.json', {
    'x-tagGroups': [
       {
          name: 'v1',
-         tags: ['v1-Domains', 'v1-Assets']
+         tags: ['v1-Domains', 'v1-Assets', 'v1-Genders']
       }
    ]
 });

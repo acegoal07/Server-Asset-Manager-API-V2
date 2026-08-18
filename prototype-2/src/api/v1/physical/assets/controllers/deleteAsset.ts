@@ -2,6 +2,7 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
+import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApi';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -19,19 +20,8 @@ export default new OpenAPIHono().openapi(
          204: {
             description: 'Asset deleted'
          },
-
-         500: {
-            description: 'Internal server error',
-            content: {
-               'application/json': {
-                  schema: z.object({
-                     error: z.string(),
-                     message: z.string().optional(),
-                     details: z.unknown().optional()
-                  })
-               }
-            }
-         }
+         ...NotFoundErrorSchema,
+         ...InternalServerErrorSchema
       }
    }),
    async (c) => {

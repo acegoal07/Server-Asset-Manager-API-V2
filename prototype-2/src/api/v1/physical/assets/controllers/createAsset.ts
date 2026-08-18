@@ -4,6 +4,7 @@ import { prisma } from '../../../../../lib/prisma';
 import { internalServerError } from '../../../../../lib/errorMessages';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
+import { InternalServerErrorSchema } from '../../../../../lib/openApi';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -52,19 +53,7 @@ export default new OpenAPIHono().openapi(
                }
             }
          },
-
-         500: {
-            description: 'Internal server error',
-            content: {
-               'application/json': {
-                  schema: z.object({
-                     error: z.string(),
-                     message: z.string().optional(),
-                     details: z.unknown().optional()
-                  })
-               }
-            }
-         }
+         ...InternalServerErrorSchema
       }
    }),
    async (c) => {

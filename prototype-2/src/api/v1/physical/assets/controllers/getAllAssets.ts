@@ -4,44 +4,32 @@ import { prisma } from '../../../../../lib/prisma';
 import { internalServerError } from '../../../../../lib/errorMessages';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
-
-const assetResponseSchema = z.object({
-   id: z.number(),
-   name: z.string(),
-   notes: z.string().nullable(),
-   uSize: z.number(),
-   uTop: z.number(),
-   uBottom: z.number()
-});
+import { InternalServerErrorSchema } from '../../../../../lib/openApi';
 
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'get',
       path: '/',
       tags: ['v1-Assets'],
-
       responses: {
          200: {
             description: 'Assets retrieved',
             content: {
                'application/json': {
-                  schema: z.array(assetResponseSchema)
+                  schema: z.array(
+                     z.object({
+                        id: z.number(),
+                        name: z.string(),
+                        notes: z.string().nullable(),
+                        uSize: z.number(),
+                        uTop: z.number(),
+                        uBottom: z.number()
+                     })
+                  )
                }
             }
          },
-
-         500: {
-            description: 'Internal server error',
-            content: {
-               'application/json': {
-                  schema: z.object({
-                     error: z.string(),
-                     message: z.string().optional(),
-                     details: z.unknown().optional()
-                  })
-               }
-            }
-         }
+         ...InternalServerErrorSchema
       }
    }),
    async (c) => {
