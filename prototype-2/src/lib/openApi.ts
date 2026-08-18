@@ -30,7 +30,7 @@ export const NotFoundErrorSchema = {
          }
       }
    }
-}
+};
 
 /**
  * The openAPI docs for an conflict error
