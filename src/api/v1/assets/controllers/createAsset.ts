@@ -89,10 +89,8 @@ export default new Hono().post(
                assetTypeId: body.assetTypeId,
                AssetData: {
                   create: Object.entries(body.data).map(([name, value]) => {
-                     const field = getAssetFieldByName(assetType, name)!;
-
                      return {
-                        fieldId: field.id,
+                        fieldId: getAssetFieldByName(assetType, name)!.id,
                         value
                      };
                   })
