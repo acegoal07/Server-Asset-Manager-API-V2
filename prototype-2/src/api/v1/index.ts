@@ -1,3 +1,8 @@
 import { Hono } from 'hono';
 
-export default new Hono();
+import logical from './logical';
+import physical from './physical';
+
+export default new Hono()
+   .route('/logical', logical)
+   .route('/physical', physical);
