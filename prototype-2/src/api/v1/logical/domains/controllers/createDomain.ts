@@ -11,10 +11,6 @@ export default new Hono().post(
             .string({ error: 'Name must be string' })
             .trim()
             .min(1, { error: 'Name cannot be empty' }),
-         domainId: z
-            .number({ error: 'Domain ID must be a number' })
-            .int({ error: 'Domain ID must be an integer' })
-            .positive({ error: 'Domain ID must be greater than 0' }),
          dataFields: z
             .array(
                z.object({

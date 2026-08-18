@@ -20,5 +20,6 @@ export default new Hono().post(
       const body = c.req.valid('json');
 
       // Link the sub gender to the primary gender
+      // With a priority got from how many sub genders the primary gender has + 1
    }
 );
