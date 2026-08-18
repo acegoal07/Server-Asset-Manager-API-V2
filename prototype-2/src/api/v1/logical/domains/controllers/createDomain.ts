@@ -6,6 +6,7 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/',
+      tags: ['v1-Domains'],
       request: {
          body: {
             content: {
@@ -40,12 +41,45 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          201: {
-            description: 'Domain created',
+            description: 'Domain successfully created',
             content: {
                'application/json': {
                   schema: z.object({
                      id: z.number(),
                      name: z.string()
+                  })
+               }
+            }
+         },
+         400: {
+            description: 'Invalid request',
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     error: z.string(),
+                     message: z.string()
+                  })
+               }
+            }
+         },
+         409: {
+            description: 'Domain already exists',
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     error: z.string(),
+                     message: z.string()
+                  })
+               }
+            }
+         },
+         500: {
+            description: 'Internal server error',
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     error: z.string(),
+                     message: z.string()
                   })
                }
             }

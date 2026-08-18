@@ -45,7 +45,13 @@ hono.doc('/openapi.json', {
    info: {
       version: '1.0.0',
       title: 'My API'
-   }
+   },
+   'x-tagGroups': [
+      {
+         name: 'v1',
+         tags: ['v1-Domains']
+      }
+   ]
 });
 
 import { Scalar } from '@scalar/hono-api-reference';
