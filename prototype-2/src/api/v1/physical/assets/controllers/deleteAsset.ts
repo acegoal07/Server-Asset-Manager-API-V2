@@ -1,0 +1,66 @@
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
+
+import { prisma } from '../../../../../lib/prisma';
+import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
+
+export default new OpenAPIHono().openapi(
+   createRoute({
+      method: 'delete',
+      path: '/{id}',
+      tags: ['v1-Assets'],
+
+      request: {
+         params: z.object({
+            id: z.coerce.number().int().positive()
+         })
+      },
+
+      responses: {
+         204: {
+            description: 'Asset deleted'
+         },
+
+         500: {
+            description: 'Internal server error',
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     error: z.string(),
+                     message: z.string().optional(),
+                     details: z.unknown().optional()
+                  })
+               }
+            }
+         }
+      }
+   }),
+   async (c) => {
+      try {
+         // Get request information
+         const { id } = c.req.valid('param');
+
+         // Try and get asset from the database
+         const asset = await prisma.assets.findUnique({
+            where: {
+               id
+            }
+         });
+
+         // Check if the asset exists
+         if (!asset) {
+            return notFoundError(c, `Asset with id: ${id} could not be found.`);
+         }
+
+         // Delete the asset from the database
+         await prisma.assets.delete({
+            where: {
+               id
+            }
+         });
+
+         return c.body(null, 204);
+      } catch (err) {
+         return internalServerError(c, err);
+      }
+   }
+);

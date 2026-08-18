@@ -1,0 +1,127 @@
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
+
+import { prisma } from '../../../../../lib/prisma';
+import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
+import { assetSerializerArgs } from '../lib/includeSerializers';
+import { serializeAsset } from '../lib/outputSerializers';
+
+const assetResponseSchema = z.object({
+   id: z.number(),
+   name: z.string(),
+   notes: z.string().nullable(),
+   uSize: z.number(),
+   uTop: z.number(),
+   uBottom: z.number()
+});
+
+export default new OpenAPIHono().openapi(
+   createRoute({
+      method: 'patch',
+      path: '/{id}',
+      tags: ['v1-Assets'],
+
+      request: {
+         params: z.object({
+            id: z.coerce.number().int().positive()
+         }),
+
+         body: {
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     name: z
+                        .string({ error: 'Name must be a string' })
+                        .min(1, { error: 'Name cannot be empty' })
+                        .optional(),
+
+                     notes: z.string({ error: 'Notes must be a string' }).nullable().optional(),
+
+                     uSize: z
+                        .number({ error: 'uSize must be a number' })
+                        .int({ error: 'uSize must be an integer' })
+                        .optional(),
+
+                     uTop: z
+                        .number({ error: 'uTop must be a number' })
+                        .int({ error: 'uTop must be an integer' })
+                        .optional(),
+
+                     uBottom: z
+                        .number({ error: 'uBottom must be a number' })
+                        .int({ error: 'uBottom must be an integer' })
+                        .optional()
+                  })
+               }
+            }
+         }
+      },
+
+      responses: {
+         200: {
+            description: 'Asset updated',
+            content: {
+               'application/json': {
+                  schema: assetResponseSchema
+               }
+            }
+         },
+
+         404: {
+            description: 'Asset not found',
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     error: z.string(),
+                     message: z.string(),
+                     details: z.unknown().optional()
+                  })
+               }
+            }
+         },
+
+         500: {
+            description: 'Internal server error',
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     error: z.string(),
+                     message: z.string().optional(),
+                     details: z.unknown().optional()
+                  })
+               }
+            }
+         }
+      }
+   }),
+
+   async (c) => {
+      try {
+         const { id } = c.req.valid('param');
+         const body = c.req.valid('json');
+
+         const existingAsset = await prisma.assets.findUnique({
+            where: { id }
+         });
+
+         if (!existingAsset) {
+            return notFoundError(c, `Asset with id: ${id} could not be found.`);
+         }
+
+         const asset = await prisma.assets.update({
+            where: { id },
+            data: {
+               ...(body.name !== undefined && { name: body.name }),
+               ...(body.notes !== undefined && { notes: body.notes }),
+               ...(body.uSize !== undefined && { uSize: body.uSize }),
+               ...(body.uTop !== undefined && { uTop: body.uTop }),
+               ...(body.uBottom !== undefined && { uBottom: body.uBottom })
+            },
+            ...assetSerializerArgs
+         });
+
+         return c.json(serializeAsset(asset), 200);
+      } catch (err) {
+         return internalServerError(c, err);
+      }
+   }
+);

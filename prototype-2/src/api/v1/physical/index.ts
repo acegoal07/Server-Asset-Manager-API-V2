@@ -1,3 +1,5 @@
-import { Hono } from 'hono';
+import { OpenAPIHono } from '@hono/zod-openapi';
 
-export default new Hono();
+import assets from './assets';
+
+export default new OpenAPIHono().route('/assets', assets);
