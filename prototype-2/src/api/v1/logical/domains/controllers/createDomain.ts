@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
-import { z } from 'zod';
+import { lowercase, z } from 'zod';
 
 import { requestJsonValidator } from '../../../../../lib/requestValidators';
+import { prisma } from '../../../../../lib/prisma';
+import fi from 'zod/v4/locales/fi.cjs';
 
 export default new Hono().post(
    '/',
@@ -28,12 +30,32 @@ export default new Hono().post(
                      .min(1, { error: 'Value cannot be empty' })
                })
             )
-            .optional()
+            .default([])
       })
    ),
    async (c) => {
       // Get request information
       const body = c.req.valid('json');
+
+      const newDomain = await prisma.domains.create({
+         data: {
+            name: body.name,
+            Data: {
+               create: {
+                  DataFields: {
+                     createMany: {
+                        data: body.dataFields.map((field) => ({
+                           name: field.name,
+                           identifier: field.name.toLowerCase().replaceAll(" ", "-"),
+                           value: field.value,
+                           type: field.type
+                        }))
+                     }
+                  }
+               }
+            }
+         }
+      });
 
       // Create the dataField link?
       // const domain = await prisma.domains.create({
