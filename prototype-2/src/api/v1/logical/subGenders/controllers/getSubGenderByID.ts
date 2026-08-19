@@ -30,17 +30,16 @@ export default new OpenAPIHono().openapi(
                      domainId: z.number(),
                      name: z.string(),
                      dataId: z.number(),
-                     dataFields: z
-                        .array(
-                           z.object({
-                              id: z.number(),
-                              identifier: z.string(),
-                              name: z.string(),
-                              type: z.string(),
-                              value: z.string().nullable(),
-                              deletable: z.boolean()
-                           })
-                        )
+                     dataFields: z.array(
+                        z.object({
+                           id: z.number(),
+                           identifier: z.string(),
+                           name: z.string(),
+                           type: z.string(),
+                           value: z.string().nullable(),
+                           deletable: z.boolean()
+                        })
+                     )
                   })
                }
             }

@@ -38,17 +38,16 @@ export default new OpenAPIHono().openapi(
                            priority: z.number()
                         })
                      ),
-                     dataFields: z
-                        .array(
-                           z.object({
-                              id: z.number(),
-                              identifier: z.string(),
-                              name: z.string(),
-                              type: z.string(),
-                              value: z.string().nullable(),
-                              deletable: z.boolean()
-                           })
-                        )
+                     dataFields: z.array(
+                        z.object({
+                           id: z.number(),
+                           identifier: z.string(),
+                           name: z.string(),
+                           type: z.string(),
+                           value: z.string().nullable(),
+                           deletable: z.boolean()
+                        })
+                     )
                   })
                }
             }
@@ -107,7 +106,9 @@ export default new OpenAPIHono().openapi(
          const DataFieldsArray = [];
          DataFieldsArray.unshift(gender.Domains.Data.DataFields);
          DataFieldsArray.unshift(gender.Data.DataFields);
-         gender.GenderHierarchy.sort((a, b) => b.priority - a.priority).forEach((sub) => DataFieldsArray.unshift(sub.SubGenders.Data.DataFields))
+         gender.GenderHierarchy.sort((a, b) => b.priority - a.priority).forEach((sub) =>
+            DataFieldsArray.unshift(sub.SubGenders.Data.DataFields)
+         );
 
          return c.json(
             {
