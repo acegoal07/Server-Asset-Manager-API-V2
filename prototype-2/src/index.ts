@@ -24,6 +24,33 @@ hono.use(
 import v1 from './api/v1';
 hono.route('/api/v1', v1);
 
+// CREATE VERSIONED DOCS
+hono.get('/api/v1/openapi.json', (c) => {
+   return c.json(
+      v1.getOpenAPI31Document({
+         openapi: '3.1.0',
+         info: {
+            title: 'My API',
+            version: '1.0.0'
+         },
+         servers: [
+            {
+               url: '/api/v1'
+            }
+         ]
+      })
+   );
+});
+
+// HOST VERSIONED DOCS
+import { Scalar } from '@scalar/hono-api-reference';
+hono.get(
+   '/api/v1/docs',
+   Scalar({
+      url: '/api/v1/openapi.json'
+   })
+);
+
 // HANDLE UNCAUGHT ERRORS
 import { internalServerError } from './lib/errorMessages';
 hono.onError((err, c) => internalServerError(c, err));
@@ -37,29 +64,6 @@ hono.notFound((c) =>
       },
       404
    )
-);
-
-// ADD API DOCS
-hono.doc('/openapi.json', {
-   openapi: '3.0.0',
-   info: {
-      version: '1.0.0',
-      title: 'My API'
-   },
-   'x-tagGroups': [
-      {
-         name: 'v1',
-         tags: ['v1-Domains', 'v1-Assets', 'v1-Genders']
-      }
-   ]
-});
-
-import { Scalar } from '@scalar/hono-api-reference';
-hono.get(
-   '/docs',
-   Scalar({
-      url: '/openapi.json'
-   })
 );
 
 // START UP SERVER

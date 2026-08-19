@@ -11,7 +11,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/',
-      tags: ['v1-Domains'],
+      description: 'Creates a new domain',
+      tags: ['Domains'],
       request: {
          body: {
             content: {

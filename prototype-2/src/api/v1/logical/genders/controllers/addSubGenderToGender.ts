@@ -12,7 +12,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/{id}/subgender',
-      tags: ['v1-Genders'],
+      description: 'Adds a sub gender to a primary gender',
+      tags: ['Genders'],
       request: {
          params: z.object({
             id: z.coerce

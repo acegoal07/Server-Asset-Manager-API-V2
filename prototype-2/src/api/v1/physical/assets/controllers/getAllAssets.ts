@@ -10,7 +10,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'get',
       path: '/',
-      tags: ['v1-Assets'],
+      description: 'Retrieves all the assets',
+      tags: ['Assets'],
       responses: {
          200: {
             description: 'Assets retrieved',

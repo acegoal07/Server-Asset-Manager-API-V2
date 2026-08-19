@@ -12,7 +12,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/',
-      tags: ['v1-Genders'],
+      description: 'Creates a new primary gender',
+      tags: ['Genders'],
       request: {
          body: {
             content: {

@@ -8,7 +8,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'delete',
       path: '/{id}',
-      tags: ['v1-Assets'],
+      description: 'Deletes an asset',
+      tags: ['Assets'],
       request: {
          params: z.object({
             id: z.coerce.number().int().positive()

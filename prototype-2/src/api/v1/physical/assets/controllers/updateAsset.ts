@@ -10,7 +10,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
       path: '/{id}',
-      tags: ['v1-Assets'],
+      description: 'Updates an asset',
+      tags: ['Assets'],
       request: {
          params: z.object({
             id: z.coerce.number().int().positive()
