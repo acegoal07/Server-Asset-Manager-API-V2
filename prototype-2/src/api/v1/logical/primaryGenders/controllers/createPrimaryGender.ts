@@ -5,14 +5,17 @@ import {
    BadRequestErrorSchema,
    ConflictErrorSchema,
    InternalServerErrorSchema,
+   InvalidMaskSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
    existingResourceError,
    internalServerError,
+   invalidParametersRequestError,
    notFoundError
 } from '../../../../../lib/errorMessages';
 import { CreateDataFieldSchema } from '../../../../../lib/dataFieldHelpers';
+import { checkNameMaskForSize } from '../../../../../lib/nameMask';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -37,10 +40,6 @@ export default new OpenAPIHono().openapi(
                         .string({ error: 'Node name mask must be a string' })
                         .trim()
                         .min(1, { error: 'Node name mask cannot be empty' }),
-                     nodeIpMask: z
-                        .string({ error: 'Node IP mask must be a string' })
-                        .trim()
-                        .min(1, { error: 'Node IP mask cannot be empty' }),
                      nodeCount: z
                         .number({ error: 'Node count must be a number' })
                         .int({ error: 'Node count must be an integer' })
@@ -65,10 +64,10 @@ export default new OpenAPIHono().openapi(
                }
             }
          },
-         ...BadRequestErrorSchema,
          ...NotFoundErrorSchema,
          ...ConflictErrorSchema,
-         ...InternalServerErrorSchema
+         ...InternalServerErrorSchema,
+         ...BadRequestErrorSchema
       }
    }),
    async (c) => {
@@ -112,50 +111,59 @@ export default new OpenAPIHono().openapi(
          }
 
          // Create the new primary gender
-         const newGender = await prisma.primaryGenders.create({
-            data: {
-               name: body.name,
-               genderIndex: domain._count.PrimaryGenders + 1,
-               Domains: {
-                  connect: {
-                     id: body.domainId
-                  }
-               },
-               Data: {
-                  create: {
-                     DataFields: {
-                        createMany: {
-                           data: [
-                              ...body.dataFields.map((field) => ({
+         // Create the new primary gender and its nodes
+         const newGender = await prisma.$transaction(async (tx) => {
+            const gender = await tx.primaryGenders.create({
+               data: {
+                  name: body.name,
+                  genderIndex: domain._count.PrimaryGenders + 1,
+                  nameMask: body.nodeNameMask,
+                  nodeCount: body.nodeCount,
+                  Domains: {
+                     connect: {
+                        id: body.domainId
+                     }
+                  },
+                  Data: {
+                     create: {
+                        DataFields: {
+                           createMany: {
+                              data: body.dataFields.map((field) => ({
                                  name: field.name,
                                  identifier: field.name.toLowerCase().replaceAll(' ', '-'),
                                  value: field.value,
                                  type: field.type
-                              })),
-                              {
-                                 name: 'Node count',
-                                 identifier: 'node-count',
-                                 value: body.nodeCount.toString(),
-                                 type: 'number'
-                              },
-                              {
-                                 name: 'Node name mask',
-                                 identifier: 'node-name-mask',
-                                 value: body.nodeNameMask,
-                                 type: 'string'
-                              },
-                              {
-                                 name: 'Node IP mask',
-                                 identifier: 'node-ip-mask',
-                                 value: body.nodeIpMask,
-                                 type: 'string'
-                              }
-                           ]
+                              }))
+                           }
                         }
                      }
                   }
+               },
+               include: {
+                  Data: true
                }
+            });
+
+            // Create the requested number of nodes
+
+            // Add name mask stuff
+            for (let nodeIndex = 1; nodeIndex <= body.nodeCount; nodeIndex++) {
+               await tx.nodes.create({
+                  data: {
+                     nodeIndex,
+                     Data: {
+                        create: {}
+                     },
+                     PrimaryGenders: {
+                        connect: {
+                           id: gender.id
+                        }
+                     }
+                  }
+               });
             }
+
+            return gender;
          });
 
          return c.json(

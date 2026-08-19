@@ -50,6 +50,8 @@ CREATE TABLE Domains (
 CREATE TABLE PrimaryGenders (
    id INT AUTO_INCREMENT PRIMARY KEY,
    domainId INT NOT NULL,
+   nodeCount INT NOT NULL,
+   nameMask VARCHAR(255) NOT NULL,
    name VARCHAR(255) NOT NULL,
    dataId int NOT NULL,
    genderIndex INT NOT NULL,
@@ -87,10 +89,11 @@ CREATE TABLE GenderHierarchy (
 CREATE TABLE Nodes (
    id INT AUTO_INCREMENT PRIMARY KEY,
    primaryGenderId INT NOT NULL,
-   name VARCHAR(255) NOT NULL,
+   name VARCHAR(255) NULL,
    dataId int NOT NULL,
    nodeIndex INT NOT NULL,
-   CONSTRAINT fk_nodes_data FOREIGN KEY (dataId) REFERENCES Data (id)
+   CONSTRAINT fk_nodes_data FOREIGN KEY (dataId) REFERENCES Data (id),
+   CONSTRAINT fk_nodes_gender FOREIGN KEY (primaryGenderId) REFERENCES PrimaryGenders (id)
 );
 -- ===========================================================
 -- AssetNode

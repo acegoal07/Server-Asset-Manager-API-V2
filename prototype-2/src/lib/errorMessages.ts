@@ -50,6 +50,15 @@ export function invalidParametersRequestError(
    });
 }
 
+export function invalidMaskRequestError(c: Context, result: { error: { issues: unknown[] } }) {
+   return customError(c, {
+      error: 'INVALID_MASK',
+      message: 'The provided name mask is invalid.',
+      details: result.error.issues,
+      code: 400
+   });
+}
+
 /**
  * Responds with an invalid body error message populated with the issues from
  * the validator

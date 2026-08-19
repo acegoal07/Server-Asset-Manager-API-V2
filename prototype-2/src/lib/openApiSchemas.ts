@@ -10,6 +10,24 @@ export const BadRequestErrorSchema = {
          'application/json': {
             schema: z.object({
                error: z.string(),
+               message: z.string().optional(),
+               details: z.unknown().optional()
+            })
+         }
+      }
+   }
+};
+
+/**
+ * The openAPI docs for an bad request error
+ */
+export const InvalidMaskSchema = {
+   400: {
+      description: 'Invalid mask',
+      content: {
+         'application/json': {
+            schema: z.object({
+               error: z.literal('INVALID_MASK'),
                message: z.string(),
                details: z.unknown().optional()
             })

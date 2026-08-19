@@ -72,24 +72,29 @@ model GenderHierarchy {
 }
 
 model Nodes {
-  id              Int         @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   primaryGenderId Int
-  name            String      @db.VarChar(255)
+  name            String?        @db.VarChar(255)
   dataId          Int
   nodeIndex       Int
   AssetNode       AssetNode[]
-  Data            Data        @relation(fields: [dataId], references: [id], onUpdate: Restrict, map: "fk_nodes_data")
+  Data            Data           @relation(fields: [dataId], references: [id], onUpdate: Restrict, map: "fk_nodes_data")
+  PrimaryGenders  PrimaryGenders @relation(fields: [primaryGenderId], references: [id], onUpdate: Restrict, map: "fk_nodes_gender")
 
   @@index([dataId], map: "fk_nodes_data")
+  @@index([primaryGenderId], map: "fk_nodes_gender")
 }
 
 model PrimaryGenders {
   id              Int               @id @default(autoincrement())
   domainId        Int
+  nodeCount       Int
+  nameMask        String            @db.VarChar(255)
   name            String            @db.VarChar(255)
   dataId          Int
   genderIndex     Int
   GenderHierarchy GenderHierarchy[]
+  Nodes           Nodes[]
   Data            Data              @relation(fields: [dataId], references: [id], onUpdate: Restrict, map: "fk_primarygender_data")
   Domains         Domains           @relation(fields: [domainId], references: [id], onUpdate: Restrict, map: "fk_primarygender_domain")
 
