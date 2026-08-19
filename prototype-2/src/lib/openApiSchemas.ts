@@ -20,7 +20,7 @@ export const BadRequestErrorSchema = {
 
 export const NotFoundErrorSchema = {
    404: {
-      description: 'Asset not found',
+      description: 'Resource not found',
       content: {
          'application/json': {
             schema: z.object({
