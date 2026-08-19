@@ -19,7 +19,7 @@ import { cors } from 'hono/cors';
 hono.use(
    '*',
    cors({
-      allowMethods: ['POST', 'GET', 'DELETE', 'PATCH', 'PUT', 'OPTIONS']
+      allowMethods: ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS']
    })
 );
 
