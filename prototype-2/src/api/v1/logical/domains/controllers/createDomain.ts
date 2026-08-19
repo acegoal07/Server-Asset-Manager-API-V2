@@ -37,6 +37,7 @@ export default new OpenAPIHono().openapi(
                'application/json': {
                   schema: z.object({
                      id: z.number(),
+                     dataId: z.number(),
                      name: z.string()
                   })
                }
@@ -83,6 +84,13 @@ export default new OpenAPIHono().openapi(
          }
       });
 
-      return c.json(newDomain, 201);
+      return c.json(
+         {
+            id: newDomain.id,
+            dataId: newDomain.dataId,
+            name: newDomain.name
+         },
+         201
+      );
    }
 );

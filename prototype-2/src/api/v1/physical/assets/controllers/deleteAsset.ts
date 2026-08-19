@@ -7,7 +7,7 @@ import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../l
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'delete',
-      path: '/{id}',
+      path: '/',
       description: 'Deletes an asset',
       tags: ['Assets'],
       request: {

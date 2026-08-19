@@ -34,7 +34,17 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Successfully linked sub gender to gender'
+            description: 'Successfully linked sub gender to gender',
+            content: {
+               'application/json': {
+                  schema: z.object({
+                     id: z.number(),
+                     domainId: z.number(),
+                     name: z.string(),
+                     genderIndex: z.number()
+                  })
+               }
+            }
          },
          ...BadRequestErrorSchema,
          ...NotFoundErrorSchema,
@@ -100,7 +110,15 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         return c.json(updatedGender);
+         return c.json(
+            {
+               id: updatedGender.id,
+               domainId: updatedGender.domainId,
+               name: updatedGender.name,
+               genderIndex: updatedGender.genderIndex
+            },
+            200
+         );
       } catch (err) {
          return internalServerError(c, err);
       }

@@ -9,7 +9,7 @@ import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../l
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'get',
-      path: '/{id}',
+      path: '/',
       description: "Retrieves an asset using it's ID",
       tags: ['Assets'],
       request: {
@@ -44,8 +44,10 @@ export default new OpenAPIHono().openapi(
    }),
    async (c) => {
       try {
+         // Get request information
          const { id } = c.req.valid('param');
 
+         // Try and get the asset from the database
          const asset = await prisma.assets.findUnique({
             where: {
                id
@@ -53,6 +55,7 @@ export default new OpenAPIHono().openapi(
             ...assetSerializerArgs
          });
 
+         // Check the asset exists
          if (!asset) {
             return notFoundError(c, `Asset with id: ${id} could not be found.`);
          }
