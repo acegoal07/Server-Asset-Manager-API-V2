@@ -36,3 +36,19 @@ export function getNodeNameFromMask(mask: string, nodeNumber: number): string {
 
    return `${match[1]}${nodeNumber.toString().padStart(padding, '0')}${match[5]}`;
 }
+
+export function findNodeIndex(mask: string, nodeName: string, nodeCount: number): number {
+   for (let i = 1; i <= nodeCount; i++) {
+      try {
+         const generatedName = getNodeNameFromMask(mask, i);
+
+         if (generatedName === nodeName) {
+            return i;
+         }
+      } catch {
+         // Index isn't valid for this mask, continue
+      }
+   }
+
+   return 0;
+}

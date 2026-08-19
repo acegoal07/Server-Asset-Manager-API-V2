@@ -72,7 +72,7 @@ export async function updateDataFields(
 /**
  * Datafield type
  */
-type dataFields = {
+export type dataFields = {
    id: number;
    dataId: number;
    name: string;
@@ -92,7 +92,8 @@ type dataFields = {
 export function handleDataFieldsMerge(
    domain: dataFields[],
    primaryGender: dataFields[],
-   subGenders: dataFields[]
+   subGenders: dataFields[],
+   node: dataFields[]
 ): dataFields[] {
    const mergeByName = (target: dataFields[], source: dataFields[]): dataFields[] => {
       return source.reduce<dataFields[]>(
@@ -115,12 +116,12 @@ export function handleDataFieldsMerge(
       );
    };
 
-   return merge.all([domain, primaryGender, subGenders], {
+   return merge.all([domain, subGenders, primaryGender, node], {
       arrayMerge: mergeByName
    }) as dataFields[];
 }
-
 /**
+
  * Create data field openAPI schema
  */
 export const CreateDataFieldSchema = z

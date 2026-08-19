@@ -14,7 +14,7 @@ import {
    notFoundError
 } from '../../../../../lib/errorMessages';
 import { CreateDataFieldSchema } from '../../../../../lib/dataFieldHelpers';
-import { checkNameMaskForSize, getNodeNameFromMask } from '../../../../../lib/nameMask';
+import { checkNameMaskForSize } from '../../../../../lib/nameMask';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -154,23 +154,6 @@ export default new OpenAPIHono().openapi(
                   Data: true
                }
             });
-
-            for (let nodeIndex = 1; nodeIndex <= body.nodeCount; nodeIndex++) {
-               await tx.nodes.create({
-                  data: {
-                     nodeIndex,
-                     name: getNodeNameFromMask(body.nodeNameMask, nodeIndex),
-                     Data: {
-                        create: {}
-                     },
-                     PrimaryGenders: {
-                        connect: {
-                           id: gender.id
-                        }
-                     }
-                  }
-               });
-            }
 
             return gender;
          });
