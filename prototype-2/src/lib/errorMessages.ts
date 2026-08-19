@@ -99,7 +99,9 @@ export function internalServerError(c: Context, err: unknown) {
       },
       500
    );
-} /**
+}
+
+/**
  * Responds with a not found error message
  * @param c
  * @returns
