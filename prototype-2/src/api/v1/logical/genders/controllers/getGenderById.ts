@@ -3,13 +3,14 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
+import { deepMergeByName } from '../../../../../lib/deepMerge';
 
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'get',
       path: '/',
-      description: "Retrieves a sub gender using it's ID",
-      tags: ['Sub Genders'],
+      description: "Retrieves a primary gender using it's ID",
+      tags: ['Genders'],
       request: {
          params: z.object({
             id: z.coerce
@@ -22,7 +23,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Retrieved sub gender',
+            description: 'Retrieved primary gender',
             content: {
                'application/json': {
                   schema: z.object({
@@ -30,6 +31,13 @@ export default new OpenAPIHono().openapi(
                      domainId: z.number(),
                      name: z.string(),
                      dataId: z.number(),
+                     subGenders: z.array(
+                        z.object({
+                           id: z.number(),
+                           name: z.string(),
+                           priority: z.number()
+                        })
+                     ),
                      dataFields: z.array(
                         z.object({
                            id: z.number(),
@@ -59,9 +67,31 @@ export default new OpenAPIHono().openapi(
                id
             },
             include: {
+               GenderHierarchy: {
+                  include: {
+                     SubGenders: {
+                        include: {
+                           Data: {
+                              include: {
+                                 DataFields: true
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
                Data: {
                   include: {
                      DataFields: true
+                  }
+               },
+               Domains: {
+                  include: {
+                     Data: {
+                        include: {
+                           DataFields: true
+                        }
+                     }
                   }
                }
             }
@@ -72,13 +102,26 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Sub gender with id: ${id} could not be found.`);
          }
 
+         // Data fields array
+         const DataFieldsArray = [];
+         DataFieldsArray.unshift(gender.Domains.Data.DataFields);
+         DataFieldsArray.unshift(gender.Data.DataFields);
+         gender.GenderHierarchy.sort((a, b) => b.priority - a.priority).forEach((sub) =>
+            DataFieldsArray.unshift(sub.SubGenders.Data.DataFields)
+         );
+
          return c.json(
             {
                id: gender.id,
                domainId: gender.domainId,
                name: gender.name,
                dataId: gender.dataId,
-               dataFields: gender.Data.DataFields.map((field) => ({
+               subGenders: gender.GenderHierarchy.map((sub) => ({
+                  id: sub.SubGenders.id,
+                  name: sub.SubGenders.name,
+                  priority: sub.priority
+               })),
+               dataFields: deepMergeByName(DataFieldsArray).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,

@@ -9,7 +9,7 @@ type NamedItem = {
    name: string;
    identifier: string;
    type: string;
-   value: string;
+   value: string | null;
    deletable: boolean;
 };
 

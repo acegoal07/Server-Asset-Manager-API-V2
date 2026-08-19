@@ -8,8 +8,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'get',
       path: '/',
-      description: "Retrieves a sub gender using it's ID",
-      tags: ['Sub Genders'],
+      description: "Retrieves a domain using it's ID",
+      tags: ['Domains'],
       request: {
          params: z.object({
             id: z.coerce
@@ -22,12 +22,11 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Retrieved sub gender',
+            description: 'Retrieved domain',
             content: {
                'application/json': {
                   schema: z.object({
                      id: z.number(),
-                     domainId: z.number(),
                      name: z.string(),
                      dataId: z.number(),
                      dataFields: z.array(
@@ -53,8 +52,8 @@ export default new OpenAPIHono().openapi(
          // Get request information
          const { id } = c.req.valid('param');
 
-         // Try and get sub gender from the database
-         const gender = await prisma.subGenders.findUnique({
+         // Try and get domain from the database
+         const domain = await prisma.domains.findUnique({
             where: {
                id
             },
@@ -67,18 +66,17 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         // Check if the sub gender exists
-         if (!gender) {
-            return notFoundError(c, `Sub gender with id: ${id} could not be found.`);
+         // Check if the domain exists
+         if (!domain) {
+            return notFoundError(c, `Domain with id: ${id} could not be found.`);
          }
 
          return c.json(
             {
-               id: gender.id,
-               domainId: gender.domainId,
-               name: gender.name,
-               dataId: gender.dataId,
-               dataFields: gender.Data.DataFields.map((field) => ({
+               id: domain.id,
+               name: domain.name,
+               dataId: domain.dataId,
+               dataFields: domain.Data.DataFields.map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,
