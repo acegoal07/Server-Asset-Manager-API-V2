@@ -2,7 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 
 import createPrimaryGender from './controllers/createPrimaryGender';
 import deletePrimaryGender from './controllers/deletePrimaryGender';
-import getPrimaryGenderById from './controllers/getPrimaryGenderById';
+import getPrimaryGenderById from './controllers/getPrimaryGenderByID';
 import addSubGenderToPrimaryGender from './controllers/addSubGenderToPrimaryGender';
 import getAllPrimaryGenders from './controllers/getAllPrimaryGenders';
 import updatePrimaryGender from './controllers/updatePrimaryGender';
