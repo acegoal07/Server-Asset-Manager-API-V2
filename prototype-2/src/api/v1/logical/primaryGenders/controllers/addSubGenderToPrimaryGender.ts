@@ -13,7 +13,7 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/',
-      description: 'Adds a sub gender to a primary gender',
+      description: 'Adds sub genders to a primary gender',
       tags: ['Primary Genders'],
       request: {
          params: z.object({
@@ -41,7 +41,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Successfully linked sub gender to gender',
+            description: 'Successfully linked all the sub genders to the primary gender',
             content: {
                'application/json': {
                   schema: z.object({

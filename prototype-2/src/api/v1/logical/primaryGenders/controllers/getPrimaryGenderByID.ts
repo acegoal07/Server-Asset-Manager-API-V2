@@ -109,7 +109,8 @@ export default new OpenAPIHono().openapi(
                dataFields: handleDataFieldsMerge(
                   gender.Domains.Data.DataFields,
                   gender.Data.DataFields,
-                  gender.GenderHierarchy.flatMap((sub) => sub.SubGenders.Data.DataFields)
+                  gender.GenderHierarchy.flatMap((sub) => sub.SubGenders.Data.DataFields),
+                  []
                ).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,

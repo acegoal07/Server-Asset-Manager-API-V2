@@ -6,8 +6,11 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 const hono = new OpenAPIHono();
 
 // LOAD MIDDLEWARE
-hono.use('*', (await import('hono/trailing-slash')).trimTrailingSlash());
-hono.use('*', (await import('hono/compress')).compress());
+import { trimTrailingSlash } from 'hono/trailing-slash';
+hono.use('*', trimTrailingSlash());
+
+import { compress } from 'hono/compress';
+hono.use('*', compress());
 
 import { debugLogger } from './middleware/debugLogger';
 hono.use('*', debugLogger);
@@ -16,7 +19,7 @@ import { cors } from 'hono/cors';
 hono.use(
    '*',
    cors({
-      allowMethods: ['POST', 'GET', 'DELETE', 'PATCH', 'PUT', 'OPTIONS']
+      allowMethods: ['POST', 'GET', 'DELETE', 'PATCH', 'OPTIONS']
    })
 );
 
