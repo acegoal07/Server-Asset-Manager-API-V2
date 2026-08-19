@@ -22,12 +22,17 @@ export default new OpenAPIHono().openapi(
          body: {
             content: {
                'application/json': {
-                  schema: z.object({
-                     subGenderID: z
-                        .number({ error: 'Sub gender ID must be a number' })
-                        .int({ error: 'Sub gender ID must be an integer' })
-                        .positive({ error: 'Sub gender ID must be greater than 0' })
-                  })
+                  schema: z
+                     .array(
+                        z
+                           .number({ error: 'Sub gender ID must be a number' })
+                           .int({ error: 'Sub gender ID must be an integer' })
+                           .positive({ error: 'Sub gender ID must be greater than 0' })
+                     )
+                     .min(1, { error: 'At least one sub gender ID is required' })
+                     .refine((ids) => new Set(ids).size === ids.length, {
+                        error: 'Sub gender IDs must be unique'
+                     })
                }
             }
          }
@@ -77,38 +82,56 @@ export default new OpenAPIHono().openapi(
          }
 
          // Try and get sub gender from the database
-         const subGender = await prisma.subGenders.findUnique({
+         const subGenders = await prisma.subGenders.findMany({
             where: {
-               id: body.subGenderID
+               id: {
+                  in: body
+               }
             },
             select: {
                id: true
             }
          });
 
-         // Check sub gender exists
-         if (!subGender) {
-            return notFoundError(c, 'No sub gender was found with that ID');
+         // Check sub genders exists
+         if (subGenders.length !== body.length) {
+            return notFoundError(c, 'One or more sub genders were not found');
          }
 
          // Update gender to be linked to the sub gender
-         const updatedGender = await prisma.primaryGenders.update({
-            where: {
-               id
-            },
-            data: {
-               GenderHierarchy: {
-                  create: {
-                     SubGenders: {
-                        connect: {
-                           id: body.subGenderID
+         const startingPriority = gender._count.GenderHierarchy + 1;
+         const updatedGender = await prisma.$transaction(async (tx) => {
+            for (const [index, subGenderId] of body.entries()) {
+               await tx.primaryGenders.update({
+                  where: {
+                     id
+                  },
+                  data: {
+                     GenderHierarchy: {
+                        create: {
+                           SubGenders: {
+                              connect: {
+                                 id: subGenderId
+                              }
+                           },
+                           priority: startingPriority + index
                         }
-                     },
-                     priority: gender._count.GenderHierarchy + 1
+                     }
                   }
-               }
+               });
             }
+
+            return tx.primaryGenders.findUnique({
+               where: {
+                  id
+               }
+            });
          });
+
+         // Make sure a updated gender is returned
+         if (!updatedGender) {
+            return notFoundError(c, 'Failed to retrieve gender after updating');
+         }
 
          return c.json(
             {
