@@ -51,8 +51,8 @@ export default new OpenAPIHono().openapi(
          // Get request information
          const { id } = c.req.valid('param');
 
-         // Try and get sub gender from the database
-         const gender = await prisma.subGenders.findUnique({
+         // Try and get primary gender from the database
+         const gender = await prisma.primaryGenders.findUnique({
             where: {
                id
             },
@@ -90,9 +90,9 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         // Check if the sub gender exists
+         // Check if the primary gender exists
          if (!gender) {
-            return notFoundError(c, `Sub gender with id: ${id} could not be found.`);
+            return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
 
          return c.json(

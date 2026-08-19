@@ -7,19 +7,18 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
  * @param error
  * @param details
  */
-export function customError(
+export function customError<S extends ContentfulStatusCode>(
    c: Context,
    {
       error,
       message,
-      details,
-      code = 500
+      details
    }: {
       error: string;
-      message?: string;
+      message: string;
       details?: unknown;
-      code?: ContentfulStatusCode;
-   }
+   },
+   code: S
 ) {
    return c.json(
       {

@@ -8,11 +8,14 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
+   customError,
    existingResourceError,
    internalServerError,
    notFoundError
 } from '../../../../../lib/errorMessages';
 import { CreateDataFieldSchema } from '../../../../../lib/dataFieldHelpers';
+import { checkIpMaskForSize } from '../../../../../lib/ipMask';
+import { checkNameMaskForSize } from '../../../../../lib/nameMask';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -108,6 +111,30 @@ export default new OpenAPIHono().openapi(
             return existingResourceError(
                c,
                'A primary gender with that name already exists in this domain'
+            );
+         }
+
+         // Validate IP mask for gender size
+         if (!checkIpMaskForSize(body.nodeIpMask, body.nodeCount)) {
+            return customError(
+               c,
+               {
+                  error: 'INVALID_IP_MASK',
+                  message: 'The IP mask is not compatible with the node count'
+               },
+               400
+            );
+         }
+
+         // Validate nam mask for gender size
+         if (!checkNameMaskForSize(body.nodeNameMask, body.nodeCount)) {
+            return customError(
+               c,
+               {
+                  error: 'INVALID_NAME_MASK',
+                  message: 'The name mask is not compatible with the node count'
+               },
+               400
             );
          }
 
