@@ -115,7 +115,7 @@ export function handleDataFieldsMerge(
       );
    };
 
-   return merge.all([...subGenders, ...primaryGender, ...domain], {
+   return merge.all([domain, primaryGender, subGenders], {
       arrayMerge: mergeByName
    }) as dataFields[];
 }
