@@ -18,6 +18,9 @@ export const BadRequestErrorSchema = {
    }
 };
 
+/**
+ * The openAPI docs for a not found error
+ */
 export const NotFoundErrorSchema = {
    404: {
       description: 'Resource not found',
