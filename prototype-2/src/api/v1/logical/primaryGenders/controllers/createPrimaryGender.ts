@@ -55,22 +55,8 @@ export default new OpenAPIHono().openapi(
                               .int({ error: 'Sub gender ID must be an integer' })
                               .positive({ error: 'Sub gender ID must be greater than 0' })
                         )
-                        .default([])
-                        .openapi({
-                           example: [1, 2, 3]
-                        }),
-                     dataFields: z
-                        .array(CreateDataFieldSchema)
-                        .default([])
-                        .openapi({
-                           example: [
-                              {
-                                 name: 'Example Field',
-                                 value: 'Example Value',
-                                 type: 'string'
-                              }
-                           ]
-                        })
+                        .default([]),
+                     dataFields: z.array(CreateDataFieldSchema).default([])
                   })
                }
             }
