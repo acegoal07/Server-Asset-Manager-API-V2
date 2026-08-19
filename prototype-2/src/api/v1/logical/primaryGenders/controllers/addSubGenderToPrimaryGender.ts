@@ -22,17 +22,19 @@ export default new OpenAPIHono().openapi(
          body: {
             content: {
                'application/json': {
-                  schema: z
-                     .array(
-                        z
-                           .number({ error: 'Sub gender ID must be a number' })
-                           .int({ error: 'Sub gender ID must be an integer' })
-                           .positive({ error: 'Sub gender ID must be greater than 0' })
-                     )
-                     .min(1, { error: 'At least one sub gender ID is required' })
-                     .refine((ids) => new Set(ids).size === ids.length, {
-                        error: 'Sub gender IDs must be unique'
-                     })
+                  schema: z.object({
+                     ids: z
+                        .array(
+                           z
+                              .number({ error: 'Sub gender ID must be a number' })
+                              .int({ error: 'Sub gender ID must be an integer' })
+                              .positive({ error: 'Sub gender ID must be greater than 0' })
+                        )
+                        .min(1, { error: 'At least one sub gender ID is required' })
+                        .refine((ids) => new Set(ids).size === ids.length, {
+                           error: 'Sub gender IDs must be unique'
+                        })
+                  })
                }
             }
          }
@@ -85,7 +87,7 @@ export default new OpenAPIHono().openapi(
          const subGenders = await prisma.subGenders.findMany({
             where: {
                id: {
-                  in: body
+                  in: body.ids
                }
             },
             select: {
@@ -94,14 +96,14 @@ export default new OpenAPIHono().openapi(
          });
 
          // Check sub genders exists
-         if (subGenders.length !== body.length) {
+         if (subGenders.length !== body.ids.length) {
             return notFoundError(c, 'One or more sub genders were not found');
          }
 
          // Update gender to be linked to the sub gender
          const startingPriority = gender._count.GenderHierarchy + 1;
          const updatedGender = await prisma.$transaction(async (tx) => {
-            for (const [index, subGenderId] of body.entries()) {
+            for (const [index, subGenderId] of body.ids.entries()) {
                await tx.primaryGenders.update({
                   where: {
                      id
