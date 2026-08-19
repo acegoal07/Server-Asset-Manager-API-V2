@@ -12,8 +12,8 @@ import { internalServerError } from '../../../../../lib/errorMessages';
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
-      path: '/:id',
-      tags: ['v1-Domains'],
+      path: '/',
+      tags: ['Domains'],
       request: {
          params: z.object({
             id: z.coerce.number()
