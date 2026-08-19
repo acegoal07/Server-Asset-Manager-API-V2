@@ -14,7 +14,7 @@ export default new OpenAPIHono().openapi(
       method: 'post',
       path: '/',
       description: 'Adds a sub gender to a primary gender',
-      tags: ['Genders'],
+      tags: ['Primary Genders'],
       request: {
          params: z.object({
             ...IdSchema

@@ -13,7 +13,7 @@ export default new OpenAPIHono().openapi(
       method: 'delete',
       path: '/',
       description: 'Deletes a primary gender',
-      tags: ['Genders'],
+      tags: ['Primary Genders'],
       request: {
          params: z.object({
             ...IdSchema

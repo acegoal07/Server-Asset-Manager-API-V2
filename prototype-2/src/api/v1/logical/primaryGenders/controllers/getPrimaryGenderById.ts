@@ -15,7 +15,7 @@ export default new OpenAPIHono().openapi(
       method: 'get',
       path: '/',
       description: "Retrieves a primary gender using it's ID",
-      tags: ['Genders'],
+      tags: ['Primary Genders'],
       request: {
          params: z.object({
             ...IdSchema

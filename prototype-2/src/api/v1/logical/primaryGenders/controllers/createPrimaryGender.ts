@@ -19,7 +19,7 @@ export default new OpenAPIHono().openapi(
       method: 'post',
       path: '/',
       description: 'Creates a new primary gender',
-      tags: ['Genders'],
+      tags: ['Primary Genders'],
       request: {
          body: {
             content: {

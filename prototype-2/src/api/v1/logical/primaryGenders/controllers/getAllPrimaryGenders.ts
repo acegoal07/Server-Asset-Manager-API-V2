@@ -8,18 +8,20 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'get',
       path: '/',
-      description: 'Retrieves all domains',
-      tags: ['Domains'],
+      description: 'Retrieves all primary genders',
+      tags: ['Primary Genders'],
       responses: {
          200: {
-            description: 'Retrieved all domains',
+            description: 'Retrieved all primary genders',
             content: {
                'application/json': {
                   schema: z.array(
                      z.object({
                         id: z.number(),
+                        domainId: z.number(),
                         dataId: z.number(),
-                        name: z.string()
+                        name: z.string(),
+                        genderIndex: z.number()
                      })
                   )
                }
@@ -31,14 +33,16 @@ export default new OpenAPIHono().openapi(
    }),
    async (c) => {
       try {
-         // get all the domains from the database
-         const domains = await prisma.domains.findMany();
+         // Get all the primary genders from the database
+         const genders = await prisma.primaryGenders.findMany();
 
          return c.json(
-            domains.map((domain) => ({
-               id: domain.id,
-               dataId: domain.dataId,
-               name: domain.name
+            genders.map((gender) => ({
+               id: gender.id,
+               domainId: gender.domainId,
+               dataId: gender.dataId,
+               name: gender.name,
+               genderIndex: gender.genderIndex
             })),
             200
          );
