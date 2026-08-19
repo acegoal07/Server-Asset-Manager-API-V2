@@ -10,7 +10,8 @@ export const BadRequestErrorSchema = {
          'application/json': {
             schema: z.object({
                error: z.string(),
-               message: z.string()
+               message: z.string(),
+               details: z.unknown().optional()
             })
          }
       }
@@ -24,8 +25,7 @@ export const NotFoundErrorSchema = {
          'application/json': {
             schema: z.object({
                error: z.string(),
-               message: z.string(),
-               details: z.unknown().optional()
+               message: z.string()
             })
          }
       }
@@ -59,8 +59,7 @@ export const InternalServerErrorSchema = {
          'application/json': {
             schema: z.object({
                error: z.string(),
-               message: z.string().optional(),
-               details: z.unknown().optional()
+               message: z.string().optional()
             })
          }
       }
