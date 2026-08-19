@@ -13,7 +13,7 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/',
-      description: 'Adds sub genders to a primary gender',
+      description: 'Removes sub genders from a primary gender',
       tags: ['Primary Genders'],
       request: {
          params: z.object({
@@ -41,7 +41,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Successfully linked all the sub genders to the primary gender',
+            description: 'Successfully removed the sub genders from the primary gender',
             content: {
                'application/json': {
                   schema: z.object({
@@ -83,7 +83,7 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, 'No primary gender was found with that ID');
          }
 
-         // Try and get sub gender from the database
+         // Try and get the sub genders from the database
          const subGenders = await prisma.subGenders.findMany({
             where: {
                id: {
@@ -100,28 +100,46 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, 'One or more sub genders were not found');
          }
 
+         // Try and get the sub genders linked to the primary gender
+         const linkedSubGenders = await prisma.genderHierarchy.findMany({
+            where: {
+               primaryGenderId: id,
+               SubGenders: {
+                  some: {
+                     id: {
+                        in: body.ids
+                     }
+                  }
+               }
+            },
+            select: {
+               SubGenders: {
+                  select: {
+                     id: true
+                  }
+               }
+            }
+         });
+
+         // Check sub genders exists
+         if (linkedSubGenders.length !== body.ids.length) {
+            return notFoundError(c, 'One or more sub genders are not linked to the primary gender');
+         }
+
          // Update gender to be linked to the sub gender
-         const startingPriority = gender._count.GenderHierarchy + 1;
          const updatedGender = await prisma.$transaction(async (tx) => {
-            for (const [index, subGenderId] of body.ids.entries()) {
-               await tx.primaryGenders.update({
-                  where: {
-                     id
-                  },
-                  data: {
-                     GenderHierarchy: {
-                        create: {
-                           SubGenders: {
-                              connect: {
-                                 id: subGenderId
-                              }
-                           },
-                           priority: startingPriority + index
+            await tx.genderHierarchy.deleteMany({
+               where: {
+                  primaryGenderId: id,
+                  SubGenders: {
+                     some: {
+                        id: {
+                           in: body.ids
                         }
                      }
                   }
-               });
-            }
+               }
+            });
 
             return tx.primaryGenders.findUnique({
                where: {
