@@ -6,6 +6,7 @@ import {
    ConflictErrorSchema,
    InternalServerErrorSchema
 } from '../../../../../lib/openApiSchemas';
+import { existingResourceError } from '../../../../../lib/errorMessages';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -65,6 +66,19 @@ export default new OpenAPIHono().openapi(
    async (c) => {
       const body = c.req.valid('json');
 
+      // Try and get a domain with the same name
+      const existingDomain = await prisma.domains.findFirst({
+         where: {
+            name: body.name
+         }
+      });
+
+      // Check if a domain exists
+      if (existingDomain) {
+         return existingResourceError(c, 'A domain with that name already exists');
+      }
+
+      // Create the new domain
       const newDomain = await prisma.domains.create({
          data: {
             name: body.name,

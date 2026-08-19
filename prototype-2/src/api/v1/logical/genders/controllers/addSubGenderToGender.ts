@@ -65,7 +65,7 @@ export default new OpenAPIHono().openapi(
 
          // Check gender exists
          if (!gender) {
-            return notFoundError(c);
+            return notFoundError(c, 'No primary gender was found with that ID');
          }
 
          // Try and get sub gender from the database
@@ -80,7 +80,7 @@ export default new OpenAPIHono().openapi(
 
          // Check sub gender exists
          if (!subGender) {
-            return notFoundError(c);
+            return notFoundError(c, 'No sub gender was found with that ID');
          }
 
          // Update gender to be linked to the sub gender
@@ -96,7 +96,7 @@ export default new OpenAPIHono().openapi(
                            id: body.subGenderID
                         }
                      },
-                     priority: 0
+                     priority: gender._count.GenderHierarchy + 1
                   }
                }
             }
