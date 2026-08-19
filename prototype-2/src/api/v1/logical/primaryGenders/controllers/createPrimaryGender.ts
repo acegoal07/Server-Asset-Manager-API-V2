@@ -48,6 +48,14 @@ export default new OpenAPIHono().openapi(
                         .number({ error: 'Node count must be a number' })
                         .int({ error: 'Node count must be an integer' })
                         .positive({ error: 'Node count must be greater than 0' }),
+                     subGenders: z
+                        .array(
+                           z
+                              .number({ error: 'Sub gender ID must be a number' })
+                              .int({ error: 'Sub gender ID must be an integer' })
+                              .positive({ error: 'Sub gender ID must be greater than 0' })
+                        )
+                        .default([]),
                      dataFields: z.array(CreateDataFieldSchema).default([])
                   })
                }
@@ -138,6 +146,23 @@ export default new OpenAPIHono().openapi(
             );
          }
 
+         // Try and get sub gender from the database
+         const subGenders = await prisma.subGenders.findMany({
+            where: {
+               id: {
+                  in: body.subGenders
+               }
+            },
+            select: {
+               id: true
+            }
+         });
+
+         // Check sub genders exists
+         if (subGenders.length !== body.subGenders.length) {
+            return notFoundError(c, 'One or more sub genders were not found');
+         }
+
          // Create the new primary gender and its nodes
          const newGender = await prisma.$transaction(async (tx) => {
             const gender = await tx.primaryGenders.create({
@@ -183,6 +208,26 @@ export default new OpenAPIHono().openapi(
                      PrimaryGenders: {
                         connect: {
                            id: gender.id
+                        }
+                     }
+                  }
+               });
+            }
+
+            for (let subIndex = 1; subIndex <= body.subGenders.length; subIndex++) {
+               await tx.primaryGenders.update({
+                  where: {
+                     id: gender.id
+                  },
+                  data: {
+                     GenderHierarchy: {
+                        create: {
+                           SubGenders: {
+                              connect: {
+                                 id: body.subGenders[subIndex]
+                              }
+                           },
+                           priority: subIndex
                         }
                      }
                   }
