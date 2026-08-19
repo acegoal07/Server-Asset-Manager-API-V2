@@ -41,7 +41,6 @@ export default new OpenAPIHono().openapi(
                               deletable: z.boolean()
                            })
                         )
-                        .default([])
                   })
                }
             }
