@@ -4,7 +4,12 @@ import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
-import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
+import {
+   IdSchema,
+   InternalServerErrorSchema,
+   NotFoundErrorSchema
+} from '../../../../../lib/openApiSchemas';
+import { AssetReturnSchema } from '../lib/schemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -14,12 +19,7 @@ export default new OpenAPIHono().openapi(
       tags: ['Assets'],
       request: {
          params: z.object({
-            id: z.coerce
-               .number({ error: 'ID must be a number' })
-               .int({ error: 'ID must be an integer' })
-               .positive({
-                  error: 'ID must be greater than 0'
-               })
+            ...IdSchema
          }),
          body: {
             content: {
@@ -56,14 +56,7 @@ export default new OpenAPIHono().openapi(
             description: 'Asset updated',
             content: {
                'application/json': {
-                  schema: z.object({
-                     id: z.number(),
-                     name: z.string(),
-                     notes: z.string().nullable(),
-                     uSize: z.number(),
-                     uTop: z.number(),
-                     uBottom: z.number()
-                  })
+                  schema: AssetReturnSchema
                }
             }
          },

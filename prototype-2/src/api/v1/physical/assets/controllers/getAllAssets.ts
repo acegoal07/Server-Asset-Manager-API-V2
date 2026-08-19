@@ -5,6 +5,7 @@ import { internalServerError } from '../../../../../lib/errorMessages';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
 import { InternalServerErrorSchema } from '../../../../../lib/openApiSchemas';
+import { AssetReturnSchema } from '../lib/schemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -17,16 +18,7 @@ export default new OpenAPIHono().openapi(
             description: 'Assets retrieved',
             content: {
                'application/json': {
-                  schema: z.array(
-                     z.object({
-                        id: z.number(),
-                        name: z.string(),
-                        notes: z.string().nullable(),
-                        uSize: z.number(),
-                        uTop: z.number(),
-                        uBottom: z.number()
-                     })
-                  )
+                  schema: z.array(AssetReturnSchema)
                }
             }
          },
