@@ -94,8 +94,7 @@ export function internalServerError(c: Context, err: unknown) {
    return c.json(
       {
          error: 'INTERNAL_SERVER_ERROR',
-         message: 'An unexpected error occurred.',
-         details: undefined
+         message: 'An unexpected error occurred.'
       },
       500
    );
@@ -110,8 +109,7 @@ export function notFoundError(c: Context, message?: string) {
    return c.json(
       {
          error: 'NOT_FOUND',
-         message: message || 'The requested resource does not exist.',
-         details: undefined
+         message: message || 'The requested resource does not exist.'
       },
       404
    );
@@ -126,8 +124,7 @@ export function existingResourceError(c: Context, message?: string) {
    return c.json(
       {
          error: 'CONFLATING_RESOURCE',
-         message: message || 'There is already a resource in the database',
-         details: undefined
+         message: message || 'There is already a resource in the database'
       },
       409
    );
