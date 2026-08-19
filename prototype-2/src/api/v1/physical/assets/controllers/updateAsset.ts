@@ -9,7 +9,7 @@ import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../l
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
-      path: '/{id}',
+      path: '/',
       description: 'Updates an asset',
       tags: ['Assets'],
       request: {

@@ -7,8 +7,8 @@ import getAssetById from './controllers/getAssetById';
 import updateAsset from './controllers/updateAsset';
 
 export default new OpenAPIHono()
-   .route('/', updateAsset)
-   .route('/', getAssetById)
-   .route('/', deleteAsset)
+   .route('/:id', updateAsset)
+   .route('/:id', getAssetById)
+   .route('/:id', deleteAsset)
    .route('/', getAllAssets)
    .route('/', createAsset);
