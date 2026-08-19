@@ -7,4 +7,4 @@ import deleteDomain from './controllers/deleteDomain';
 export default new OpenAPIHono()
    .route('/:id', deleteDomain)
    .route('/:id', updateDomain)
-   .route('/', createDomain).route;
+   .route('/', createDomain);

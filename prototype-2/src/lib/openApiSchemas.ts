@@ -59,7 +59,7 @@ export const InternalServerErrorSchema = {
          'application/json': {
             schema: z.object({
                error: z.string(),
-               message: z.string().optional()
+               message: z.string()
             })
          }
       }
