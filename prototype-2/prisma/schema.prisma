@@ -89,6 +89,7 @@ model PrimaryGenders {
   id              Int               @id @default(autoincrement())
   domainId        Int
   nodeCount       Int
+  ipMask          String            @db.VarChar(255)
   nameMask        String            @db.VarChar(255)
   name            String            @db.VarChar(255)
   dataId          Int

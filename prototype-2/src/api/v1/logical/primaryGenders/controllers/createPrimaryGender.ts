@@ -15,6 +15,7 @@ import {
 } from '../../../../../lib/errorMessages';
 import { CreateDataFieldSchema } from '../../../../../lib/dataFieldHelpers';
 import { checkNameMaskForSize, getNodeNameFromMask } from '../../../../../lib/nameMask';
+import { checkIpMaskForSize } from '../../../../../lib/ipMask';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -35,6 +36,10 @@ export default new OpenAPIHono().openapi(
                         .number({ error: 'Domain ID must be a number' })
                         .int({ error: 'Domain ID must be an integer' })
                         .positive({ error: 'Domain ID must be greater than 0' }),
+                     nodeIpMask: z
+                        .string({ error: 'IP mask must be a string' })
+                        .trim()
+                        .min(1, { error: 'IP mask cannot be empty' }),
                      nodeNameMask: z
                         .string({ error: 'Node name mask must be a string' })
                         .trim()
@@ -109,7 +114,19 @@ export default new OpenAPIHono().openapi(
             );
          }
 
-         // Validate nam mask for gender size
+         // Validate IP mask for gender size
+         if (!checkIpMaskForSize(body.nodeIpMask, body.nodeCount)) {
+            return customError(
+               c,
+               {
+                  error: 'INVALID_IP_MASK',
+                  message: 'The IP mask is not compatible with the node count'
+               },
+               400
+            );
+         }
+
+         // Validate name mask for gender size
          if (!checkNameMaskForSize(body.nodeNameMask, body.nodeCount)) {
             return customError(
                c,
@@ -121,13 +138,13 @@ export default new OpenAPIHono().openapi(
             );
          }
 
-         // Create the new primary gender
          // Create the new primary gender and its nodes
          const newGender = await prisma.$transaction(async (tx) => {
             const gender = await tx.primaryGenders.create({
                data: {
                   name: body.name,
                   genderIndex: domain._count.PrimaryGenders + 1,
+                  ipMask: body.nodeIpMask,
                   nameMask: body.nodeNameMask,
                   nodeCount: body.nodeCount,
                   Domains: {
