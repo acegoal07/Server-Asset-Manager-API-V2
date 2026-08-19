@@ -74,7 +74,9 @@ export default new OpenAPIHono().openapi(
                'application/json': {
                   schema: z.object({
                      id: z.number(),
-                     name: z.string()
+                     domainId: z.number(),
+                     name: z.string(),
+                     genderIndex: z.number()
                   })
                }
             }
@@ -172,7 +174,15 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         return c.json(newGender, 201);
+         return c.json(
+            {
+               id: newGender.id,
+               domainId: newGender.domainId,
+               name: newGender.name,
+               genderIndex: newGender.genderIndex
+            },
+            201
+         );
       } catch (err) {
          return internalServerError(c, err);
       }

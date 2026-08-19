@@ -4,10 +4,11 @@ import { prisma } from '../../../../../lib/prisma';
 import {
    BadRequestErrorSchema,
    ConflictErrorSchema,
-   InternalServerErrorSchema
+   InternalServerErrorSchema,
+   NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import { DataFieldSchema, updateDataFields } from '../../../../../lib/dataFieldHelpers';
-import { internalServerError } from '../../../../../lib/errorMessages';
+import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -46,12 +47,14 @@ export default new OpenAPIHono().openapi(
                'application/json': {
                   schema: z.object({
                      id: z.number(),
+                     dataId: z.number(),
                      name: z.string()
                   })
                }
             }
          },
          ...BadRequestErrorSchema,
+         ...NotFoundErrorSchema,
          ...ConflictErrorSchema,
          ...InternalServerErrorSchema
       }
@@ -59,9 +62,26 @@ export default new OpenAPIHono().openapi(
 
    async (c) => {
       try {
+         // Get request information
          const { id } = c.req.valid('param');
          const body = c.req.valid('json');
 
+         // Try and get domain from the database
+         const existingDomain = await prisma.domains.findUnique({
+            where: {
+               id
+            },
+            select: {
+               id: true
+            }
+         });
+
+         // Check if the domain exists
+         if (!existingDomain) {
+            return notFoundError(c, 'No domain with that ID was found');
+         }
+
+         // Update the domain
          const updatedDomain = await prisma.$transaction(async (tx) => {
             const domain = await tx.domains.update({
                where: {
@@ -83,9 +103,11 @@ export default new OpenAPIHono().openapi(
 
             return domain;
          });
+
          return c.json(
             {
                id: updatedDomain.id,
+               dataId: updatedDomain.dataId,
                name: updatedDomain.name
             },
             200

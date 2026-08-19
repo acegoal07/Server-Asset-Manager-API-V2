@@ -74,17 +74,22 @@ export default new OpenAPIHono().openapi(
 
    async (c) => {
       try {
+         // Get request information
          const { id } = c.req.valid('param');
          const body = c.req.valid('json');
 
+         // Try and get the asset from the database
          const existingAsset = await prisma.assets.findUnique({
-            where: { id }
+            where: { id },
+            select: { id: true }
          });
 
+         // Check that the asset exists
          if (!existingAsset) {
             return notFoundError(c, `Asset with id: ${id} could not be found.`);
          }
 
+         // Update the asset
          const asset = await prisma.assets.update({
             where: { id },
             data: {
