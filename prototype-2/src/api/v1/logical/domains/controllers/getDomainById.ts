@@ -9,7 +9,7 @@ export default new OpenAPIHono().openapi(
       method: 'get',
       path: '/',
       description: "Retrieves a domain using it's ID",
-      tags: ['Genders'],
+      tags: ['Domains'],
       request: {
          params: z.object({
             id: z.coerce
