@@ -14,8 +14,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
       path: '/',
-      description: 'Updates the primary gender',
-      tags: ['Primary Genders'],
+      description: 'Updates the sub gender',
+      tags: ['Sub Genders'],
       request: {
          params: z.object({
             ...IdParamSchema
@@ -37,7 +37,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Primary gender successfully updated',
+            description: 'Sub gender successfully updated',
             content: {
                'application/json': {
                   schema: z.object({
@@ -60,8 +60,8 @@ export default new OpenAPIHono().openapi(
          const { id } = c.req.valid('param');
          const body = c.req.valid('json');
 
-         // Try and get primary gender from the database
-         const existingGender = await prisma.primaryGenders.findUnique({
+         // Try and get sub gender from the database
+         const existingGender = await prisma.subGenders.findUnique({
             where: {
                id
             },
@@ -70,14 +70,14 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         // Check if the primary gender exists
+         // Check if the sub gender exists
          if (!existingGender) {
-            return notFoundError(c, 'No primary gender with that ID was found');
+            return notFoundError(c, 'No sub gender with that ID was found');
          }
 
-         // Update the primary gender
+         // Update the sub gender
          const updatedGender = await prisma.$transaction(async (tx) => {
-            const gender = await tx.primaryGenders.update({
+            const gender = await tx.subGenders.update({
                where: {
                   id
                },
