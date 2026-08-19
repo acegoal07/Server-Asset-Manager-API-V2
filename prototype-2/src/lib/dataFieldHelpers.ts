@@ -4,20 +4,20 @@ import merge from 'deepmerge';
 
 type FieldParams =
    | {
-      action: 'create';
-      name: string;
-      type: string;
-      value: string | null;
-   }
+        action: 'create';
+        name: string;
+        type: string;
+        value: string | null;
+     }
    | {
-      action: 'update';
-      identifier: string;
-      value: string | null;
-   }
+        action: 'update';
+        identifier: string;
+        value: string | null;
+     }
    | {
-      action: 'delete';
-      identifier: string;
-   };
+        action: 'delete';
+        identifier: string;
+     };
 
 /**
  * Takes in an array of fields. Will update fields where that identifier exist, create a new field when the identifier doesn't exist, and delete it when specified
@@ -84,10 +84,10 @@ type dataFields = {
 
 /**
  * Handles the merge of the three lays of data fields ordering them correctly
- * @param domain 
- * @param primaryGender 
- * @param subGenders 
- * @returns 
+ * @param domain
+ * @param primaryGender
+ * @param subGenders
+ * @returns
  */
 export function handleDataFieldsMerge(
    domain: dataFields[],

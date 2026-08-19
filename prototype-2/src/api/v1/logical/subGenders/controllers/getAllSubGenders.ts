@@ -12,8 +12,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'get',
       path: '/',
-      description: 'Retrieves all primary genders from a domain',
-      tags: ['Primary Genders'],
+      description: 'Retrieves all sub genders from a domain',
+      tags: ['Sub Genders'],
       request: {
          params: z.object({
             ...IdParamSchema
@@ -21,7 +21,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Retrieved all primary genders',
+            description: 'Retrieved all sub genders',
             content: {
                'application/json': {
                   schema: z.array(
@@ -29,8 +29,7 @@ export default new OpenAPIHono().openapi(
                         id: z.number(),
                         domainId: z.number(),
                         dataId: z.number(),
-                        name: z.string(),
-                        genderIndex: z.number()
+                        name: z.string()
                      })
                   )
                }
@@ -45,8 +44,8 @@ export default new OpenAPIHono().openapi(
          // Get request information
          const { id } = c.req.valid('param');
 
-         // Get all the primary genders from the database
-         const genders = await prisma.primaryGenders.findMany({
+         // Get all the sub genders from the database
+         const genders = await prisma.subGenders.findMany({
             where: {
                domainId: id
             }
@@ -57,8 +56,7 @@ export default new OpenAPIHono().openapi(
                id: gender.id,
                domainId: gender.domainId,
                dataId: gender.dataId,
-               name: gender.name,
-               genderIndex: gender.genderIndex
+               name: gender.name
             })),
             200
          );

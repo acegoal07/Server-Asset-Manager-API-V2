@@ -7,8 +7,8 @@ import addSubGenderToPrimaryGender from './controllers/addSubGenderToPrimaryGend
 import getAllPrimaryGenders from './controllers/getAllPrimaryGenders';
 
 export default new OpenAPIHono()
+   .route('/domains/:id', getAllPrimaryGenders)
    .route('/:id/subgender', addSubGenderToPrimaryGender)
    .route('/:id', getPrimaryGenderById)
    .route('/:id', deletePrimaryGender)
-   .route('/', getAllPrimaryGenders)
    .route('/', createPrimaryGender);
