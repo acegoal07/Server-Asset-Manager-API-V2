@@ -1,17 +1,16 @@
 import { Prisma } from '@prisma/client';
+import { z } from '@hono/zod-openapi';
 
 type FieldParams =
    | {
         action: 'create';
         name: string;
-        identifier: string;
         type: string;
         value: string | null;
      }
    | {
         action: 'update';
         identifier: string;
-        type: string;
         value: string | null;
      }
    | {
@@ -48,7 +47,7 @@ export async function updateDataFields(
             data: {
                dataId,
                name: field.name,
-               identifier: field.identifier,
+               identifier: field.name.toLowerCase().replaceAll(' ', '-'),
                type: field.type,
                value: field.value
             }
@@ -64,10 +63,51 @@ export async function updateDataFields(
                }
             },
             data: {
-               type: field.type,
                value: field.value
             }
          })
       )
    ]);
 }
+
+export const CreateDataFieldSchema = z
+   .object({
+      action: z.literal('create'),
+      name: z
+         .string({ error: 'Name must be string' })
+         .trim()
+         .min(1, { error: 'Name cannot be empty' }),
+      type: z
+         .string({ error: 'Type must be string' })
+         .trim()
+         .min(1, { error: 'Type cannot be empty' }),
+      value: z.string({ error: 'Value must be string' }).trim().nullable()
+   })
+   .openapi('CreateDataField');
+
+export const UpdateDataFieldSchema = z
+   .object({
+      action: z.literal('update'),
+      identifier: z
+         .string({ error: 'Identifier must be string' })
+         .trim()
+         .min(1, { error: 'Identifier cannot be empty' }),
+      value: z.string({ error: 'Value must be string' }).trim().nullable()
+   })
+   .openapi('UpdateDataField');
+
+export const DeleteDataFieldSchema = z
+   .object({
+      action: z.literal('delete'),
+      identifier: z
+         .string({ error: 'Identifier must be string' })
+         .trim()
+         .min(1, { error: 'Identifier cannot be empty' })
+   })
+   .openapi('DeleteDataField');
+
+export const DataFieldSchema = z.discriminatedUnion('action', [
+   CreateDataFieldSchema,
+   UpdateDataFieldSchema,
+   DeleteDataFieldSchema
+]);
