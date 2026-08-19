@@ -1,22 +1,23 @@
 import { Prisma } from '@prisma/client';
 import { z } from '@hono/zod-openapi';
+import merge from 'deepmerge';
 
 type FieldParams =
    | {
-        action: 'create';
-        name: string;
-        type: string;
-        value: string | null;
-     }
+      action: 'create';
+      name: string;
+      type: string;
+      value: string | null;
+   }
    | {
-        action: 'update';
-        identifier: string;
-        value: string | null;
-     }
+      action: 'update';
+      identifier: string;
+      value: string | null;
+   }
    | {
-        action: 'delete';
-        identifier: string;
-     };
+      action: 'delete';
+      identifier: string;
+   };
 
 /**
  * Takes in an array of fields. Will update fields where that identifier exist, create a new field when the identifier doesn't exist, and delete it when specified
@@ -66,6 +67,57 @@ export async function updateDataFields(
          })
       )
    ]);
+}
+
+/**
+ * Datafield type
+ */
+type dataFields = {
+   id: number;
+   dataId: number;
+   name: string;
+   identifier: string;
+   type: string;
+   value: string | null;
+   deletable: boolean;
+};
+
+/**
+ * Handles the merge of the three lays of data fields ordering them correctly
+ * @param domain 
+ * @param primaryGender 
+ * @param subGenders 
+ * @returns 
+ */
+export function handleDataFieldsMerge(
+   domain: dataFields[],
+   primaryGender: dataFields[],
+   subGenders: dataFields[]
+): dataFields[] {
+   const mergeByName = (target: dataFields[], source: dataFields[]): dataFields[] => {
+      return source.reduce<dataFields[]>(
+         (result, sourceItem) => {
+            const index = result.findIndex(
+               (targetItem) => targetItem.identifier === sourceItem.identifier
+            );
+
+            if (index === -1) {
+               result.push(sourceItem);
+            } else {
+               result[index] = merge(result[index], sourceItem, {
+                  arrayMerge: mergeByName
+               }) as dataFields;
+            }
+
+            return result;
+         },
+         [...target]
+      );
+   };
+
+   return merge.all([...subGenders, ...primaryGender, ...domain], {
+      arrayMerge: mergeByName
+   }) as dataFields[];
 }
 
 /**

@@ -7,8 +7,7 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { deepMergeByName } from '../../../../../lib/deepMerge';
-import { DataFieldsReturnSchema } from '../../../../../lib/dataFieldHelpers';
+import { DataFieldsReturnSchema, handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -69,6 +68,9 @@ export default new OpenAPIHono().openapi(
                            }
                         }
                      }
+                  },
+                  orderBy: {
+                     priority: 'asc'
                   }
                },
                Data: {
@@ -93,14 +95,6 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Sub gender with id: ${id} could not be found.`);
          }
 
-         // Data fields array
-         const DataFieldsArray = [];
-         DataFieldsArray.unshift(gender.Domains.Data.DataFields);
-         DataFieldsArray.unshift(gender.Data.DataFields);
-         gender.GenderHierarchy.sort((a, b) => b.priority - a.priority).forEach((sub) =>
-            DataFieldsArray.unshift(sub.SubGenders.Data.DataFields)
-         );
-
          return c.json(
             {
                id: gender.id,
@@ -112,7 +106,11 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: deepMergeByName(DataFieldsArray).map((field) => ({
+               dataFields: handleDataFieldsMerge(
+                  gender.Domains.Data.DataFields,
+                  gender.Data.DataFields,
+                  gender.GenderHierarchy.flatMap((sub) => sub.SubGenders.Data.DataFields)
+               ).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,
