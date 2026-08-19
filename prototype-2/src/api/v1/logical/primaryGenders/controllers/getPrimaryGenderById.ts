@@ -70,7 +70,7 @@ export default new OpenAPIHono().openapi(
                      }
                   },
                   orderBy: {
-                     priority: 'asc'
+                     priority: 'desc'
                   }
                },
                Data: {
