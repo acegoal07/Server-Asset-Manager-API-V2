@@ -3,7 +3,7 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import {
-   IdSchema,
+   IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
@@ -16,7 +16,7 @@ export default new OpenAPIHono().openapi(
       tags: ['Domains'],
       request: {
          params: z.object({
-            ...IdSchema
+            ...IdParamSchema
          })
       },
       responses: {

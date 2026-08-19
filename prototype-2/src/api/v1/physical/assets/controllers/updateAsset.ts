@@ -5,7 +5,7 @@ import { internalServerError, notFoundError } from '../../../../../lib/errorMess
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
 import {
-   IdSchema,
+   IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
@@ -19,7 +19,7 @@ export default new OpenAPIHono().openapi(
       tags: ['Assets'],
       request: {
          params: z.object({
-            ...IdSchema
+            ...IdParamSchema
          }),
          body: {
             content: {

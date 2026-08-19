@@ -3,12 +3,11 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import {
-   IdSchema,
+   IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { deepMergeByName } from '../../../../../lib/deepMerge';
-import { DataFieldsReturnSchema } from '../../../../../lib/dataFieldHelpers';
+import { DataFieldsReturnSchema, handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -18,7 +17,7 @@ export default new OpenAPIHono().openapi(
       tags: ['Primary Genders'],
       request: {
          params: z.object({
-            ...IdSchema
+            ...IdParamSchema
          })
       },
       responses: {
@@ -52,8 +51,8 @@ export default new OpenAPIHono().openapi(
          // Get request information
          const { id } = c.req.valid('param');
 
-         // Try and get sub gender from the database
-         const gender = await prisma.subGenders.findUnique({
+         // Try and get primary gender from the database
+         const gender = await prisma.primaryGenders.findUnique({
             where: {
                id
             },
@@ -69,6 +68,9 @@ export default new OpenAPIHono().openapi(
                            }
                         }
                      }
+                  },
+                  orderBy: {
+                     priority: 'desc'
                   }
                },
                Data: {
@@ -88,18 +90,10 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         // Check if the sub gender exists
+         // Check if the primary gender exists
          if (!gender) {
-            return notFoundError(c, `Sub gender with id: ${id} could not be found.`);
+            return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
-
-         // Data fields array
-         const DataFieldsArray = [];
-         DataFieldsArray.unshift(gender.Domains.Data.DataFields);
-         DataFieldsArray.unshift(gender.Data.DataFields);
-         gender.GenderHierarchy.sort((a, b) => b.priority - a.priority).forEach((sub) =>
-            DataFieldsArray.unshift(sub.SubGenders.Data.DataFields)
-         );
 
          return c.json(
             {
@@ -112,7 +106,11 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: deepMergeByName(DataFieldsArray).map((field) => ({
+               dataFields: handleDataFieldsMerge(
+                  gender.Domains.Data.DataFields,
+                  gender.Data.DataFields,
+                  gender.GenderHierarchy.flatMap((sub) => sub.SubGenders.Data.DataFields)
+               ).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,

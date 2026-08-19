@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { z } from '@hono/zod-openapi';
+import merge from 'deepmerge';
 
 type FieldParams =
    | {
@@ -68,6 +69,60 @@ export async function updateDataFields(
    ]);
 }
 
+/**
+ * Datafield type
+ */
+type dataFields = {
+   id: number;
+   dataId: number;
+   name: string;
+   identifier: string;
+   type: string;
+   value: string | null;
+   deletable: boolean;
+};
+
+/**
+ * Handles the merge of the three lays of data fields ordering them correctly
+ * @param domain
+ * @param primaryGender
+ * @param subGenders
+ * @returns
+ */
+export function handleDataFieldsMerge(
+   domain: dataFields[],
+   primaryGender: dataFields[],
+   subGenders: dataFields[]
+): dataFields[] {
+   const mergeByName = (target: dataFields[], source: dataFields[]): dataFields[] => {
+      return source.reduce<dataFields[]>(
+         (result, sourceItem) => {
+            const index = result.findIndex(
+               (targetItem) => targetItem.identifier === sourceItem.identifier
+            );
+
+            if (index === -1) {
+               result.push(sourceItem);
+            } else {
+               result[index] = merge(result[index], sourceItem, {
+                  arrayMerge: mergeByName
+               }) as dataFields;
+            }
+
+            return result;
+         },
+         [...target]
+      );
+   };
+
+   return merge.all([...subGenders, ...primaryGender, ...domain], {
+      arrayMerge: mergeByName
+   }) as dataFields[];
+}
+
+/**
+ * Create data field openAPI schema
+ */
 export const CreateDataFieldSchema = z
    .object({
       action: z.literal('create'),
@@ -83,6 +138,9 @@ export const CreateDataFieldSchema = z
    })
    .openapi('CreateDataField');
 
+/**
+ * Update data field openAPI schema
+ */
 export const UpdateDataFieldSchema = z
    .object({
       action: z.literal('update'),
@@ -94,6 +152,9 @@ export const UpdateDataFieldSchema = z
    })
    .openapi('UpdateDataField');
 
+/**
+ * Delete data field openAPI schema
+ */
 export const DeleteDataFieldSchema = z
    .object({
       action: z.literal('delete'),
@@ -104,12 +165,18 @@ export const DeleteDataFieldSchema = z
    })
    .openapi('DeleteDataField');
 
+/**
+ * Data fields openAPI union schema
+ */
 export const DataFieldSchema = z.discriminatedUnion('action', [
    CreateDataFieldSchema,
    UpdateDataFieldSchema,
    DeleteDataFieldSchema
 ]);
 
+/**
+ * Returned data field openAPI schema
+ */
 export const DataFieldsReturnSchema = z.object({
    id: z.number(),
    identifier: z.string(),

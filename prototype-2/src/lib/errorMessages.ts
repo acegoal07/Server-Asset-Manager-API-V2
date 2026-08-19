@@ -7,19 +7,18 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
  * @param error
  * @param details
  */
-export function customError(
+export function customError<S extends ContentfulStatusCode>(
    c: Context,
    {
       error,
       message,
-      details,
-      code = 500
+      details
    }: {
       error: string;
-      message?: string;
+      message: string;
       details?: unknown;
-      code?: ContentfulStatusCode;
-   }
+   },
+   code: S
 ) {
    return c.json(
       {
@@ -29,66 +28,6 @@ export function customError(
       },
       code
    );
-}
-
-/**
- * Responds with an invalid parameters error message populated with the issues from
- * the validator
- * @param c
- * @param result
- * @returns
- */
-export function invalidParametersRequestError(
-   c: Context,
-   result: { error: { issues: unknown[] } }
-) {
-   return customError(c, {
-      error: 'INVALID_REQUEST_PARAMETERS',
-      message: 'One or more of the queries is invalid.',
-      details: result.error.issues,
-      code: 400
-   });
-}
-
-export function invalidMaskRequestError(c: Context, result: { error: { issues: unknown[] } }) {
-   return customError(c, {
-      error: 'INVALID_MASK',
-      message: 'The provided name mask is invalid.',
-      details: result.error.issues,
-      code: 400
-   });
-}
-
-/**
- * Responds with an invalid body error message populated with the issues from
- * the validator
- * @param c
- * @param result
- * @returns
- */
-export function invalidJsonRequestError(c: Context, result: { error: { issues: unknown[] } }) {
-   return customError(c, {
-      error: 'INVALID_REQUEST_JSON',
-      message: 'One or more of the queries is invalid.',
-      details: result.error.issues,
-      code: 400
-   });
-}
-
-/**
- * Responds with an invalid query error message populated with the issues from
- * the validator
- * @param c
- * @param result
- * @returns
- */
-export function invalidQueryRequestError(c: Context, result: { error: { issues: unknown[] } }) {
-   return customError(c, {
-      error: 'INVALID_REQUEST_QUERY',
-      message: 'One or more of the queries is invalid.',
-      details: result.error.issues,
-      code: 400
-   });
 }
 
 /**
