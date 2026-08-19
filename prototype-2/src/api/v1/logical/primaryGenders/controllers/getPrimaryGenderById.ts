@@ -95,18 +95,6 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
 
-         console.log(gender.Domains.Data.DataFields)
-         console.log(gender.Data.DataFields)
-         console.log(gender.GenderHierarchy)
-
-         const test = handleDataFieldsMerge(
-            gender.Domains.Data.DataFields,
-            gender.Data.DataFields,
-            gender.GenderHierarchy.flatMap((sub) => sub.SubGenders.Data.DataFields)
-         );
-
-         console.log(test);
-
          return c.json(
             {
                id: gender.id,
