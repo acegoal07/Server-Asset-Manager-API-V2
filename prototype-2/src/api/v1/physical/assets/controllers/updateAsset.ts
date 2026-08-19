@@ -4,19 +4,17 @@ import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import { assetSerializerArgs } from '../lib/includeSerializers';
 import { serializeAsset } from '../lib/outputSerializers';
-import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApi';
+import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
       path: '/{id}',
       tags: ['v1-Assets'],
-
       request: {
          params: z.object({
             id: z.coerce.number().int().positive()
          }),
-
          body: {
             content: {
                'application/json': {
@@ -47,7 +45,6 @@ export default new OpenAPIHono().openapi(
             }
          }
       },
-
       responses: {
          200: {
             description: 'Asset updated',

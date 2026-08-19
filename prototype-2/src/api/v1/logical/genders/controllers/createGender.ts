@@ -3,11 +3,10 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import {
    BadRequestErrorSchema,
-   ConflictErrorSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
-} from '../../../../../lib/openApi';
-import { notFoundError } from '../../../../../lib/errorMessages';
+} from '../../../../../lib/openApiSchemas';
+import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -64,7 +63,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          201: {
-            description: 'Domain successfully created',
+            description: 'Gender successfully created',
             content: {
                'application/json': {
                   schema: z.object({
@@ -76,80 +75,83 @@ export default new OpenAPIHono().openapi(
          },
          ...BadRequestErrorSchema,
          ...NotFoundErrorSchema,
-         ...ConflictErrorSchema,
          ...InternalServerErrorSchema
       }
    }),
    async (c) => {
-      // Get request information
-      const body = c.req.valid('json');
+      try {
+         // Get request information
+         const body = c.req.valid('json');
 
-      // Try and get the domain from the database
-      const domain = await prisma.domains.findUnique({
-         where: {
-            id: body.domainId
-         },
-         include: {
-            _count: {
-               select: {
-                  PrimaryGenders: true
+         // Try and get the domain from the database
+         const domain = await prisma.domains.findUnique({
+            where: {
+               id: body.domainId
+            },
+            include: {
+               _count: {
+                  select: {
+                     PrimaryGenders: true
+                  }
                }
             }
+         });
+
+         // Check if the domain exists
+         if (!domain) {
+            return notFoundError(c);
          }
-      });
 
-      // Check if the domain exists
-      if (!domain) {
-         return notFoundError(c);
-      }
-
-      // Create the new primary gender
-      const newGender = await prisma.primaryGenders.create({
-         data: {
-            name: body.name,
-            genderIndex: domain._count.PrimaryGenders + 1,
-            Domains: {
-               connect: {
-                  id: body.domainId
-               }
-            },
-            Data: {
-               create: {
-                  DataFields: {
-                     createMany: {
-                        data: [
-                           ...body.dataFields.map((field) => ({
-                              name: field.name,
-                              identifier: field.name.toLowerCase().replaceAll(' ', '-'),
-                              value: field.value,
-                              type: field.type
-                           })),
-                           {
-                              name: 'Node count',
-                              identifier: 'node-count',
-                              value: body.nodeCount.toString(),
-                              type: 'number'
-                           },
-                           {
-                              name: 'Node name mask',
-                              identifier: 'node-name-mask',
-                              value: body.nodeNameMask,
-                              type: 'string'
-                           },
-                           {
-                              name: 'Node IP mask',
-                              identifier: 'node-ip-mask',
-                              value: body.nodeIpMask,
-                              type: 'string'
-                           }
-                        ]
+         // Create the new primary gender
+         const newGender = await prisma.primaryGenders.create({
+            data: {
+               name: body.name,
+               genderIndex: domain._count.PrimaryGenders + 1,
+               Domains: {
+                  connect: {
+                     id: body.domainId
+                  }
+               },
+               Data: {
+                  create: {
+                     DataFields: {
+                        createMany: {
+                           data: [
+                              ...body.dataFields.map((field) => ({
+                                 name: field.name,
+                                 identifier: field.name.toLowerCase().replaceAll(' ', '-'),
+                                 value: field.value,
+                                 type: field.type
+                              })),
+                              {
+                                 name: 'Node count',
+                                 identifier: 'node-count',
+                                 value: body.nodeCount.toString(),
+                                 type: 'number'
+                              },
+                              {
+                                 name: 'Node name mask',
+                                 identifier: 'node-name-mask',
+                                 value: body.nodeNameMask,
+                                 type: 'string'
+                              },
+                              {
+                                 name: 'Node IP mask',
+                                 identifier: 'node-ip-mask',
+                                 value: body.nodeIpMask,
+                                 type: 'string'
+                              }
+                           ]
+                        }
                      }
                   }
                }
             }
-         }
-      });
+         });
 
-      return c.json(newGender, 201);
+         return c.json(newGender, 201);
+      } catch (err) {
+         return internalServerError(c, err);
+      }
    }
 );

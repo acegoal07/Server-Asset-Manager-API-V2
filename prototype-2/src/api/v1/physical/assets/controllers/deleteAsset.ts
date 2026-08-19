@@ -2,20 +2,18 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
-import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApi';
+import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'delete',
       path: '/{id}',
       tags: ['v1-Assets'],
-
       request: {
          params: z.object({
             id: z.coerce.number().int().positive()
          })
       },
-
       responses: {
          204: {
             description: 'Asset deleted'
