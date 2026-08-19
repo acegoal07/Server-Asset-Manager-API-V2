@@ -72,7 +72,7 @@ export const InternalServerErrorSchema = {
 /**
  * The openAPI docs for an id
  */
-export const IdSchema = {
+export const IdParamSchema = {
    id: z.coerce
       .number({ error: 'ID must be a number' })
       .int({ error: 'ID must be an integer' })

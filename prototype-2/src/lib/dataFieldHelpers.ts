@@ -68,6 +68,9 @@ export async function updateDataFields(
    ]);
 }
 
+/**
+ * Create data field openAPI schema
+ */
 export const CreateDataFieldSchema = z
    .object({
       action: z.literal('create'),
@@ -83,6 +86,9 @@ export const CreateDataFieldSchema = z
    })
    .openapi('CreateDataField');
 
+/**
+ * Update data field openAPI schema
+ */
 export const UpdateDataFieldSchema = z
    .object({
       action: z.literal('update'),
@@ -94,6 +100,9 @@ export const UpdateDataFieldSchema = z
    })
    .openapi('UpdateDataField');
 
+/**
+ * Delete data field openAPI schema
+ */
 export const DeleteDataFieldSchema = z
    .object({
       action: z.literal('delete'),
@@ -104,12 +113,18 @@ export const DeleteDataFieldSchema = z
    })
    .openapi('DeleteDataField');
 
+/**
+ * Data fields openAPI union schema
+ */
 export const DataFieldSchema = z.discriminatedUnion('action', [
    CreateDataFieldSchema,
    UpdateDataFieldSchema,
    DeleteDataFieldSchema
 ]);
 
+/**
+ * Returned data field openAPI schema
+ */
 export const DataFieldsReturnSchema = z.object({
    id: z.number(),
    identifier: z.string(),

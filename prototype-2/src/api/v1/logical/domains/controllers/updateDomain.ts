@@ -4,7 +4,7 @@ import { prisma } from '../../../../../lib/prisma';
 import {
    BadRequestErrorSchema,
    ConflictErrorSchema,
-   IdSchema,
+   IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
@@ -18,7 +18,7 @@ export default new OpenAPIHono().openapi(
       tags: ['Domains'],
       request: {
          params: z.object({
-            ...IdSchema
+            ...IdParamSchema
          }),
          body: {
             content: {
