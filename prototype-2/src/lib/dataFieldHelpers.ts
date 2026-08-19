@@ -4,20 +4,20 @@ import merge from 'deepmerge';
 
 type FieldParams =
    | {
-        action: 'create';
-        name: string;
-        type: string;
-        value: string | null;
-     }
+      action: 'create';
+      name: string;
+      type: string;
+      value: string | null;
+   }
    | {
-        action: 'update';
-        identifier: string;
-        value: string | null;
-     }
+      action: 'update';
+      identifier: string;
+      value: string | null;
+   }
    | {
-        action: 'delete';
-        identifier: string;
-     };
+      action: 'delete';
+      identifier: string;
+   };
 
 /**
  * Takes in an array of fields. Will update fields where that identifier exist, create a new field when the identifier doesn't exist, and delete it when specified
@@ -94,11 +94,15 @@ export function handleDataFieldsMerge(
    primaryGender: dataFields[],
    subGenders: dataFields[]
 ): dataFields[] {
-   const mergeByName = (target: dataFields[], source: dataFields[]): dataFields[] => {
+   const mergeByName = (
+      target: dataFields[],
+      source: dataFields[]
+   ): dataFields[] => {
       return source.reduce<dataFields[]>(
          (result, sourceItem) => {
             const index = result.findIndex(
-               (targetItem) => targetItem.identifier === sourceItem.identifier
+               (targetItem) =>
+                  targetItem.identifier === sourceItem.identifier
             );
 
             if (index === -1) {
@@ -115,10 +119,11 @@ export function handleDataFieldsMerge(
       );
    };
 
-   return merge.all([...subGenders, ...primaryGender, ...domain], {
+   return merge.all([domain, primaryGender, subGenders], {
       arrayMerge: mergeByName
    }) as dataFields[];
 }
+
 
 /**
  * Create data field openAPI schema
