@@ -135,20 +135,6 @@ export default new OpenAPIHono().openapi(
             }
          }
 
-         const dataFields = handleDataFieldsMerge(
-            gender.Domains.Data.DataFields,
-            gender.Data.DataFields,
-            gender.GenderHierarchy.flatMap((sub) => sub.SubGenders.Data.DataFields),
-            nodeDataFields
-         ).map((field) => ({
-            id: field.id,
-            identifier: field.identifier,
-            name: field.name,
-            type: field.type,
-            value: field.value,
-            deletable: field.deletable
-         }));
-
          return c.json(
             {
                id: nodeId,
@@ -161,7 +147,21 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields
+               dataFields: handleDataFieldsMerge({
+                  domain: gender.Domains.Data.DataFields,
+                  primaryGender: gender.Data.DataFields,
+                  subGenders: gender.GenderHierarchy.flatMap(
+                     (sub) => sub.SubGenders.Data.DataFields
+                  ),
+                  node: nodeDataFields
+               }).map((field) => ({
+                  id: field.id,
+                  identifier: field.identifier,
+                  name: field.name,
+                  type: field.type,
+                  value: field.value,
+                  deletable: field.deletable
+               }))
             },
             200
          );

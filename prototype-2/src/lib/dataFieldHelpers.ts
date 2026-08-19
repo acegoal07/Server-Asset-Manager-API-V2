@@ -89,12 +89,17 @@ export type dataFields = {
  * @param subGenders
  * @returns
  */
-export function handleDataFieldsMerge(
-   domain: dataFields[],
-   primaryGender: dataFields[],
-   subGenders: dataFields[],
-   node: dataFields[]
-): dataFields[] {
+export function handleDataFieldsMerge({
+   domain = [],
+   primaryGender = [],
+   subGenders = [],
+   node = []
+}: {
+   domain?: dataFields[];
+   primaryGender?: dataFields[];
+   subGenders?: dataFields[];
+   node?: dataFields[];
+}): dataFields[] {
    const mergeByName = (target: dataFields[], source: dataFields[]): dataFields[] => {
       return source.reduce<dataFields[]>(
          (result, sourceItem) => {
