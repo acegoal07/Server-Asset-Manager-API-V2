@@ -6,7 +6,7 @@ import getSubGenderByID from './controllers/getSubGenderByID';
 import getAllSubGenders from './controllers/getAllSubGenders';
 
 export default new OpenAPIHono()
-   .route('/domains/:id', getAllSubGenders)
+   .route('/all/:id', getAllSubGenders)
    .route('/:id', deleteSubGender)
    .route('/:id', getSubGenderByID)
    .route('/', createSubGender);

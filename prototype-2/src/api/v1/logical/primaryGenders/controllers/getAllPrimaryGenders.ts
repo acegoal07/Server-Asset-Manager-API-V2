@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 import { prisma } from '../../../../../lib/prisma';
-import { internalServerError } from '../../../../../lib/errorMessages';
+import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import {
    IdParamSchema,
    InternalServerErrorSchema,
@@ -44,6 +44,21 @@ export default new OpenAPIHono().openapi(
       try {
          // Get request information
          const { id } = c.req.valid('param');
+
+         // Try and get the domain
+         const domain = await prisma.domains.findUnique({
+            where: {
+               id
+            },
+            select: {
+               id: true
+            }
+         });
+
+         // Check if the domain exists
+         if (!domain) {
+            return notFoundError(c, 'No domain with that ID has been found');
+         }
 
          // Get all the primary genders from the database
          const genders = await prisma.primaryGenders.findMany({
