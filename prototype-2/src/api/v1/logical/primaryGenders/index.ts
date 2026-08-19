@@ -5,10 +5,12 @@ import deletePrimaryGender from './controllers/deletePrimaryGender';
 import getPrimaryGenderById from './controllers/getPrimaryGenderById';
 import addSubGenderToPrimaryGender from './controllers/addSubGenderToPrimaryGender';
 import getAllPrimaryGenders from './controllers/getAllPrimaryGenders';
+import updatePrimaryGender from './controllers/updatePrimaryGender';
 
 export default new OpenAPIHono()
    .route('/all/:id', getAllPrimaryGenders)
    .route('/:id/subgender', addSubGenderToPrimaryGender)
    .route('/:id', getPrimaryGenderById)
    .route('/:id', deletePrimaryGender)
+   .route('/:id', updatePrimaryGender)
    .route('/', createPrimaryGender);

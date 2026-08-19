@@ -14,8 +14,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
       path: '/',
-      description: 'Updates a domain',
-      tags: ['Domains'],
+      description: 'Updates the primary gender',
+      tags: ['Primary Genders'],
       request: {
          params: z.object({
             ...IdParamSchema
@@ -37,7 +37,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Domain successfully updated',
+            description: 'Primary gender successfully updated',
             content: {
                'application/json': {
                   schema: z.object({
@@ -60,8 +60,8 @@ export default new OpenAPIHono().openapi(
          const { id } = c.req.valid('param');
          const body = c.req.valid('json');
 
-         // Try and get domain from the database
-         const existingDomain = await prisma.domains.findUnique({
+         // Try and get primary gender from the database
+         const existingGender = await prisma.primaryGenders.findUnique({
             where: {
                id
             },
@@ -71,13 +71,13 @@ export default new OpenAPIHono().openapi(
          });
 
          // Check if the domain exists
-         if (!existingDomain) {
-            return notFoundError(c, 'No domain with that ID was found');
+         if (!existingGender) {
+            return notFoundError(c, 'No primary gender with that ID was found');
          }
 
-         // Update the domain
-         const updatedDomain = await prisma.$transaction(async (tx) => {
-            const domain = await tx.domains.update({
+         // Update the primary gender
+         const updatedGender = await prisma.$transaction(async (tx) => {
+            const gender = await tx.domains.update({
                where: {
                   id
                },
@@ -85,24 +85,19 @@ export default new OpenAPIHono().openapi(
                   ...(body.name !== undefined && {
                      name: body.name
                   })
-               },
-               select: {
-                  id: true,
-                  name: true,
-                  dataId: true
                }
             });
 
-            await updateDataFields(tx, domain.dataId, body.dataFields);
+            await updateDataFields(tx, gender.dataId, body.dataFields);
 
-            return domain;
+            return gender;
          });
 
          return c.json(
             {
-               id: updatedDomain.id,
-               dataId: updatedDomain.dataId,
-               name: updatedDomain.name
+               id: updatedGender.id,
+               dataId: updatedGender.dataId,
+               name: updatedGender.name
             },
             200
          );
