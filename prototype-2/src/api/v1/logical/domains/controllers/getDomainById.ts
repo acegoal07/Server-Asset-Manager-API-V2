@@ -2,7 +2,12 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
-import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
+import {
+   IdSchema,
+   InternalServerErrorSchema,
+   NotFoundErrorSchema
+} from '../../../../../lib/openApiSchemas';
+import { DataFieldsReturnSchema } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -12,12 +17,7 @@ export default new OpenAPIHono().openapi(
       tags: ['Domains'],
       request: {
          params: z.object({
-            id: z.coerce
-               .number({ error: 'ID must be a number' })
-               .int({ error: 'ID must be an integer' })
-               .positive({
-                  error: 'ID must be greater than 0'
-               })
+            ...IdSchema
          })
       },
       responses: {
@@ -29,16 +29,7 @@ export default new OpenAPIHono().openapi(
                      id: z.number(),
                      name: z.string(),
                      dataId: z.number(),
-                     dataFields: z.array(
-                        z.object({
-                           id: z.number(),
-                           identifier: z.string(),
-                           name: z.string(),
-                           type: z.string(),
-                           value: z.string().nullable(),
-                           deletable: z.boolean()
-                        })
-                     )
+                     dataFields: z.array(DataFieldsReturnSchema)
                   })
                }
             }

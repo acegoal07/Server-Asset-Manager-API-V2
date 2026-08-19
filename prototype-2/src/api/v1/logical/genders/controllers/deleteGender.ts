@@ -2,7 +2,11 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
-import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
+import {
+   IdSchema,
+   InternalServerErrorSchema,
+   NotFoundErrorSchema
+} from '../../../../../lib/openApiSchemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -12,12 +16,7 @@ export default new OpenAPIHono().openapi(
       tags: ['Genders'],
       request: {
          params: z.object({
-            id: z.coerce
-               .number({ error: 'ID must be a number' })
-               .int({ error: 'ID must be an integer' })
-               .positive({
-                  error: 'ID must be greater than 0'
-               })
+            ...IdSchema
          })
       },
       responses: {

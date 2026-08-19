@@ -109,3 +109,12 @@ export const DataFieldSchema = z.discriminatedUnion('action', [
    UpdateDataFieldSchema,
    DeleteDataFieldSchema
 ]);
+
+export const DataFieldsReturnSchema = z.object({
+   id: z.number(),
+   identifier: z.string(),
+   name: z.string(),
+   type: z.string(),
+   value: z.string().nullable(),
+   deletable: z.boolean()
+});

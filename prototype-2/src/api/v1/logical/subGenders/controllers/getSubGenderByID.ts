@@ -3,6 +3,7 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
+import { DataFieldsReturnSchema } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -30,16 +31,7 @@ export default new OpenAPIHono().openapi(
                      domainId: z.number(),
                      name: z.string(),
                      dataId: z.number(),
-                     dataFields: z.array(
-                        z.object({
-                           id: z.number(),
-                           identifier: z.string(),
-                           name: z.string(),
-                           type: z.string(),
-                           value: z.string().nullable(),
-                           deletable: z.boolean()
-                        })
-                     )
+                     dataFields: z.array(DataFieldsReturnSchema)
                   })
                }
             }

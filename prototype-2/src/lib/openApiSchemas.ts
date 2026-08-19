@@ -65,3 +65,15 @@ export const InternalServerErrorSchema = {
       }
    }
 };
+
+/**
+ * The openAPI docs for an id
+ */
+export const IdSchema = {
+   id: z.coerce
+      .number({ error: 'ID must be a number' })
+      .int({ error: 'ID must be an integer' })
+      .positive({
+         error: 'ID must be greater than 0'
+      })
+};

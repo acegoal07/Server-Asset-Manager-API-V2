@@ -7,6 +7,7 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
+import { CreateDataFieldSchema } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -27,24 +28,7 @@ export default new OpenAPIHono().openapi(
                         .number({ error: 'Domain ID must be a number' })
                         .int({ error: 'Domain ID must be an integer' })
                         .positive({ error: 'Domain ID must be greater than 0' }),
-                     dataFields: z
-                        .array(
-                           z.object({
-                              name: z
-                                 .string({ error: 'Name must be string' })
-                                 .trim()
-                                 .min(1, { error: 'Name cannot be empty' }),
-                              type: z
-                                 .string({ error: 'Type must be string' })
-                                 .trim()
-                                 .min(1, { error: 'Type cannot be empty' }),
-                              value: z
-                                 .string({ error: 'Value must be string' })
-                                 .trim()
-                                 .min(1, { error: 'Value cannot be empty' })
-                           })
-                        )
-                        .default([])
+                     dataFields: z.array(CreateDataFieldSchema).default([])
                   })
                }
             }
