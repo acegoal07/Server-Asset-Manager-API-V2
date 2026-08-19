@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
+
 import domains from './domains';
 import genders from './genders';
 import subGenders from './subGenders';
