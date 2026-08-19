@@ -10,10 +10,16 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
       path: '/{id}',
-      tags: ['v1-Assets'],
+      description: 'Updates an asset',
+      tags: ['Assets'],
       request: {
          params: z.object({
-            id: z.coerce.number().int().positive()
+            id: z.coerce
+               .number({ error: 'ID must be a number' })
+               .int({ error: 'ID must be an integer' })
+               .positive({
+                  error: 'ID must be greater than 0'
+               })
          }),
          body: {
             content: {

@@ -10,7 +10,7 @@ import {
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
-      path: '/:id',
+      path: '/',
       tags: ['v1-Domains'],
       request: {
          params: z.object({

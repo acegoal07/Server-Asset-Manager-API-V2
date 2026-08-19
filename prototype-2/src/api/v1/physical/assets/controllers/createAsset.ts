@@ -10,7 +10,8 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/',
-      tags: ['v1-Assets'],
+      description: 'Creates a new asset',
+      tags: ['Assets'],
       request: {
          body: {
             content: {

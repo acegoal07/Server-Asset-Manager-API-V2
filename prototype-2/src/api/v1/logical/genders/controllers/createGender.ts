@@ -3,16 +3,22 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import {
    BadRequestErrorSchema,
+   ConflictErrorSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
+import {
+   existingResourceError,
+   internalServerError,
+   notFoundError
+} from '../../../../../lib/errorMessages';
 
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'post',
       path: '/',
-      tags: ['v1-Genders'],
+      description: 'Creates a new primary gender',
+      tags: ['Genders'],
       request: {
          body: {
             content: {
@@ -75,6 +81,7 @@ export default new OpenAPIHono().openapi(
          },
          ...BadRequestErrorSchema,
          ...NotFoundErrorSchema,
+         ...ConflictErrorSchema,
          ...InternalServerErrorSchema
       }
    }),
@@ -99,7 +106,23 @@ export default new OpenAPIHono().openapi(
 
          // Check if the domain exists
          if (!domain) {
-            return notFoundError(c);
+            return notFoundError(c, 'No domain was found with that ID');
+         }
+
+         // Try and get a primary gender with the same name in the same domain
+         const existingGender = await prisma.primaryGenders.findFirst({
+            where: {
+               name: body.name,
+               domainId: body.domainId
+            }
+         });
+
+         // Check if a gender already exists
+         if (existingGender) {
+            return existingResourceError(
+               c,
+               'A primary gender with that name already exists in this domain'
+            );
          }
 
          // Create the new primary gender

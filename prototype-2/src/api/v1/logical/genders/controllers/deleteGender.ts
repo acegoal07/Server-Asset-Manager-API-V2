@@ -2,16 +2,14 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
-import { assetSerializerArgs } from '../lib/includeSerializers';
-import { serializeAsset } from '../lib/outputSerializers';
 import { InternalServerErrorSchema, NotFoundErrorSchema } from '../../../../../lib/openApiSchemas';
 
 export default new OpenAPIHono().openapi(
    createRoute({
-      method: 'get',
-      path: '/{id}',
-      description: "Retrieves an asset using it's ID",
-      tags: ['Assets'],
+      method: 'delete',
+      path: '/',
+      description: 'Deletes a primary gender',
+      tags: ['Genders'],
       request: {
          params: z.object({
             id: z.coerce
@@ -23,20 +21,8 @@ export default new OpenAPIHono().openapi(
          })
       },
       responses: {
-         200: {
-            description: 'Asset retrieved',
-            content: {
-               'application/json': {
-                  schema: z.object({
-                     id: z.number(),
-                     name: z.string(),
-                     notes: z.string().nullable(),
-                     uSize: z.number(),
-                     uTop: z.number(),
-                     uBottom: z.number()
-                  })
-               }
-            }
+         204: {
+            description: 'Primary gender deleted'
          },
          ...NotFoundErrorSchema,
          ...InternalServerErrorSchema
@@ -44,20 +30,32 @@ export default new OpenAPIHono().openapi(
    }),
    async (c) => {
       try {
+         // Get request information
          const { id } = c.req.valid('param');
 
-         const asset = await prisma.assets.findUnique({
+         // Try and get primary gender from the database
+         const gender = await prisma.primaryGenders.findUnique({
             where: {
                id
             },
-            ...assetSerializerArgs
+            select: {
+               id: true
+            }
          });
 
-         if (!asset) {
-            return notFoundError(c, `Asset with id: ${id} could not be found.`);
+         // Check if the primary gender exists
+         if (!gender) {
+            return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
 
-         return c.json(serializeAsset(asset), 200);
+         // Delete the primary gender from the database
+         await prisma.primaryGenders.delete({
+            where: {
+               id
+            }
+         });
+
+         return c.body(null, 204);
       } catch (err) {
          return internalServerError(c, err);
       }
