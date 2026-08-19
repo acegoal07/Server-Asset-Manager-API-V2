@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { Prisma } from '@prisma/client';
 
 type FieldParams =
    | {
@@ -24,7 +24,11 @@ type FieldParams =
  * @param fields
  * @returns
  */
-export async function updateDataFields(dataId: number, fields: FieldParams[]) {
+export async function updateDataFields(
+   prisma: Prisma.TransactionClient,
+   dataId: number,
+   fields: FieldParams[]
+) {
    const creates = fields.filter((f) => f.action === 'create');
    const updates = fields.filter((f) => f.action === 'update');
    const deletes = fields.filter((f) => f.action === 'delete');

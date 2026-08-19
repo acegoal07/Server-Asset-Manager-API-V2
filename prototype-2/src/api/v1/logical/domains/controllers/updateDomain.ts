@@ -6,11 +6,13 @@ import {
    ConflictErrorSchema,
    InternalServerErrorSchema
 } from '../../../../../lib/openApiSchemas';
+import { updateDataFields } from '../../../../../lib/dataFieldHelpers';
+import { internalServerError } from '../../../../../lib/errorMessages';
 
 export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
-      path: '/',
+      path: '/:id',
       tags: ['v1-Domains'],
       request: {
          params: z.object({
@@ -112,72 +114,40 @@ export default new OpenAPIHono().openapi(
    }),
 
    async (c) => {
-      const { id } = c.req.valid('param');
-      const body = c.req.valid('json');
+      try {
+         const { id } = c.req.valid('param');
+         const body = c.req.valid('json');
 
-      const updatedDomain = await prisma.$transaction(async (tx) => {
-         const domain = await tx.domains.update({
-            where: {
-               id
-            },
-            data: {
-               ...(body.name !== undefined && {
-                  name: body.name
-               })
-            },
-            select: {
-               id: true,
-               name: true
-            }
-         });
-
-         const fieldsToCreate = body.dataFields.filter((field) => field.action === 'create');
-
-         const fieldsToUpdate = body.dataFields.filter((field) => field.action === 'update');
-
-         const fieldsToDelete = body.dataFields.filter((field) => field.action === 'delete');
-
-         if (fieldsToCreate.length > 0) {
-            await tx.dataFields.createMany({
-               data: fieldsToCreate.map((field) => ({
-                  dataId: id,
-                  name: field.name,
-                  identifier: field.identifier,
-                  type: field.type,
-                  value: field.value
-               }))
-            });
-         }
-
-         for (const field of fieldsToUpdate) {
-            await tx.dataFields.update({
+         const updatedDomain = await prisma.$transaction(async (tx) => {
+            const domain = await tx.domains.update({
                where: {
-                  dataId_identifier: {
-                     dataId: id,
-                     identifier: field.identifier
-                  }
+                  id
                },
                data: {
-                  type: field.type,
-                  value: field.value
+                  ...(body.name !== undefined && {
+                     name: body.name
+                  })
+               },
+               select: {
+                  id: true,
+                  name: true,
+                  dataId: true
                }
             });
-         }
 
-         if (fieldsToDelete.length > 0) {
-            await tx.dataFields.deleteMany({
-               where: {
-                  dataId: id,
-                  identifier: {
-                     in: fieldsToDelete.map((field) => field.identifier)
-                  }
-               }
-            });
-         }
+            await updateDataFields(tx, domain.dataId, body.dataFields);
 
-         return domain;
-      });
-
-      return c.json(updatedDomain, 200);
+            return domain;
+         });
+         return c.json(
+            {
+               id: updatedDomain.id,
+               name: updatedDomain.name
+            },
+            200
+         );
+      } catch (err) {
+         return internalServerError(c, err);
+      }
    }
 );
