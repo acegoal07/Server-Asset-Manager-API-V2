@@ -19,7 +19,7 @@ type FieldParams =
      };
 
 /**
- * Takes in an array of fields. Will update fields where that identifier exitst, create a new field when the identifier doesn't exist, and delete it when specified
+ * Takes in an array of fields. Will update fields where that identifier exist, create a new field when the identifier doesn't exist, and delete it when specified
  * @param fields
  * @returns
  */
@@ -41,7 +41,6 @@ export async function updateDataFields(
             }
          }
       }),
-
       ...creates.map((field) =>
          prisma.dataFields.create({
             data: {
@@ -53,7 +52,6 @@ export async function updateDataFields(
             }
          })
       ),
-
       ...updates.map((field) =>
          prisma.dataFields.update({
             where: {
