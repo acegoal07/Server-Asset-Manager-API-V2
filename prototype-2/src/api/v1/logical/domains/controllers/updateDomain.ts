@@ -29,7 +29,6 @@ export default new OpenAPIHono().openapi(
                         .trim()
                         .min(1, { error: 'Name cannot be empty' })
                         .optional(),
-
                      dataFields: z.array(DataFieldSchema).default([])
                   })
                }
