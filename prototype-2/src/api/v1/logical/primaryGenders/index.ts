@@ -9,14 +9,14 @@ import updatePrimaryGender from './controllers/updatePrimaryGender';
 import removeSubGenderFromPrimaryGender from './controllers/removeSubGenderFromPrimaryGender';
 import patchNodeByName from './controllers/updatePrimaryGenderNodeByName';
 import getPrimaryGenderNodeByName from './controllers/getPrimaryGenderNodeByName';
-import getAllPrimaryGenderNodes from './controllers/getAllPrimaryGenderNodes';
+import getAllPrimaryGendersNodes from './controllers/getAllPrimaryGendersNodes';
 import deletePrimaryGenderNodeInfoByName from './controllers/deletePrimaryGenderNodeInfoByName';
 
 export default new OpenAPIHono()
    .route('/all/:id', getAllPrimaryGenders)
    .route('/:id/sub/add', addSubGenderToPrimaryGender)
    .route('/:id/sub/remove', removeSubGenderFromPrimaryGender)
-   .route('/:id/node/all', getAllPrimaryGenderNodes)
+   .route('/:id/node/all', getAllPrimaryGendersNodes)
    .route('/:id/node/:name', patchNodeByName)
    .route('/:id/node/:name', getPrimaryGenderNodeByName)
    .route('/:id/node/:name', deletePrimaryGenderNodeInfoByName)
