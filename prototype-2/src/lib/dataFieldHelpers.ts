@@ -148,17 +148,17 @@ export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number
       ];
 }
 
-export function checkDataFieldForETA(dataFields: dataFields[]) {
+export function checkDataFieldForETA(dataFields: dataFields[], domain: object) {
    const eta = new Eta();
 
    return dataFields.map((field) => {
-      if (field.type !== "eta") {
+      if (field.type !== "eta" || !field.value) {
          return field;
       }
 
       return {
          ...field,
-         value: eta.renderString(field.value!, {}),
+         value: eta.renderString(field.value, domain),
          raw: field.value
       };
    });
