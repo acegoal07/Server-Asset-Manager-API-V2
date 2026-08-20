@@ -4,71 +4,65 @@ import merge from 'deepmerge';
 
 type FieldParams =
    | {
-        action: 'create';
-        name: string;
+        identifier?: string;
+        name?: string;
         type: string;
         value: string | null;
      }
    | {
-        action: 'update';
         identifier: string;
-        value: string | null;
-     }
-   | {
-        action: 'delete';
-        identifier: string;
+        delete: true;
      };
 
 /**
- * Takes in an array of fields. Will update fields where that identifier exist, create a new field when the identifier doesn't exist, and delete it when specified
- * @param fields
- * @returns
+ * Takes in an array of fields. Will update fields where that identifier
+ * exists, create a new field when the identifier doesn't exist, and
+ * delete it when specified.
  */
 export async function updateDataFields(
    prisma: Prisma.TransactionClient,
    dataId: number,
    fields: FieldParams[]
 ) {
-   const creates = fields.filter((f) => f.action === 'create');
-   const updates = fields.filter((f) => f.action === 'update');
-   const deletes = fields.filter((f) => f.action === 'delete');
-
-   return Promise.all([
-      prisma.dataFields.deleteMany({
-         where: {
-            dataId,
-            identifier: {
-               in: deletes.map((f) => f.identifier)
-            }
-         }
-      }),
-
-      ...creates.map((field) =>
-         prisma.dataFields.create({
-            data: {
-               dataId,
-               name: field.name,
-               identifier: field.name.toLowerCase().replaceAll(' ', '-'),
-               type: field.type,
-               value: field.value
-            }
-         })
-      ),
-
-      ...updates.map((field) =>
-         prisma.dataFields.update({
-            where: {
-               dataId_identifier: {
+   return Promise.all(
+      fields.map((field) => {
+         if ('delete' in field) {
+            return prisma.dataFields.deleteMany({
+               where: {
                   dataId,
                   identifier: field.identifier
                }
+            });
+         }
+
+         const identifier = field.identifier ?? field.name?.toLowerCase().replaceAll(' ', '-');
+
+         if (!identifier) {
+            throw new Error('Either identifier or name must be provided');
+         }
+
+         return prisma.dataFields.upsert({
+            where: {
+               dataId_identifier: {
+                  dataId,
+                  identifier
+               }
             },
-            data: {
+            update: {
+               ...(field.name && { name: field.name }),
+               type: field.type,
+               value: field.value
+            },
+            create: {
+               dataId,
+               name: field.name ?? identifier,
+               identifier,
+               type: field.type,
                value: field.value
             }
-         })
-      )
-   ]);
+         });
+      })
+   );
 }
 
 /**
@@ -129,12 +123,50 @@ export function handleDataFieldsMerge({
    }) as dataFields[];
 }
 
+export const UpsertDataFieldSchema = z
+   .object({
+      identifier: z
+         .string({ error: 'Identifier must be string' })
+         .trim()
+         .min(1, { error: 'Identifier cannot be empty' })
+         .optional(),
+      name: z
+         .string({ error: 'Name must be string' })
+         .trim()
+         .min(1, { error: 'Name cannot be empty' })
+         .optional(),
+      type: z
+         .string({ error: 'Type must be string' })
+         .trim()
+         .min(1, { error: 'Type cannot be empty' }),
+      value: z.string({ error: 'Value must be string' }).trim().nullable()
+   })
+   .refine((field) => field.identifier !== undefined || field.name !== undefined, {
+      message: 'Either identifier or name must be provided',
+      path: ['identifier']
+   })
+   .openapi('UpsertDataField');
+
 /**
- * Create data field openAPI schema
+ * Delete data field OpenAPI schema
  */
+export const DeleteDataFieldSchema = z
+   .object({
+      identifier: z
+         .string({ error: 'Identifier must be string' })
+         .trim()
+         .min(1, { error: 'Identifier cannot be empty' }),
+      delete: z.literal(true)
+   })
+   .openapi('DeleteDataField');
+
+/**
+ * Data fields OpenAPI union schema
+ */
+export const DataFieldSchema = z.union([UpsertDataFieldSchema, DeleteDataFieldSchema]);
+
 export const CreateDataFieldSchema = z
    .object({
-      action: z.literal('create'),
       name: z
          .string({ error: 'Name must be string' })
          .trim()
@@ -146,42 +178,6 @@ export const CreateDataFieldSchema = z
       value: z.string({ error: 'Value must be string' }).trim().nullable()
    })
    .openapi('CreateDataField');
-
-/**
- * Update data field openAPI schema
- */
-export const UpdateDataFieldSchema = z
-   .object({
-      action: z.literal('update'),
-      identifier: z
-         .string({ error: 'Identifier must be string' })
-         .trim()
-         .min(1, { error: 'Identifier cannot be empty' }),
-      value: z.string({ error: 'Value must be string' }).trim().nullable()
-   })
-   .openapi('UpdateDataField');
-
-/**
- * Delete data field openAPI schema
- */
-export const DeleteDataFieldSchema = z
-   .object({
-      action: z.literal('delete'),
-      identifier: z
-         .string({ error: 'Identifier must be string' })
-         .trim()
-         .min(1, { error: 'Identifier cannot be empty' })
-   })
-   .openapi('DeleteDataField');
-
-/**
- * Data fields openAPI union schema
- */
-export const DataFieldSchema = z.discriminatedUnion('action', [
-   CreateDataFieldSchema,
-   UpdateDataFieldSchema,
-   DeleteDataFieldSchema
-]);
 
 /**
  * Returned data field openAPI schema
