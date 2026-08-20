@@ -104,6 +104,7 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
 
+         // Try and get existing persistant node
          let node = await prisma.nodes.findFirst({
             where: {
                primaryGenderId: gender.id,
@@ -123,10 +124,12 @@ export default new OpenAPIHono().openapi(
          let index: number;
 
          if (node) {
+            // If persistant node exists, use it
             nodeId = node.id;
             nodeDataFields = node.Data.DataFields;
             index = node.nodeIndex;
          } else {
+            // Otherwise try and find information about the non persisted nodes
             index = findNodeIndex(gender.nameMask, name, gender.nodeCount);
 
             if (index === 0) {
