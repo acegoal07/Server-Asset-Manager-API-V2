@@ -33,7 +33,8 @@ hono.get('/api/v1/openapi.json', (c) => {
       v1.getOpenAPI31Document({
          openapi: '3.1.0',
          info: {
-            title: 'My API',
+            title: 'Asset Manager API',
+            description: 'This API is used to manage and access both logical and physical asset information',
             version: '1.0.0'
          },
          servers: [
