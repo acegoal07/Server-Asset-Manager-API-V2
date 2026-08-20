@@ -11,7 +11,7 @@ import { DataFieldSchema, updateDataFields } from '../../../../../lib/dataFieldH
 
 export default new OpenAPIHono().openapi(
    createRoute({
-      method: 'get',
+      method: 'patch',
       path: '/',
       description: 'Update node',
       tags: ['Nodes'],
