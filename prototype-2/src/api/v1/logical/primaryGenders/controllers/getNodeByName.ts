@@ -53,6 +53,7 @@ export default new OpenAPIHono().openapi(
          ...InternalServerErrorSchema
       }
    }),
+
    async (c) => {
       try {
          // Get request information
@@ -102,8 +103,7 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
 
-         // Try to find a real node in the database
-         const node = await prisma.nodes.findFirst({
+         let node = await prisma.nodes.findFirst({
             where: {
                primaryGenderId: gender.id,
                name
@@ -117,11 +117,9 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         // Determine whether this is a real node or a generated node
          let nodeId: number | undefined;
          let nodeDataFields: dataFields[] = [];
-
-         let index: number | undefined;
+         let index: number;
 
          if (node) {
             nodeId = node.id;
@@ -133,8 +131,27 @@ export default new OpenAPIHono().openapi(
             if (index === 0) {
                return notFoundError(c, `Node with name: ${name} could not be found.`);
             }
+
+            node = await prisma.nodes.findFirst({
+               where: {
+                  primaryGenderId: gender.id,
+                  nodeIndex: index
+               },
+               include: {
+                  Data: {
+                     include: {
+                        DataFields: true
+                     }
+                  }
+               }
+            });
+
+            if (node) {
+               return notFoundError(c, `Node with name: ${name} could not be found.`);
+            }
          }
 
+         // Merge inherited data with the node's own data
          const dataFields = handleDataFieldsMerge(
             gender.Domains.Data.DataFields,
             gender.Data.DataFields,
