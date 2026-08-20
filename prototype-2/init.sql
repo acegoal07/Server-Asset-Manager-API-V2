@@ -109,7 +109,7 @@ CREATE TABLE
    Nodes (
       id INT AUTO_INCREMENT PRIMARY KEY,
       primaryGenderId INT NOT NULL,
-      name VARCHAR(255) NULL,
+      name VARCHAR(255) NOT NULL,
       dataId int NOT NULL,
       nodeIndex INT NOT NULL,
       CONSTRAINT fk_nodes_data FOREIGN KEY (dataId) REFERENCES Data (id),
