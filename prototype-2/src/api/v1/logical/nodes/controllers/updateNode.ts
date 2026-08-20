@@ -13,7 +13,7 @@ export default new OpenAPIHono().openapi(
    createRoute({
       method: 'patch',
       path: '/',
-      description: 'Update node',
+      description: "Update node using it's ID",
       tags: ['Nodes'],
       request: {
          params: z.object({
