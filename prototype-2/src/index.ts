@@ -40,6 +40,16 @@ hono.get('/api/v1/openapi.json', (c) => {
             {
                url: '/api/v1'
             }
+         ],
+         'x-tagGroups': [
+            {
+               name: 'Physical',
+               tags: ['Assets']
+            },
+            {
+               name: 'Logical',
+               tags: ['Domains', 'Nodes', 'Primary Genders', 'Sub Genders']
+            }
          ]
       })
    );

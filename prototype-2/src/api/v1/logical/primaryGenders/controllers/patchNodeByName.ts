@@ -16,7 +16,7 @@ export default new OpenAPIHono().openapi(
       method: 'patch',
       path: '/',
       description: 'Updates a node based on its name',
-      tags: ['Primary Genders'],
+      tags: ['Primary Genders', 'Nodes'],
 
       request: {
          params: z.object({
