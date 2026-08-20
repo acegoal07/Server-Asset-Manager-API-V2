@@ -11,9 +11,9 @@ import { DataFieldSchema, updateDataFields } from '../../../../../lib/dataFieldH
 
 export default new OpenAPIHono().openapi(
    createRoute({
-      method: 'get',
+      method: 'patch',
       path: '/',
-      description: 'Update node',
+      description: "Update node using it's ID",
       tags: ['Nodes'],
       request: {
          params: z.object({
@@ -31,7 +31,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Update node',
+            description: 'Node successfully updated',
             content: {
                'application/json': {
                   schema: z.object({
