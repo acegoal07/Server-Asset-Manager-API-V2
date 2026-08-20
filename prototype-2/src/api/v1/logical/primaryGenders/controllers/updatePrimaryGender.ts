@@ -3,11 +3,12 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import {
    BadRequestErrorSchema,
+   DataFieldSchema,
    IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { DataFieldSchema, updateDataFields } from '../../../../../lib/dataFieldHelpers';
+import { updateDataFields } from '../../../../../lib/dataFieldHelpers';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 
 export default new OpenAPIHono().openapi(

@@ -4,6 +4,7 @@ import { prisma } from '../../../../../lib/prisma';
 import {
    BadRequestErrorSchema,
    ConflictErrorSchema,
+   CreateDataFieldSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
@@ -13,7 +14,6 @@ import {
    internalServerError,
    notFoundError
 } from '../../../../../lib/errorMessages';
-import { CreateDataFieldSchema } from '../../../../../lib/dataFieldHelpers';
 import { checkNameMaskForSize } from '../../../../../lib/nameMask';
 import { checkIpMaskForSize } from '../../../../../lib/ipMask';
 

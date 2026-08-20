@@ -4,11 +4,12 @@ import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import {
    BadRequestErrorSchema,
+   DataFieldSchema,
    IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { DataFieldSchema, updateDataFields } from '../../../../../lib/dataFieldHelpers';
+import { updateDataFields } from '../../../../../lib/dataFieldHelpers';
 import { findNodeIndex } from '../../../../../lib/nameMask';
 
 export default new OpenAPIHono().openapi(

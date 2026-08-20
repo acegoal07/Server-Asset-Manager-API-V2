@@ -4,10 +4,10 @@ import { prisma } from '../../../../../lib/prisma';
 import {
    BadRequestErrorSchema,
    ConflictErrorSchema,
+   CreateDataFieldSchema,
    InternalServerErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import { existingResourceError } from '../../../../../lib/errorMessages';
-import { CreateDataFieldSchema } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({

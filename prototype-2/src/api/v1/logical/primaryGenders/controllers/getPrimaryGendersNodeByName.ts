@@ -3,6 +3,7 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import {
+    DataFieldsReturnSchema,
    IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema
@@ -10,7 +11,6 @@ import {
 import {
    checkNodeDataFieldsForIP,
    dataFields,
-   DataFieldsReturnSchema,
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
 import { findNodeIndex } from '../../../../../lib/nameMask';
