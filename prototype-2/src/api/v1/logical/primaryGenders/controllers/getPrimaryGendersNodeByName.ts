@@ -8,12 +8,12 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
+   checkNodeDataFieldsForIP,
    dataFields,
    DataFieldsReturnSchema,
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
 import { findNodeIndex } from '../../../../../lib/nameMask';
-import { getIpFromMask } from '../../../../../lib/ipMask';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -152,22 +152,6 @@ export default new OpenAPIHono().openapi(
             }
          }
 
-         // Check if it has its IP and add it if not
-         nodeDataFields = nodeDataFields.some((field) => field.identifier === 'ip-address')
-            ? nodeDataFields
-            : [
-                 ...nodeDataFields,
-                 {
-                    id: null,
-                    dataId: null,
-                    name: 'IP Address',
-                    identifier: 'ip-address',
-                    type: 'string',
-                    value: getIpFromMask(gender.ipMask, index + 1),
-                    deletable: false
-                 }
-              ];
-
          return c.json(
             {
                id: nodeId,
@@ -186,7 +170,7 @@ export default new OpenAPIHono().openapi(
                   subGenders: gender.GenderHierarchy.flatMap(
                      (sub) => sub.SubGenders.Data.DataFields
                   ),
-                  node: nodeDataFields
+                  node: checkNodeDataFieldsForIP(nodeDataFields, index, gender.ipMask)
                }).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,

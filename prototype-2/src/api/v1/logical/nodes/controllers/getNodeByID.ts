@@ -7,8 +7,11 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { DataFieldsReturnSchema, handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
-import { getIpFromMask } from '../../../../../lib/ipMask';
+import {
+   checkNodeDataFieldsForIP,
+   DataFieldsReturnSchema,
+   handleDataFieldsMerge
+} from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -98,24 +101,6 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Node with id: ${id} could not be found.`);
          }
 
-         // Check if it has its IP and add it if not
-         const nodeDataFields = node.Data.DataFields.some(
-            (field) => field.identifier === 'ip-address'
-         )
-            ? node.Data.DataFields
-            : [
-                 ...node.Data.DataFields,
-                 {
-                    id: null,
-                    dataId: null,
-                    name: 'IP Address',
-                    identifier: 'ip-address',
-                    type: 'string',
-                    value: getIpFromMask(node.PrimaryGenders.ipMask, node.nodeIndex + 1),
-                    deletable: false
-                 }
-              ];
-
          return c.json(
             {
                id: node.id,
@@ -133,7 +118,11 @@ export default new OpenAPIHono().openapi(
                   subGenders: node.PrimaryGenders.GenderHierarchy.flatMap(
                      (sub) => sub.SubGenders.Data.DataFields
                   ),
-                  node: nodeDataFields
+                  node: checkNodeDataFieldsForIP(
+                     node.Data.DataFields,
+                     node.nodeIndex,
+                     node.PrimaryGenders.ipMask
+                  )
                }).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,

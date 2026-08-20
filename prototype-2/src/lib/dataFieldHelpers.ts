@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { z } from '@hono/zod-openapi';
 import merge from 'deepmerge';
+import { getIpFromMask } from './ipMask';
 
 type FieldParams =
    | {
@@ -123,6 +124,9 @@ export function handleDataFieldsMerge({
    }) as dataFields[];
 }
 
+/**
+ * Upset openAPI docs schema
+ */
 export const UpsertDataFieldSchema = z
    .object({
       identifier: z
@@ -146,6 +150,30 @@ export const UpsertDataFieldSchema = z
       path: ['identifier']
    })
    .openapi('UpsertDataField');
+
+/**
+ * Checks the node data fields for a ip-address and if not adds it with generated ip
+ * @param dataFields
+ * @param index
+ * @param ipMask
+ * @returns
+ */
+export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number, ipMask: string) {
+   return dataFields.some((field) => field.identifier === 'ip-address')
+      ? dataFields
+      : [
+           ...dataFields,
+           {
+              id: null,
+              dataId: null,
+              name: 'IP Address',
+              identifier: 'ip-address',
+              type: 'string',
+              value: getIpFromMask(ipMask, index + 1),
+              deletable: false
+           }
+        ];
+}
 
 /**
  * Delete data field OpenAPI schema

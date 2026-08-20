@@ -7,9 +7,12 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { DataFieldsReturnSchema, handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
+import {
+   checkNodeDataFieldsForIP,
+   DataFieldsReturnSchema,
+   handleDataFieldsMerge
+} from '../../../../../lib/dataFieldHelpers';
 import { getNodeNameFromMask } from '../../../../../lib/nameMask';
-import { getIpFromMask } from '../../../../../lib/ipMask';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -119,26 +122,15 @@ export default new OpenAPIHono().openapi(
 
          // Check if it has its IP and add it if not
          const checkNodes = assetNodes.map((node) => {
-            const hasIP = node.Data.DataFields.some((field) => field.identifier === 'ip-address');
-
             return {
                id: node.id,
                name: node.name,
                nodeIndex: node.nodeIndex,
-               dataFields: hasIP
-                  ? node.Data.DataFields
-                  : [
-                       ...node.Data.DataFields,
-                       {
-                          id: null,
-                          dataId: null,
-                          name: 'IP Address',
-                          identifier: 'ip-address',
-                          type: 'string',
-                          value: getIpFromMask(gender.ipMask, node.nodeIndex + 1),
-                          deletable: false
-                       }
-                    ]
+               dataFields: checkNodeDataFieldsForIP(
+                  node.Data.DataFields,
+                  node.nodeIndex,
+                  gender.ipMask
+               )
             };
          });
 
@@ -152,17 +144,7 @@ export default new OpenAPIHono().openapi(
                   id: null,
                   name: getNodeNameFromMask(gender.nameMask, index + 1),
                   nodeIndex: index,
-                  dataFields: [
-                     {
-                        id: null,
-                        dataId: null,
-                        name: 'IP Address',
-                        identifier: 'ip-address',
-                        type: 'string',
-                        value: getIpFromMask(gender.ipMask, index + 1),
-                        deletable: false
-                     }
-                  ]
+                  dataFields: checkNodeDataFieldsForIP([], index, gender.ipMask)
                }
             );
          });
