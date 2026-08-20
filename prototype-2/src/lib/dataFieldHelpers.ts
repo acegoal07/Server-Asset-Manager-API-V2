@@ -156,6 +156,8 @@ export function checkDataFieldForETA(dataFields: dataFields[], domain: object) {
          return field;
       }
 
+      console.log(domain);
+
       return {
          ...field,
          value: eta.renderString(field.value, domain),
