@@ -7,10 +7,7 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import {
-   DataFieldsReturnSchema,
-   handleDataFieldsMerge
-} from '../../../../../lib/dataFieldHelpers';
+import { DataFieldsReturnSchema, handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
 import { getNodeNameFromMask } from '../../../../../lib/nameMask';
 import { getIpFromMask } from '../../../../../lib/ipMask';
 
@@ -122,9 +119,7 @@ export default new OpenAPIHono().openapi(
 
          // Check existing nodes for IP address
          const checkNodes = assetNodes.map((node) => {
-            const hasIP = node.Data.DataFields.some(
-               field => field.identifier === 'ip-address'
-            );
+            const hasIP = node.Data.DataFields.some((field) => field.identifier === 'ip-address');
 
             return {
                id: node.id,
@@ -133,43 +128,43 @@ export default new OpenAPIHono().openapi(
                dataFields: hasIP
                   ? node.Data.DataFields
                   : [
-                     ...node.Data.DataFields,
+                       ...node.Data.DataFields,
+                       {
+                          id: null,
+                          dataId: null,
+                          name: 'IP Address',
+                          identifier: 'ip-address',
+                          type: 'string',
+                          value: getIpFromMask(gender.ipMask, node.nodeIndex + 1),
+                          deletable: false
+                       }
+                    ]
+            };
+         });
+
+         // Convert the gathered nodes into a map
+         const nodesByIndex = new Map(checkNodes.map((node) => [node.nodeIndex, node]));
+
+         // Fill in the blank nodes
+         const filledNodes = Array.from({ length: gender.nodeCount }, (_, index) => {
+            return (
+               nodesByIndex.get(index) ?? {
+                  id: null,
+                  name: getNodeNameFromMask(gender.nameMask, index + 1),
+                  nodeIndex: index,
+                  dataFields: [
                      {
                         id: null,
                         dataId: null,
                         name: 'IP Address',
                         identifier: 'ip-address',
                         type: 'string',
-                        value: getIpFromMask(gender.ipMask, node.nodeIndex + 1),
+                        value: getIpFromMask(gender.ipMask, index + 1),
                         deletable: false
                      }
                   ]
-            };
-         });
-
-         // Convert the gathered nodes into a map
-         const nodesByIndex = new Map(
-            checkNodes.map(node => [node.nodeIndex, node])
-         );
-
-         // Fill in the blank nodes
-         const filledNodes = Array.from({ length: gender.nodeCount }, (_, index) => {
-            return nodesByIndex.get(index) ?? {
-               id: null,
-               name: getNodeNameFromMask(gender.nameMask, index + 1),
-               nodeIndex: index,
-               dataFields: [
-                  {
-                     id: null,
-                     dataId: null,
-                     name: 'IP Address',
-                     identifier: 'ip-address',
-                     type: 'string',
-                     value: getIpFromMask(gender.ipMask, index + 1),
-                     deletable: false
-                  }
-               ]
-            };
+               }
+            );
          });
 
          return c.json(
