@@ -28,7 +28,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Retrieved Node',
+            description: 'Retrieved node',
             content: {
                'application/json': {
                   schema: z.object({
