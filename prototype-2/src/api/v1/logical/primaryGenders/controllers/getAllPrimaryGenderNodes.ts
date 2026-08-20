@@ -128,14 +128,14 @@ export default new OpenAPIHono().openapi(
          // Fill in the blank nodes
          const filledNodes = Array.from({ length: gender.nodeCount }, (_, index) => {
             return nodesByIndex.get(index) ?? {
-               name: getNodeNameFromMask(gender.nameMask, index),
+               name: getNodeNameFromMask(gender.nameMask, index + 1),
                nodeIndex: index,
                dataFields: [
                   {
                      name: "IP Address",
                      identifier: 'ip-address',
                      type: 'string',
-                     value: getIpFromMask(gender.ipMask, index),
+                     value: getIpFromMask(gender.ipMask, index + 1),
                      deletable: false
                   }
                ]
@@ -144,8 +144,8 @@ export default new OpenAPIHono().openapi(
 
          return c.json(
             filledNodes.map((node) => ({
-               id: nodeId ?? null,
-               name,
+               id: node.id ?? null,
+               name: node.name,
                nodeIndex: node.nodeIndex,
                genderId: gender.id,
                gender: gender.name,
