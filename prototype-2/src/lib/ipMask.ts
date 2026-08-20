@@ -1,3 +1,8 @@
+/**
+ * Used to parse the octet from the mask
+ * @param part 
+ * @returns 
+ */
 function parseOctet(part: string): {
    min: number;
    max: number;
@@ -37,6 +42,12 @@ function parseOctet(part: string): {
    };
 }
 
+/**
+ * Checks the mask against the node count to make sure the mask supports the size
+ * @param mask 
+ * @param size 
+ * @returns 
+ */
 export function checkIpMaskForSize(mask: string, size: number): boolean {
    const parts = mask.split('.');
 
@@ -49,6 +60,12 @@ export function checkIpMaskForSize(mask: string, size: number): boolean {
    return ranges.reduce((total, range) => total * (range.max - range.min + 1), 1) >= size;
 }
 
+/**
+ * Takes in the node index and the node name mask to generate the node IP
+ * @param mask 
+ * @param nodeNumber 
+ * @returns 
+ */
 export function getIpFromMask(mask: string, nodeNumber: number): string {
    if (!Number.isInteger(nodeNumber) || nodeNumber < 1) {
       throw new Error('Node number must be a positive integer');
