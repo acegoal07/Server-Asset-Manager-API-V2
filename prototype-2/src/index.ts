@@ -60,6 +60,7 @@ import { Scalar } from '@scalar/hono-api-reference';
 hono.get(
    '/api/v1/docs',
    Scalar({
+      pageTitle: 'Asset Manger API',
       url: '/api/v1/openapi.json'
    })
 );
