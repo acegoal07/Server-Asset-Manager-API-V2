@@ -164,5 +164,6 @@ export const DataFieldsReturnSchema = z.object({
    name: z.string(),
    type: z.string(),
    value: z.string().nullable(),
+   raw: z.string().optional(),
    deletable: z.boolean()
 });

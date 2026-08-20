@@ -158,7 +158,8 @@ export function checkDataFieldForETA(dataFields: dataFields[]) {
 
       return {
          ...field,
-         value: eta.renderString(field.value!, {})
+         value: eta.renderString(field.value!, {}),
+         raw: field.value
       };
    });
 }
