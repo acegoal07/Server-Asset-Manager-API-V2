@@ -19,7 +19,7 @@ export default new OpenAPIHono().openapi(
       method: 'get',
       path: '/',
       description: "Retrieves a node based on it's name",
-      tags: ['Primary Genders'],
+      tags: ['Primary Genders', 'Nodes'],
       request: {
          params: z.object({
             ...IdParamSchema,
