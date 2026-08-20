@@ -71,7 +71,6 @@ export default new OpenAPIHono().openapi(
 
          const node = await prisma.$transaction(async (tx) => {
             // First try to find a persisted node by name.
-
             let existingNode = await tx.nodes.findFirst({
                where: {
                   primaryGenderId: gender.id,
@@ -80,17 +79,20 @@ export default new OpenAPIHono().openapi(
             });
 
             if (existingNode) {
-               // The node already exists, so update its data.
+               // Update already existing persistant node
                await updateDataFields(tx, existingNode.dataId, body.dataFields);
 
                return existingNode;
             }
+
+            // Get the node index of a non-persisted node by name
             const nodeIndex = findNodeIndex(gender.nameMask, name, gender.nodeCount);
 
             if (nodeIndex === 0) {
                throw new Error(`Node with name: ${name} could not be found.`);
             }
 
+            // Checks to see if a persisted node exists with that node index
             existingNode = await tx.nodes.findFirst({
                where: {
                   primaryGenderId: gender.id,
@@ -99,13 +101,15 @@ export default new OpenAPIHono().openapi(
             });
 
             if (existingNode) {
-               throw new Error(`Node with name: ${name} could not be found.`);
+               throw new Error(
+                  `Node with name: ${name} could not be found. It's possible that its name has been changed.`
+               );
             }
 
+            // Create persistant node
             const data = await tx.data.create({
                data: {}
             });
-
             existingNode = await tx.nodes.create({
                data: {
                   primaryGenderId: gender.id,
@@ -115,6 +119,7 @@ export default new OpenAPIHono().openapi(
                }
             });
 
+            // Update persistant node
             await updateDataFields(tx, existingNode.dataId, body.dataFields);
 
             return existingNode;
