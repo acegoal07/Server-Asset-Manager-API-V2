@@ -1,3 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 
-export default new OpenAPIHono();
+import getNodeByID from './controllers/getNodeByID';
+
+export default new OpenAPIHono().route('/:id', getNodeByID);
