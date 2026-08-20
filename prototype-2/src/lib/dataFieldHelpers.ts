@@ -4,20 +4,20 @@ import merge from 'deepmerge';
 
 type FieldParams =
    | {
-        action: 'create';
-        name: string;
-        type: string;
-        value: string | null;
-     }
+      action: 'create';
+      name: string;
+      type: string;
+      value: string | null;
+   }
    | {
-        action: 'update';
-        identifier: string;
-        value: string | null;
-     }
+      action: 'update';
+      identifier: string;
+      value: string | null;
+   }
    | {
-        action: 'delete';
-        identifier: string;
-     };
+      action: 'delete';
+      identifier: string;
+   };
 
 /**
  * Takes in an array of fields. Will update fields where that identifier exist, create a new field when the identifier doesn't exist, and delete it when specified
@@ -75,8 +75,8 @@ export async function updateDataFields(
  * Datafield type
  */
 export type dataFields = {
-   id: number;
-   dataId: number;
+   id: number | null;
+   dataId: number | null;
    name: string;
    identifier: string;
    type: string;
@@ -187,7 +187,7 @@ export const DataFieldSchema = z.discriminatedUnion('action', [
  * Returned data field openAPI schema
  */
 export const DataFieldsReturnSchema = z.object({
-   id: z.number(),
+   id: z.number().nullable(),
    identifier: z.string(),
    name: z.string(),
    type: z.string(),

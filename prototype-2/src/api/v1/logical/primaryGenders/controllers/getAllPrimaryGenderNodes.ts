@@ -32,7 +32,7 @@ export default new OpenAPIHono().openapi(
                'application/json': {
                   schema: z.array(
                      z.object({
-                        id: z.number().optional(),
+                        id: z.number().nullable(),
                         nodeIndex: z.number(),
                         name: z.string(),
                         genderId: z.number(),
@@ -120,19 +120,49 @@ export default new OpenAPIHono().openapi(
             }
          });
 
+         // Check existing nodes for IP address
+         const checkNodes = assetNodes.map((node) => {
+            const hasIP = node.Data.DataFields.some(
+               field => field.identifier === 'ip-address'
+            );
+
+            return {
+               id: node.id,
+               name: node.name,
+               nodeIndex: node.nodeIndex,
+               dataFields: hasIP
+                  ? node.Data.DataFields
+                  : [
+                     ...node.Data.DataFields,
+                     {
+                        id: null,
+                        dataId: null,
+                        name: 'IP Address',
+                        identifier: 'ip-address',
+                        type: 'string',
+                        value: getIpFromMask(gender.ipMask, node.nodeIndex + 1),
+                        deletable: false
+                     }
+                  ]
+            };
+         });
+
          // Convert the gathered nodes into a map
          const nodesByIndex = new Map(
-            assetNodes.map(node => [node.nodeIndex, node])
+            checkNodes.map(node => [node.nodeIndex, node])
          );
 
          // Fill in the blank nodes
          const filledNodes = Array.from({ length: gender.nodeCount }, (_, index) => {
             return nodesByIndex.get(index) ?? {
+               id: null,
                name: getNodeNameFromMask(gender.nameMask, index + 1),
                nodeIndex: index,
                dataFields: [
                   {
-                     name: "IP Address",
+                     id: null,
+                     dataId: null,
+                     name: 'IP Address',
                      identifier: 'ip-address',
                      type: 'string',
                      value: getIpFromMask(gender.ipMask, index + 1),
@@ -144,7 +174,7 @@ export default new OpenAPIHono().openapi(
 
          return c.json(
             filledNodes.map((node) => ({
-               id: node.id ?? null,
+               id: node.id,
                name: node.name,
                nodeIndex: node.nodeIndex,
                genderId: gender.id,
