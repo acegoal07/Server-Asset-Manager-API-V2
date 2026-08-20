@@ -31,7 +31,7 @@ export default new OpenAPIHono().openapi(
       },
       responses: {
          200: {
-            description: 'Update node',
+            description: 'Node successfully updated',
             content: {
                'application/json': {
                   schema: z.object({
