@@ -98,7 +98,7 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Node with id: ${id} could not be found.`);
          }
 
-         // Check if it has its IP
+         // Check if it has its IP and add it if not
          const nodeDataFields = node.Data.DataFields.some(
             (field) => field.identifier === 'ip-address'
          )

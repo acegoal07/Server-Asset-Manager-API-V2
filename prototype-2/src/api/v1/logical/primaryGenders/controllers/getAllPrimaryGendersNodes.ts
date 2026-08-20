@@ -117,7 +117,7 @@ export default new OpenAPIHono().openapi(
             }
          });
 
-         // Check existing nodes for IP address
+         // Check if it has its IP and add it if not
          const checkNodes = assetNodes.map((node) => {
             const hasIP = node.Data.DataFields.some((field) => field.identifier === 'ip-address');
 

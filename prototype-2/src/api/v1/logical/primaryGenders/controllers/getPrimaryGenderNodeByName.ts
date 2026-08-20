@@ -13,6 +13,7 @@ import {
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
 import { findNodeIndex } from '../../../../../lib/nameMask';
+import { getIpFromMask } from '../../../../../lib/ipMask';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -150,6 +151,22 @@ export default new OpenAPIHono().openapi(
                return notFoundError(c, `Node with name: ${name} could not be found.`);
             }
          }
+
+         // Check if it has its IP and add it if not
+         nodeDataFields = nodeDataFields.some((field) => field.identifier === 'ip-address')
+            ? nodeDataFields
+            : [
+                 ...nodeDataFields,
+                 {
+                    id: null,
+                    dataId: null,
+                    name: 'IP Address',
+                    identifier: 'ip-address',
+                    type: 'string',
+                    value: getIpFromMask(gender.ipMask, index + 1),
+                    deletable: false
+                 }
+              ];
 
          return c.json(
             {
