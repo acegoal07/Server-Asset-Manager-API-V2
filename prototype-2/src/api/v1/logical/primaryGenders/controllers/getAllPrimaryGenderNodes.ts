@@ -32,7 +32,7 @@ export default new OpenAPIHono().openapi(
                'application/json': {
                   schema: z.array(
                      z.object({
-                        id: z.number().optional(),
+                        id: z.number().nullable(),
                         nodeIndex: z.number(),
                         name: z.string(),
                         genderId: z.number(),
@@ -155,7 +155,7 @@ export default new OpenAPIHono().openapi(
          // Fill in the blank nodes
          const filledNodes = Array.from({ length: gender.nodeCount }, (_, index) => {
             return nodesByIndex.get(index) ?? {
-               id: undefined,
+               id: null,
                name: getNodeNameFromMask(gender.nameMask, index + 1),
                nodeIndex: index,
                dataFields: [
