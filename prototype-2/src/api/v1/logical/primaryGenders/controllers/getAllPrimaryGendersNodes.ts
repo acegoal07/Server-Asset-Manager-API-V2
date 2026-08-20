@@ -3,7 +3,7 @@ import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi';
 import { prisma } from '../../../../../lib/prisma';
 import { internalServerError, notFoundError } from '../../../../../lib/errorMessages';
 import {
-    DataFieldsReturnSchema,
+   DataFieldsReturnSchema,
    IdParamSchema,
    InternalServerErrorSchema,
    NotFoundErrorSchema

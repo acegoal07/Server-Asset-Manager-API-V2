@@ -34,7 +34,8 @@ hono.get('/api/v1/openapi.json', (c) => {
          openapi: '3.1.0',
          info: {
             title: 'Asset Manager API',
-            description: 'This API is used to manage and access both logical and physical asset information',
+            description:
+               'This API is used to manage and access both logical and physical asset information',
             version: '1.0.0'
          },
          servers: [
