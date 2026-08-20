@@ -33,7 +33,7 @@ export async function updateDataFields(
    const updates = fields.filter((f) => f.action === 'update');
    const deletes = fields.filter((f) => f.action === 'delete');
 
-   return prisma.$transaction([
+   return Promise.all([
       prisma.dataFields.deleteMany({
          where: {
             dataId,
@@ -42,6 +42,7 @@ export async function updateDataFields(
             }
          }
       }),
+
       ...creates.map((field) =>
          prisma.dataFields.create({
             data: {
@@ -53,6 +54,7 @@ export async function updateDataFields(
             }
          })
       ),
+
       ...updates.map((field) =>
          prisma.dataFields.update({
             where: {
