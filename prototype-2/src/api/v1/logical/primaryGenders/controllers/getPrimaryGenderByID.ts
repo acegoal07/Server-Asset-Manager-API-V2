@@ -106,12 +106,13 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: handleDataFieldsMerge(
-                  gender.Domains.Data.DataFields,
-                  gender.Data.DataFields,
-                  gender.GenderHierarchy.flatMap((sub) => sub.SubGenders.Data.DataFields),
-                  []
-               ).map((field) => ({
+               dataFields: handleDataFieldsMerge({
+                  domain: gender.Domains.Data.DataFields,
+                  primaryGender: gender.Data.DataFields,
+                  subGenders: gender.GenderHierarchy.flatMap(
+                     (sub) => sub.SubGenders.Data.DataFields
+                  )
+               }).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,

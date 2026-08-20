@@ -1,3 +1,9 @@
+/**
+ * Checks the mask against the node count to make sure the mask supports the size
+ * @param mask
+ * @param size
+ * @returns
+ */
 export function checkNameMaskForSize(mask: string, size: number): boolean {
    const match = mask.match(/^([^\\[]+)\[(\d+)-(\d+):(\d+)\]([^\]]*)$/);
 
@@ -11,7 +17,13 @@ export function checkNameMaskForSize(mask: string, size: number): boolean {
    return size <= end - start + 1;
 }
 
-export function getNodeNameFromMask(mask: string, nodeNumber: number): string {
+/**
+ * Takes in the node index and the node name mask to generate the node name
+ * @param mask
+ * @param nodeIndex
+ * @returns
+ */
+export function getNodeNameFromMask(mask: string, nodeIndex: number): string {
    const match = mask.match(/^([^\\[]+)\[(\d+)-(\d+):(\d+)\]([^\]]*)$/);
 
    if (!match) {
@@ -26,17 +38,24 @@ export function getNodeNameFromMask(mask: string, nodeNumber: number): string {
       throw new Error('Start of range cannot be greater than end');
    }
 
-   if (!Number.isInteger(nodeNumber) || nodeNumber < start || nodeNumber > end) {
-      throw new Error(`Node ${nodeNumber} is outside the range ${start} - ${end}`);
+   if (!Number.isInteger(nodeIndex) || nodeIndex < start || nodeIndex > end) {
+      throw new Error(`Node ${nodeIndex} is outside the range ${start} - ${end}`);
    }
 
    if (!Number.isInteger(padding) || padding < 1) {
       throw new Error('Padding must be a positive integer');
    }
 
-   return `${match[1]}${nodeNumber.toString().padStart(padding, '0')}${match[5]}`;
+   return `${match[1]}${nodeIndex.toString().padStart(padding, '0')}${match[5]}`;
 }
 
+/**
+ * Uses the name of the node to calculate the index of the node
+ * @param mask
+ * @param nodeName
+ * @param nodeCount
+ * @returns
+ */
 export function findNodeIndex(mask: string, nodeName: string, nodeCount: number): number {
    for (let i = 1; i <= nodeCount; i++) {
       try {
@@ -46,7 +65,7 @@ export function findNodeIndex(mask: string, nodeName: string, nodeCount: number)
             return i;
          }
       } catch {
-         // Index isn't valid for this mask, continue
+         continue;
       }
    }
 

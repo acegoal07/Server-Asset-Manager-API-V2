@@ -87,14 +87,20 @@ export type dataFields = {
  * @param domain
  * @param primaryGender
  * @param subGenders
+ * @param node
  * @returns
  */
-export function handleDataFieldsMerge(
-   domain: dataFields[],
-   primaryGender: dataFields[],
-   subGenders: dataFields[],
-   node: dataFields[]
-): dataFields[] {
+export function handleDataFieldsMerge({
+   domain = [],
+   primaryGender = [],
+   subGenders = [],
+   node = []
+}: {
+   domain?: dataFields[];
+   primaryGender?: dataFields[];
+   subGenders?: dataFields[];
+   node?: dataFields[];
+}): dataFields[] {
    const mergeByName = (target: dataFields[], source: dataFields[]): dataFields[] => {
       return source.reduce<dataFields[]>(
          (result, sourceItem) => {
@@ -120,8 +126,8 @@ export function handleDataFieldsMerge(
       arrayMerge: mergeByName
    }) as dataFields[];
 }
-/**
 
+/**
  * Create data field openAPI schema
  */
 export const CreateDataFieldSchema = z
