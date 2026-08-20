@@ -8,6 +8,7 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
+import { checkDataFieldForETA } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -62,12 +63,14 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Domain with id: ${id} could not be found.`);
          }
 
+         const parsedDataFields = checkDataFieldForETA(domain.Data.DataFields)
+
          return c.json(
             {
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: domain.Data.DataFields.map((field) => ({
+               dataFields: parsedDataFields.map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,

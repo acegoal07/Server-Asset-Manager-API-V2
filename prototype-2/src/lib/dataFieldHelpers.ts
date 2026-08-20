@@ -1,18 +1,19 @@
 import { Prisma } from '@prisma/client';
 import merge from 'deepmerge';
 import { getIpFromMask } from './ipMask';
+import { Eta } from 'eta';
 
 type FieldParams =
    | {
-        identifier?: string;
-        name?: string;
-        type: string;
-        value: string | null;
-     }
+      identifier?: string;
+      name?: string;
+      type: string;
+      value: string | null;
+   }
    | {
-        identifier: string;
-        delete: true;
-     };
+      identifier: string;
+      delete: true;
+   };
 
 /**
  * Datafield type
@@ -134,15 +135,30 @@ export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number
    return dataFields.some((field) => field.identifier === 'ip-address')
       ? dataFields
       : [
-           ...dataFields,
-           {
-              id: null,
-              dataId: null,
-              name: 'IP Address',
-              identifier: 'ip-address',
-              type: 'string',
-              value: getIpFromMask(ipMask, index + 1),
-              deletable: false
-           }
-        ];
+         ...dataFields,
+         {
+            id: null,
+            dataId: null,
+            name: 'IP Address',
+            identifier: 'ip-address',
+            type: 'string',
+            value: getIpFromMask(ipMask, index + 1),
+            deletable: false
+         }
+      ];
+}
+
+export function checkDataFieldForETA(dataFields: dataFields[]) {
+   const eta = new Eta();
+
+   return dataFields.map((field) => {
+      if (field.type !== "eta") {
+         return field;
+      }
+
+      return {
+         ...field,
+         value: eta.renderString(field.value!, {})
+      };
+   });
 }
