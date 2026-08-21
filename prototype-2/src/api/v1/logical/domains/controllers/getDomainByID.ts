@@ -8,7 +8,7 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { checkDataFieldForETA } from '../../../../../lib/dataFieldHelpers';
+import { checkDataFieldForETA } from '../../../../../lib/etaFieldHelper';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -79,7 +79,7 @@ export default new OpenAPIHono().openapi(
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: checkDataFieldForETA(convertedDomain.Data.DataFields, convertedDomain)
+               dataFields: checkDataFieldForETA(convertedDomain.Data.DataFields, domain.id)
             },
             200
          );

@@ -9,10 +9,10 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
-   checkDataFieldForETA,
    checkNodeDataFieldsForIP,
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
+import { checkDataFieldForETA } from '../../../../../lib/etaFieldHelper';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -134,7 +134,10 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: checkDataFieldForETA(convertedNode.Data.DataFields, convertedNode)
+               dataFields: checkDataFieldForETA(
+                  convertedNode.Data.DataFields,
+                  node.PrimaryGenders.domainId
+               )
             },
             200
          );

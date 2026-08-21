@@ -9,12 +9,12 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
-   checkDataFieldForETA,
    checkNodeDataFieldsForIP,
    dataField,
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
 import { findNodeIndex } from '../../../../../lib/nameMask';
+import { checkDataFieldForETA } from '../../../../../lib/etaFieldHelper';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -188,7 +188,7 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: checkDataFieldForETA(convertedNode.Data.DataFields, convertedNode)
+               dataFields: checkDataFieldForETA(convertedNode.Data.DataFields, gender.domainId)
             },
             200
          );

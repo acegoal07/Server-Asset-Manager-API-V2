@@ -8,7 +8,8 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
-import { checkDataFieldForETA, handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
+import { handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
+import { checkDataFieldForETA } from '../../../../../lib/etaFieldHelper';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -93,7 +94,10 @@ export default new OpenAPIHono().openapi(
                domainId: gender.domainId,
                name: gender.name,
                dataId: gender.dataId,
-               dataFields: checkDataFieldForETA(convertedGender.Data.DataFields, convertedGender)
+               dataFields: checkDataFieldForETA(
+                  convertedGender.Data.DataFields,
+                  convertedGender.domainId
+               )
             },
             200
          );
