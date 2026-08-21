@@ -170,7 +170,7 @@ export default new OpenAPIHono().openapi(
          }));
 
          return c.json(
-            convertedNodes.map((node) => ({
+            convertedNodes.map(async (node) => ({
                id: node.id,
                name: node.name,
                nodeIndex: node.nodeIndex,
@@ -181,7 +181,7 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: checkDataFieldForETA(node.Data.DataFields, gender.domainId)
+               dataFields: await checkDataFieldForETA(node.Data.DataFields, gender.domainId)
             })),
             200
          );

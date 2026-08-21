@@ -124,7 +124,7 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: checkDataFieldForETA(
+               dataFields: await checkDataFieldForETA(
                   convertedGender.Data.DataFields,
                   convertedGender.domainId
                )

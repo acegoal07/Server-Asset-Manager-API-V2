@@ -79,7 +79,7 @@ export default new OpenAPIHono().openapi(
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: checkDataFieldForETA(convertedDomain.Data.DataFields, domain.id)
+               dataFields: await checkDataFieldForETA(convertedDomain.Data.DataFields, domain.id)
             },
             200
          );
