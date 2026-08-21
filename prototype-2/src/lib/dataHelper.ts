@@ -4,7 +4,10 @@ export function convertFromDataBase(data: object) {
       Data: {
          ...data.Data,
          DataFields: Object.fromEntries(
-            data.Data.DataFields.map((field) => [field.identifier, field.value])
+            data.Data.DataFields.map((field) => [
+               field.identifier,
+               field.value
+            ])
          )
       }
    };
