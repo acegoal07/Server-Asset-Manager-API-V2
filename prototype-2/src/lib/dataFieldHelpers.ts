@@ -171,17 +171,21 @@ export function checkDataFieldForETA(
             return [key, field];
          }
 
-         return [
-            key,
-            {
-               ...field,
-               value: eta.renderString(field.value, {
-                  ...domain,
-                  ...dataFields
-               }),
-               raw: field.value
-            }
-         ];
+         try {
+            return [
+               key,
+               {
+                  ...field,
+                  value: eta.renderString(field.value, {
+                     ...domain,
+                     ...dataFields
+                  }),
+                  raw: field.value
+               }
+            ];
+         } catch {
+            return [key, field];
+         }
       })
    );
 }
