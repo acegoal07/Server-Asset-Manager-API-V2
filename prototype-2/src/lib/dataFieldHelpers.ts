@@ -5,15 +5,15 @@ import { Eta } from 'eta';
 
 type FieldParams =
    | {
-        identifier?: string;
-        name?: string;
-        type: string;
-        value: string | null;
-     }
+      identifier?: string;
+      name?: string;
+      type: string;
+      value: string | null;
+   }
    | {
-        identifier: string;
-        delete: true;
-     };
+      identifier: string;
+      delete: true;
+   };
 
 /**
  * Datafield type
@@ -136,17 +136,17 @@ export function checkNodeDataFieldsForIP(dataFields: dataField[], index: number,
    return dataFields.some((field) => field.identifier === 'ip-address')
       ? dataFields
       : [
-           ...dataFields,
-           {
-              id: null,
-              dataId: null,
-              name: 'IP Address',
-              identifier: 'ip-address',
-              type: 'string',
-              value: getIpFromMask(ipMask, index + 1),
-              deletable: false
-           }
-        ];
+         ...dataFields,
+         {
+            id: null,
+            dataId: null,
+            name: 'IP Address',
+            identifier: 'ip-address',
+            type: 'string',
+            value: getIpFromMask(ipMask, index + 1),
+            deletable: false
+         }
+      ];
 }
 
 /**
@@ -160,32 +160,54 @@ export function checkDataFieldForETA(
    domain: object
 ): Record<string, dataField> {
    const eta = new Eta();
+   const result = structuredClone(dataFields);
 
-   return Object.fromEntries(
-      Object.entries(dataFields).map(([key, field]) => {
+   const maxPasses = 10;
+
+   for (let pass = 0; pass < maxPasses; pass++) {
+      let changed = false;
+
+      const context = {
+         ...domain,
+         ...Object.fromEntries(
+            Object.entries(result).map(([key, field]) => [
+               key,
+               field.value
+            ])
+         )
+      };
+
+      for (const [key, field] of Object.entries(result)) {
          if (
-            field.type !== 'eta' ||
+            field.type !== "eta" ||
             !field.value ||
-            field.value.toLowerCase().includes('process.env')
+            field.value.toLowerCase().includes("process.env")
          ) {
-            return [key, field];
+            continue;
          }
 
          try {
-            return [
-               key,
-               {
-                  ...field,
-                  value: eta.renderString(field.value, {
-                     ...domain,
-                     ...dataFields
-                  }),
-                  raw: field.value
-               }
-            ];
+            const value = eta.renderString(field.value, context);
+
+            if (value !== field.value) {
+               changed = true;
+            }
+
+            result[key] = {
+               ...field,
+               value,
+               raw: field.raw ?? field.value
+            };
          } catch {
-            return [key, field];
+            continue;
          }
-      })
-   );
+      }
+
+      if (!changed) {
+         break;
+      }
+   }
+
+   return result;
 }
+
