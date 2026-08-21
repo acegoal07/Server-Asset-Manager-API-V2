@@ -165,7 +165,7 @@ export default new OpenAPIHono().openapi(
                   node: node.dataFields
                }).map((field) => [field.identifier, field])
             )
-         }))
+         }));
 
          return c.json(
             convertedNodes.map((node) => ({

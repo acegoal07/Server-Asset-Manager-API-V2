@@ -9,6 +9,7 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
+   checkDataFieldForETA,
    checkNodeDataFieldsForIP,
    dataFields,
    handleDataFieldsMerge
@@ -45,7 +46,7 @@ export default new OpenAPIHono().openapi(
                            priority: z.number()
                         })
                      ),
-                     dataFields: z.array(DataFieldsReturnSchema)
+                     dataFields: z.record(z.string(), DataFieldsReturnSchema)
                   })
                }
             }
@@ -104,7 +105,7 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
 
-         // Try and get existing persistant node
+         // Try and get existing persistent node
          let node = await prisma.nodes.findFirst({
             where: {
                primaryGenderId: gender.id,
@@ -124,7 +125,7 @@ export default new OpenAPIHono().openapi(
          let index: number;
 
          if (node) {
-            // If persistant node exists, use it
+            // If persistent node exists, use it
             nodeId = node.id;
             nodeDataFields = node.Data.DataFields;
             index = node.nodeIndex;
@@ -155,6 +156,28 @@ export default new OpenAPIHono().openapi(
             }
          }
 
+         // Converted node
+         const convertedNode = {
+            id: nodeId,
+            name,
+            nodeIndex: index,
+            genderId: gender.id,
+            subGenders: gender.name,
+            Data: {
+               ...gender.Data,
+               DataFields: Object.fromEntries(
+                  handleDataFieldsMerge({
+                     domain: gender.Domains.Data.DataFields,
+                     primaryGender: gender.Data.DataFields,
+                     subGenders: gender.GenderHierarchy.flatMap(
+                        (sub) => sub.SubGenders.Data.DataFields
+                     ),
+                     node: checkNodeDataFieldsForIP(nodeDataFields, index, gender.ipMask)
+                  }).map((field) => [field.identifier, field])
+               )
+            }
+         };
+
          return c.json(
             {
                id: nodeId,
@@ -167,21 +190,20 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: handleDataFieldsMerge({
-                  domain: gender.Domains.Data.DataFields,
-                  primaryGender: gender.Data.DataFields,
-                  subGenders: gender.GenderHierarchy.flatMap(
-                     (sub) => sub.SubGenders.Data.DataFields
-                  ),
-                  node: checkNodeDataFieldsForIP(nodeDataFields, index, gender.ipMask)
-               }).map((field) => ({
-                  id: field.id,
-                  identifier: field.identifier,
-                  name: field.name,
-                  type: field.type,
-                  value: field.value,
-                  deletable: field.deletable
-               }))
+               dataFields: Object.fromEntries(
+                  checkDataFieldForETA(gender.Data.DataFields, convertedNode).map((field) => [
+                     field.identifier,
+                     {
+                        id: field.id,
+                        identifier: field.identifier,
+                        name: field.name,
+                        type: field.type,
+                        value: field.value,
+                        raw: field?.raw ?? undefined,
+                        deletable: field.deletable
+                     }
+                  ])
+               )
             },
             200
          );

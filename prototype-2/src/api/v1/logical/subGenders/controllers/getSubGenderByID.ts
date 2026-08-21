@@ -8,6 +8,7 @@ import {
    InternalServerErrorSchema,
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
+import { checkDataFieldForETA, handleDataFieldsMerge } from '../../../../../lib/dataFieldHelpers';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -30,7 +31,7 @@ export default new OpenAPIHono().openapi(
                      domainId: z.number(),
                      name: z.string(),
                      dataId: z.number(),
-                     dataFields: z.array(DataFieldsReturnSchema)
+                     dataFields: z.record(z.string(), DataFieldsReturnSchema)
                   })
                }
             }
@@ -54,6 +55,15 @@ export default new OpenAPIHono().openapi(
                   include: {
                      DataFields: true
                   }
+               },
+               Domains: {
+                  include: {
+                     Data: {
+                        include: {
+                           DataFields: true
+                        }
+                     }
+                  }
                }
             }
          });
@@ -63,20 +73,40 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Sub gender with id: ${id} could not be found.`);
          }
 
+         // Converted gender
+         const convertedGender = {
+            ...gender,
+            Data: {
+               ...gender.Data,
+               DataFields: Object.fromEntries(
+                  handleDataFieldsMerge({
+                     domain: gender.Domains.Data.DataFields,
+                     subGenders: gender.Data.DataFields
+                  }).map((field) => [field.identifier, field])
+               )
+            }
+         };
+
          return c.json(
             {
                id: gender.id,
                domainId: gender.domainId,
                name: gender.name,
                dataId: gender.dataId,
-               dataFields: gender.Data.DataFields.map((field) => ({
-                  id: field.id,
-                  identifier: field.identifier,
-                  name: field.name,
-                  type: field.type,
-                  value: field.value,
-                  deletable: field.deletable
-               }))
+               dataFields: Object.fromEntries(
+                  checkDataFieldForETA(gender.Data.DataFields, convertedGender).map((field) => [
+                     field.identifier,
+                     {
+                        id: field.id,
+                        identifier: field.identifier,
+                        name: field.name,
+                        type: field.type,
+                        value: field.value,
+                        raw: field?.raw ?? undefined,
+                        deletable: field.deletable
+                     }
+                  ])
+               )
             },
             200
          );
