@@ -63,15 +63,12 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Domain with id: ${id} could not be found.`);
          }
 
-         // Parse eta values to display
-         const parsedDataFields = checkDataFieldForETA(domain.Data.DataFields, domain)
-
          return c.json(
             {
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: parsedDataFields.map((field) => ({
+               dataFields: checkDataFieldForETA(domain.Data.DataFields, domain).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,

@@ -5,15 +5,15 @@ import { Eta } from 'eta';
 
 type FieldParams =
    | {
-      identifier?: string;
-      name?: string;
-      type: string;
-      value: string | null;
-   }
+        identifier?: string;
+        name?: string;
+        type: string;
+        value: string | null;
+     }
    | {
-      identifier: string;
-      delete: true;
-   };
+        identifier: string;
+        delete: true;
+     };
 
 /**
  * Datafield type
@@ -135,28 +135,36 @@ export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number
    return dataFields.some((field) => field.identifier === 'ip-address')
       ? dataFields
       : [
-         ...dataFields,
-         {
-            id: null,
-            dataId: null,
-            name: 'IP Address',
-            identifier: 'ip-address',
-            type: 'string',
-            value: getIpFromMask(ipMask, index + 1),
-            deletable: false
-         }
-      ];
+           ...dataFields,
+           {
+              id: null,
+              dataId: null,
+              name: 'IP Address',
+              identifier: 'ip-address',
+              type: 'string',
+              value: getIpFromMask(ipMask, index + 1),
+              deletable: false
+           }
+        ];
 }
 
+/**
+ * Takes in the data fields and renders any that are eta strings
+ * @param dataFields
+ * @param domain
+ * @returns
+ */
 export function checkDataFieldForETA(dataFields: dataFields[], domain: object) {
    const eta = new Eta();
 
    return dataFields.map((field) => {
-      if (field.type !== "eta" || !field.value) {
+      if (field.type !== 'eta' || !field.value) {
          return field;
       }
 
-      console.log(domain);
+      if (field.value.toLowerCase().includes('process.env')) {
+         return field;
+      }
 
       return {
          ...field,
