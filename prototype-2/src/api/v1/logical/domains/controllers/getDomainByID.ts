@@ -9,8 +9,6 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import { checkDataFieldForETA } from '../../../../../lib/dataFieldHelpers';
-import { convertFromDataBase } from '../../../../../lib/dataHelper';
-import { object } from 'zod';
 
 export default new OpenAPIHono().openapi(
    createRoute({
@@ -65,15 +63,12 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Domain with id: ${id} could not be found.`);
          }
 
-         // Converted data response
-         const convertedDomain = convertFromDataBase(domain);
-
          return c.json(
             {
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: Object.values(checkDataFieldForETA(convertedDomain.Data.dataFields, convertedDomain)).map((field) => ({
+               dataFields: checkDataFieldForETA(domain.Data.DataFields, domain).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,
