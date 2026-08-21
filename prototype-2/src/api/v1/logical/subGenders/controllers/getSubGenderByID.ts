@@ -74,20 +74,6 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Sub gender with id: ${id} could not be found.`);
          }
 
-         // Converted gender
-         const convertedGender = {
-            ...gender,
-            Data: {
-               ...gender.Data,
-               DataFields: Object.fromEntries(
-                  handleDataFieldsMerge({
-                     domain: gender.Domains.Data.DataFields,
-                     subGenders: gender.Data.DataFields
-                  }).map((field) => [field.identifier, field])
-               )
-            }
-         };
-
          return c.json(
             {
                id: gender.id,
@@ -95,8 +81,13 @@ export default new OpenAPIHono().openapi(
                name: gender.name,
                dataId: gender.dataId,
                dataFields: await checkDataFieldForETA(
-                  convertedGender.Data.DataFields,
-                  convertedGender.domainId
+                  Object.fromEntries(
+                     handleDataFieldsMerge({
+                        domain: gender.Domains.Data.DataFields,
+                        subGenders: gender.Data.DataFields
+                     }).map((field) => [field.identifier, field])
+                  ),
+                  gender.domainId
                )
             },
             200

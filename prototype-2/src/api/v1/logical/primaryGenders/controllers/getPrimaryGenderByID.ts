@@ -97,22 +97,6 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Primary gender with id: ${id} could not be found.`);
          }
 
-         // Converted gender
-         const convertedGender = {
-            ...gender,
-            Data: {
-               DataFields: Object.fromEntries(
-                  handleDataFieldsMerge({
-                     domain: gender.Domains.Data.DataFields,
-                     primaryGender: gender.Data.DataFields,
-                     subGenders: gender.GenderHierarchy.flatMap(
-                        (sub) => sub.SubGenders.Data.DataFields
-                     )
-                  }).map((field) => [field.identifier, field])
-               )
-            }
-         };
-
          return c.json(
             {
                id: gender.id,
@@ -125,8 +109,16 @@ export default new OpenAPIHono().openapi(
                   priority: sub.priority
                })),
                dataFields: await checkDataFieldForETA(
-                  convertedGender.Data.DataFields,
-                  convertedGender.domainId
+                  Object.fromEntries(
+                     handleDataFieldsMerge({
+                        domain: gender.Domains.Data.DataFields,
+                        primaryGender: gender.Data.DataFields,
+                        subGenders: gender.GenderHierarchy.flatMap(
+                           (sub) => sub.SubGenders.Data.DataFields
+                        )
+                     }).map((field) => [field.identifier, field])
+                  ),
+                  gender.domainId
                )
             },
             200

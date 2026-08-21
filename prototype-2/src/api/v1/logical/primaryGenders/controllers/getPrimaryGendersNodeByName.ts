@@ -155,27 +155,6 @@ export default new OpenAPIHono().openapi(
             }
          }
 
-         // Converted node
-         const convertedNode = {
-            id: nodeId,
-            name,
-            nodeIndex: index,
-            genderId: gender.id,
-            subGenders: gender.name,
-            Data: {
-               DataFields: Object.fromEntries(
-                  handleDataFieldsMerge({
-                     domain: gender.Domains.Data.DataFields,
-                     primaryGender: gender.Data.DataFields,
-                     subGenders: gender.GenderHierarchy.flatMap(
-                        (sub) => sub.SubGenders.Data.DataFields
-                     ),
-                     node: checkNodeDataFieldsForIP(nodeDataFields, index, gender.ipMask)
-                  }).map((field) => [field.identifier, field])
-               )
-            }
-         };
-
          return c.json(
             {
                id: nodeId,
@@ -188,7 +167,19 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: await checkDataFieldForETA(convertedNode.Data.DataFields, gender.domainId)
+               dataFields: await checkDataFieldForETA(
+                  Object.fromEntries(
+                     handleDataFieldsMerge({
+                        domain: gender.Domains.Data.DataFields,
+                        primaryGender: gender.Data.DataFields,
+                        subGenders: gender.GenderHierarchy.flatMap(
+                           (sub) => sub.SubGenders.Data.DataFields
+                        ),
+                        node: checkNodeDataFieldsForIP(nodeDataFields, index, gender.ipMask)
+                     }).map((field) => [field.identifier, field])
+                  ),
+                  gender.domainId
+               )
             },
             200
          );

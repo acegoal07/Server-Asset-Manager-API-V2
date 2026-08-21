@@ -150,27 +150,8 @@ export default new OpenAPIHono().openapi(
             );
          });
 
-         // converted nodes
-         const convertedNodes = filledNodes.map((node) => ({
-            ...node,
-            genderId: gender.id,
-            gender: gender.name,
-            Data: {
-               DataFields: Object.fromEntries(
-                  handleDataFieldsMerge({
-                     domain: gender.Domains.Data.DataFields,
-                     primaryGender: gender.Data.DataFields,
-                     subGenders: gender.GenderHierarchy.flatMap(
-                        (sub) => sub.SubGenders.Data.DataFields
-                     ),
-                     node: node.dataFields
-                  }).map((field) => [field.identifier, field])
-               )
-            }
-         }));
-
          const result = await Promise.all(
-            convertedNodes.map(async (node) => ({
+            filledNodes.map(async (node) => ({
                id: node.id,
                name: node.name,
                nodeIndex: node.nodeIndex,
@@ -182,7 +163,16 @@ export default new OpenAPIHono().openapi(
                   priority: sub.priority
                })),
                dataFields: await checkDataFieldForETA(
-                  node.Data.DataFields,
+                  Object.fromEntries(
+                     handleDataFieldsMerge({
+                        domain: gender.Domains.Data.DataFields,
+                        primaryGender: gender.Data.DataFields,
+                        subGenders: gender.GenderHierarchy.flatMap(
+                           (sub) => sub.SubGenders.Data.DataFields
+                        ),
+                        node: node.dataFields
+                     }).map((field) => [field.identifier, field])
+                  ),
                   gender.domainId
                )
             }))

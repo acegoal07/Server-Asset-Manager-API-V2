@@ -102,27 +102,6 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Node with id: ${id} could not be found.`);
          }
 
-         // Converted node
-         const convertedNode = {
-            ...node,
-            Data: {
-               DataFields: Object.fromEntries(
-                  handleDataFieldsMerge({
-                     domain: node.PrimaryGenders.Domains.Data.DataFields,
-                     primaryGender: node.PrimaryGenders.Data.DataFields,
-                     subGenders: node.PrimaryGenders.GenderHierarchy.flatMap(
-                        (sub) => sub.SubGenders.Data.DataFields
-                     ),
-                     node: checkNodeDataFieldsForIP(
-                        node.Data.DataFields,
-                        node.nodeIndex,
-                        node.PrimaryGenders.ipMask
-                     )
-                  }).map((field) => [field.identifier, field])
-               )
-            }
-         };
-
          return c.json(
             {
                id: node.id,
@@ -135,7 +114,20 @@ export default new OpenAPIHono().openapi(
                   priority: sub.priority
                })),
                dataFields: await checkDataFieldForETA(
-                  convertedNode.Data.DataFields,
+                  Object.fromEntries(
+                     handleDataFieldsMerge({
+                        domain: node.PrimaryGenders.Domains.Data.DataFields,
+                        primaryGender: node.PrimaryGenders.Data.DataFields,
+                        subGenders: node.PrimaryGenders.GenderHierarchy.flatMap(
+                           (sub) => sub.SubGenders.Data.DataFields
+                        ),
+                        node: checkNodeDataFieldsForIP(
+                           node.Data.DataFields,
+                           node.nodeIndex,
+                           node.PrimaryGenders.ipMask
+                        )
+                     }).map((field) => [field.identifier, field])
+                  ),
                   node.PrimaryGenders.domainId
                )
             },

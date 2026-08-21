@@ -63,23 +63,17 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Domain with id: ${id} could not be found.`);
          }
 
-         // Converted domain
-         const convertedDomain = {
-            ...domain,
-            Data: {
-               ...domain.Data,
-               DataFields: Object.fromEntries(
-                  domain.Data.DataFields.map((field) => [field.identifier, field])
-               )
-            }
-         };
-
          return c.json(
             {
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: await checkDataFieldForETA(convertedDomain.Data.DataFields, domain.id)
+               dataFields: await checkDataFieldForETA(
+                  Object.fromEntries(
+                     domain.Data.DataFields.map((field) => [field.identifier, field])
+                  ),
+                  domain.id
+               )
             },
             200
          );
