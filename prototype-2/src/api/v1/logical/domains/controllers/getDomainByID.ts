@@ -73,7 +73,9 @@ export default new OpenAPIHono().openapi(
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: Object.values(checkDataFieldForETA(convertedDomain.Data.dataFields, convertedDomain)).map((field) => ({
+               dataFields: Object.values(
+                  checkDataFieldForETA(convertedDomain.Data.dataFields, convertedDomain)
+               ).map((field) => ({
                   id: field.id,
                   identifier: field.identifier,
                   name: field.name,

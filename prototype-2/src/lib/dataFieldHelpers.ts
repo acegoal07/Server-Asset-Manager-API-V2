@@ -5,15 +5,15 @@ import { Eta } from 'eta';
 
 type FieldParams =
    | {
-      identifier?: string;
-      name?: string;
-      type: string;
-      value: string | null;
-   }
+        identifier?: string;
+        name?: string;
+        type: string;
+        value: string | null;
+     }
    | {
-      identifier: string;
-      delete: true;
-   };
+        identifier: string;
+        delete: true;
+     };
 
 /**
  * Datafield type
@@ -135,17 +135,17 @@ export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number
    return dataFields.some((field) => field.identifier === 'ip-address')
       ? dataFields
       : [
-         ...dataFields,
-         {
-            id: null,
-            dataId: null,
-            name: 'IP Address',
-            identifier: 'ip-address',
-            type: 'string',
-            value: getIpFromMask(ipMask, index + 1),
-            deletable: false
-         }
-      ];
+           ...dataFields,
+           {
+              id: null,
+              dataId: null,
+              name: 'IP Address',
+              identifier: 'ip-address',
+              type: 'string',
+              value: getIpFromMask(ipMask, index + 1),
+              deletable: false
+           }
+        ];
 }
 
 /**
@@ -163,7 +163,10 @@ export function convertDataFieldsToKey(dataFields: dataFields[]): Record<string,
  * @param domain
  * @returns
  */
-export function checkDataFieldForETA(dataFields: object, domain: object): Record<string, dataFields> {
+export function checkDataFieldForETA(
+   dataFields: object,
+   domain: object
+): Record<string, dataFields> {
    const eta = new Eta();
 
    return Object.fromEntries(
