@@ -5,15 +5,15 @@ import { Eta } from 'eta';
 
 type FieldParams =
    | {
-        identifier?: string;
-        name?: string;
-        type: string;
-        value: string | null;
-     }
+      identifier?: string;
+      name?: string;
+      type: string;
+      value: string | null;
+   }
    | {
-        identifier: string;
-        delete: true;
-     };
+      identifier: string;
+      delete: true;
+   };
 
 /**
  * Datafield type
@@ -135,17 +135,26 @@ export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number
    return dataFields.some((field) => field.identifier === 'ip-address')
       ? dataFields
       : [
-           ...dataFields,
-           {
-              id: null,
-              dataId: null,
-              name: 'IP Address',
-              identifier: 'ip-address',
-              type: 'string',
-              value: getIpFromMask(ipMask, index + 1),
-              deletable: false
-           }
-        ];
+         ...dataFields,
+         {
+            id: null,
+            dataId: null,
+            name: 'IP Address',
+            identifier: 'ip-address',
+            type: 'string',
+            value: getIpFromMask(ipMask, index + 1),
+            deletable: false
+         }
+      ];
+}
+
+/**
+ * Convert the array of data fields to a key object using their identifiers
+ * @param dataFields
+ * @returns
+ */
+export function convertDataFieldsToKey(dataFields: dataFields[]): Record<string, dataFields> {
+   return Object.fromEntries(dataFields.map((field) => [field.identifier, field]));
 }
 
 /**
@@ -154,22 +163,43 @@ export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number
  * @param domain
  * @returns
  */
-export function checkDataFieldForETA(dataFields: dataFields[], domain: object) {
+export function checkDataFieldForETA(dataFields: object, domain: object): Record<string, dataFields> {
    const eta = new Eta();
 
-   return dataFields.map((field) => {
-      if (field.type !== 'eta' || !field.value) {
-         return field;
-      }
+   return Object.fromEntries(
+      Object.entries(dataFields).map(([key, field]) => {
+         if (field.type !== 'eta' || !field.value) {
+            return [key, field];
+         }
 
-      if (field.value.toLowerCase().includes('process.env')) {
-         return field;
-      }
+         if (field.value.toLowerCase().includes('process.env')) {
+            return [key, field];
+         }
 
-      return {
-         ...field,
-         value: eta.renderString(field.value, domain),
-         raw: field.value
-      };
-   });
+         return [
+            key,
+            {
+               ...field,
+               value: eta.renderString(field.value, domain),
+               raw: field.value
+            }
+         ];
+      })
+   );
+
+   // return dataFields.map((field) => {
+   //    if (field.type !== 'eta' || !field.value) {
+   //       return field;
+   //    }
+
+   //    if (field.value.toLowerCase().includes('process.env')) {
+   //       return field;
+   //    }
+
+   //    return {
+   //       ...field,
+   //       value: eta.renderString(field.value, domain),
+   //       raw: field.value
+   //    };
+   // });
 }
