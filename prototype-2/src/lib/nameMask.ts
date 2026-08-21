@@ -57,7 +57,7 @@ export function getNodeNameFromMask(mask: string, nodeIndex: number): string {
  * @returns
  */
 export function findNodeIndex(mask: string, nodeName: string, nodeCount: number): number {
-   for (let i = 1; i <= nodeCount; i++) {
+   for (let i = 0; i < nodeCount; i++) {
       try {
          const generatedName = getNodeNameFromMask(mask, i);
 
