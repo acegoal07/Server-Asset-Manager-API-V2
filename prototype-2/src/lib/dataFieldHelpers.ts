@@ -25,6 +25,7 @@ export type dataFields = {
    identifier: string;
    type: string;
    value: string | null;
+   raw?: string | undefined;
    deletable: boolean;
 };
 

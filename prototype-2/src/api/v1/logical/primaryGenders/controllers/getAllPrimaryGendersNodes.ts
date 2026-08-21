@@ -9,6 +9,7 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
+   checkDataFieldForETA,
    checkNodeDataFieldsForIP,
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
@@ -44,7 +45,7 @@ export default new OpenAPIHono().openapi(
                               priority: z.number()
                            })
                         ),
-                        dataFields: z.array(DataFieldsReturnSchema)
+                        dataFields: z.record(z.string(), DataFieldsReturnSchema)
                      })
                   )
                }
@@ -149,8 +150,25 @@ export default new OpenAPIHono().openapi(
             );
          });
 
+         // converted nodes
+         const convertedNodes = filledNodes.map((node) => ({
+            ...node,
+            genderId: gender.id,
+            gender: gender.name,
+            DataFields: Object.fromEntries(
+               handleDataFieldsMerge({
+                  domain: gender.Domains.Data.DataFields,
+                  primaryGender: gender.Data.DataFields,
+                  subGenders: gender.GenderHierarchy.flatMap(
+                     (sub) => sub.SubGenders.Data.DataFields
+                  ),
+                  node: node.dataFields
+               }).map((field) => [field.identifier, field])
+            )
+         }))
+
          return c.json(
-            filledNodes.map((node) => ({
+            convertedNodes.map((node) => ({
                id: node.id,
                name: node.name,
                nodeIndex: node.nodeIndex,
@@ -161,21 +179,20 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: handleDataFieldsMerge({
-                  domain: gender.Domains.Data.DataFields,
-                  primaryGender: gender.Data.DataFields,
-                  subGenders: gender.GenderHierarchy.flatMap(
-                     (sub) => sub.SubGenders.Data.DataFields
-                  ),
-                  node: node.dataFields
-               }).map((field) => ({
-                  id: field.id,
-                  identifier: field.identifier,
-                  name: field.name,
-                  type: field.type,
-                  value: field.value,
-                  deletable: field.deletable
-               }))
+               dataFields: Object.fromEntries(
+                  checkDataFieldForETA(gender.Data.DataFields, node).map((field) => [
+                     field.identifier,
+                     {
+                        id: field.id,
+                        identifier: field.identifier,
+                        name: field.name,
+                        type: field.type,
+                        value: field.value,
+                        raw: field?.raw ?? undefined,
+                        deletable: field.deletable
+                     }
+                  ])
+               )
             })),
             200
          );

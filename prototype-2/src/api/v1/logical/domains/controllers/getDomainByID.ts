@@ -30,7 +30,7 @@ export default new OpenAPIHono().openapi(
                      id: z.number(),
                      name: z.string(),
                      dataId: z.number(),
-                     dataFields: z.array(DataFieldsReturnSchema)
+                     dataFields: z.record(z.string(), DataFieldsReturnSchema)
                   })
                }
             }
@@ -63,19 +63,36 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Domain with id: ${id} could not be found.`);
          }
 
+         // Converted domain
+         const convertedDomain = {
+            ...domain,
+            Data: {
+               ...domain.Data,
+               DataFields: Object.fromEntries(
+                  domain.Data.DataFields.map((field) => [field.identifier, field])
+               )
+            }
+         };
+
          return c.json(
             {
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: checkDataFieldForETA(domain.Data.DataFields, domain).map((field) => ({
-                  id: field.id,
-                  identifier: field.identifier,
-                  name: field.name,
-                  type: field.type,
-                  value: field.value,
-                  deletable: field.deletable
-               }))
+               dataFields: Object.fromEntries(
+                  checkDataFieldForETA(domain.Data.DataFields, convertedDomain).map((field) => [
+                     field.identifier,
+                     {
+                        id: field.id,
+                        identifier: field.identifier,
+                        name: field.name,
+                        type: field.type,
+                        value: field.value,
+                        raw: field?.raw ?? undefined,
+                        deletable: field.deletable
+                     }
+                  ])
+               )
             },
             200
          );

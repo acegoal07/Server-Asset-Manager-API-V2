@@ -9,6 +9,7 @@ import {
    NotFoundErrorSchema
 } from '../../../../../lib/openApiSchemas';
 import {
+   checkDataFieldForETA,
    checkNodeDataFieldsForIP,
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
@@ -34,7 +35,7 @@ export default new OpenAPIHono().openapi(
                      primaryGenderId: z.number(),
                      dataId: z.number(),
                      name: z.string(),
-                     dataFields: z.array(DataFieldsReturnSchema)
+                     dataFields: z.record(z.string(), DataFieldsReturnSchema)
                   })
                }
             }
@@ -101,6 +102,28 @@ export default new OpenAPIHono().openapi(
             return notFoundError(c, `Node with id: ${id} could not be found.`);
          }
 
+         // Converted node
+         const convertedNode = {
+            ...node,
+            Data: {
+               ...node.Data,
+               DataFields: Object.fromEntries(
+                  handleDataFieldsMerge({
+                     domain: node.PrimaryGenders.Domains.Data.DataFields,
+                     primaryGender: node.PrimaryGenders.Data.DataFields,
+                     subGenders: node.PrimaryGenders.GenderHierarchy.flatMap(
+                        (sub) => sub.SubGenders.Data.DataFields
+                     ),
+                     node: checkNodeDataFieldsForIP(
+                        node.Data.DataFields,
+                        node.nodeIndex,
+                        node.PrimaryGenders.ipMask
+                     )
+                  }).map((field) => [field.identifier, field])
+               )
+            }
+         };
+
          return c.json(
             {
                id: node.id,
@@ -112,25 +135,20 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: handleDataFieldsMerge({
-                  domain: node.PrimaryGenders.Domains.Data.DataFields,
-                  primaryGender: node.PrimaryGenders.Data.DataFields,
-                  subGenders: node.PrimaryGenders.GenderHierarchy.flatMap(
-                     (sub) => sub.SubGenders.Data.DataFields
-                  ),
-                  node: checkNodeDataFieldsForIP(
-                     node.Data.DataFields,
-                     node.nodeIndex,
-                     node.PrimaryGenders.ipMask
-                  )
-               }).map((field) => ({
-                  id: field.id,
-                  identifier: field.identifier,
-                  name: field.name,
-                  type: field.type,
-                  value: field.value,
-                  deletable: field.deletable
-               }))
+               dataFields: Object.fromEntries(
+                  checkDataFieldForETA(node.Data.DataFields, convertedNode).map((field) => [
+                     field.identifier,
+                     {
+                        id: field.id,
+                        identifier: field.identifier,
+                        name: field.name,
+                        type: field.type,
+                        value: field.value,
+                        raw: field?.raw ?? undefined,
+                        deletable: field.deletable
+                     }
+                  ])
+               )
             },
             200
          );
