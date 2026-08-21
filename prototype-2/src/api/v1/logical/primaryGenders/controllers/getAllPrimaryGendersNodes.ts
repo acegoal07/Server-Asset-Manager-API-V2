@@ -155,16 +155,18 @@ export default new OpenAPIHono().openapi(
             ...node,
             genderId: gender.id,
             gender: gender.name,
-            dataFields: Object.fromEntries(
-               handleDataFieldsMerge({
-                  domain: gender.Domains.Data.DataFields,
-                  primaryGender: gender.Data.DataFields,
-                  subGenders: gender.GenderHierarchy.flatMap(
-                     (sub) => sub.SubGenders.Data.DataFields
-                  ),
-                  node: node.dataFields
-               }).map((field) => [field.identifier, field])
-            )
+            Data: {
+               DataFields: Object.fromEntries(
+                  handleDataFieldsMerge({
+                     domain: gender.Domains.Data.DataFields,
+                     primaryGender: gender.Data.DataFields,
+                     subGenders: gender.GenderHierarchy.flatMap(
+                        (sub) => sub.SubGenders.Data.DataFields
+                     ),
+                     node: node.dataFields
+                  }).map((field) => [field.identifier, field])
+               )
+            }
          }));
 
          return c.json(
@@ -179,7 +181,7 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: checkDataFieldForETA(node.dataFields, node)
+               dataFields: checkDataFieldForETA(node.Data.DataFields, node)
             })),
             200
          );

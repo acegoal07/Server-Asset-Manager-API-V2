@@ -106,7 +106,6 @@ export default new OpenAPIHono().openapi(
          const convertedNode = {
             ...node,
             Data: {
-               ...node.Data,
                DataFields: Object.fromEntries(
                   handleDataFieldsMerge({
                      domain: node.PrimaryGenders.Domains.Data.DataFields,
