@@ -18,7 +18,7 @@ type FieldParams =
 /**
  * Datafield type
  */
-export type dataFields = {
+export type dataField = {
    id: number | null;
    dataId: number | null;
    name: string;
@@ -94,13 +94,13 @@ export function handleDataFieldsMerge({
    subGenders = [],
    node = []
 }: {
-   domain?: dataFields[];
-   primaryGender?: dataFields[];
-   subGenders?: dataFields[];
-   node?: dataFields[];
-}): dataFields[] {
-   const mergeByName = (target: dataFields[], source: dataFields[]): dataFields[] => {
-      return source.reduce<dataFields[]>(
+   domain?: dataField[];
+   primaryGender?: dataField[];
+   subGenders?: dataField[];
+   node?: dataField[];
+}): dataField[] {
+   const mergeByName = (target: dataField[], source: dataField[]): dataField[] => {
+      return source.reduce<dataField[]>(
          (result, sourceItem) => {
             const index = result.findIndex(
                (targetItem) => targetItem.identifier === sourceItem.identifier
@@ -111,7 +111,7 @@ export function handleDataFieldsMerge({
             } else {
                result[index] = merge(result[index], sourceItem, {
                   arrayMerge: mergeByName
-               }) as dataFields;
+               }) as dataField;
             }
 
             return result;
@@ -122,7 +122,7 @@ export function handleDataFieldsMerge({
 
    return merge.all([domain, subGenders, primaryGender, node], {
       arrayMerge: mergeByName
-   }) as dataFields[];
+   }) as dataField[];
 }
 
 /**
@@ -132,7 +132,7 @@ export function handleDataFieldsMerge({
  * @param ipMask
  * @returns
  */
-export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number, ipMask: string) {
+export function checkNodeDataFieldsForIP(dataFields: dataField[], index: number, ipMask: string) {
    return dataFields.some((field) => field.identifier === 'ip-address')
       ? dataFields
       : [
@@ -155,22 +155,33 @@ export function checkNodeDataFieldsForIP(dataFields: dataFields[], index: number
  * @param domain
  * @returns
  */
-export function checkDataFieldForETA(dataFields: dataFields[], domain: object) {
+export function checkDataFieldForETA(
+   dataFields: Record<string, dataField>,
+   domain: object
+): Record<string, dataField> {
    const eta = new Eta();
 
-   return dataFields.map((field) => {
-      if (field.type !== 'eta' || !field.value) {
-         return field;
-      }
+   return Object.fromEntries(
+      Object.entries(dataFields).map(([key, field]) => {
+         if (
+            field.type !== 'eta' ||
+            !field.value ||
+            field.value.toLowerCase().includes('process.env')
+         ) {
+            return [key, field];
+         }
 
-      if (field.value.toLowerCase().includes('process.env')) {
-         return field;
-      }
-
-      return {
-         ...field,
-         value: eta.renderString(field.value, domain),
-         raw: field.value
-      };
-   });
+         return [
+            key,
+            {
+               ...field,
+               value: eta.renderString(field.value, {
+                  ...domain,
+                  ...dataFields
+               }),
+               raw: field.value
+            }
+         ];
+      })
+   );
 }

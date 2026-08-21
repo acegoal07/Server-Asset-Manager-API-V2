@@ -79,20 +79,7 @@ export default new OpenAPIHono().openapi(
                id: domain.id,
                name: domain.name,
                dataId: domain.dataId,
-               dataFields: Object.fromEntries(
-                  checkDataFieldForETA(domain.Data.DataFields, convertedDomain).map((field) => [
-                     field.identifier,
-                     {
-                        id: field.id,
-                        identifier: field.identifier,
-                        name: field.name,
-                        type: field.type,
-                        value: field.value,
-                        raw: field?.raw ?? undefined,
-                        deletable: field.deletable
-                     }
-                  ])
-               )
+               dataFields: checkDataFieldForETA(convertedDomain.Data.DataFields, convertedDomain)
             },
             200
          );

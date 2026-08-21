@@ -11,7 +11,7 @@ import {
 import {
    checkDataFieldForETA,
    checkNodeDataFieldsForIP,
-   dataFields,
+   dataField,
    handleDataFieldsMerge
 } from '../../../../../lib/dataFieldHelpers';
 import { findNodeIndex } from '../../../../../lib/nameMask';
@@ -55,7 +55,6 @@ export default new OpenAPIHono().openapi(
          ...InternalServerErrorSchema
       }
    }),
-
    async (c) => {
       try {
          // Get request information
@@ -121,7 +120,7 @@ export default new OpenAPIHono().openapi(
          });
 
          let nodeId: number | undefined;
-         let nodeDataFields: dataFields[] = [];
+         let nodeDataFields: dataField[] = [];
          let index: number;
 
          if (node) {
@@ -164,7 +163,6 @@ export default new OpenAPIHono().openapi(
             genderId: gender.id,
             subGenders: gender.name,
             Data: {
-               ...gender.Data,
                DataFields: Object.fromEntries(
                   handleDataFieldsMerge({
                      domain: gender.Domains.Data.DataFields,
@@ -190,20 +188,7 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: Object.fromEntries(
-                  checkDataFieldForETA(gender.Data.DataFields, convertedNode).map((field) => [
-                     field.identifier,
-                     {
-                        id: field.id,
-                        identifier: field.identifier,
-                        name: field.name,
-                        type: field.type,
-                        value: field.value,
-                        raw: field?.raw ?? undefined,
-                        deletable: field.deletable
-                     }
-                  ])
-               )
+               dataFields: checkDataFieldForETA(convertedNode.Data.DataFields, convertedNode)
             },
             200
          );

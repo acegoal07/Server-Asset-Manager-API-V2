@@ -93,20 +93,7 @@ export default new OpenAPIHono().openapi(
                domainId: gender.domainId,
                name: gender.name,
                dataId: gender.dataId,
-               dataFields: Object.fromEntries(
-                  checkDataFieldForETA(gender.Data.DataFields, convertedGender).map((field) => [
-                     field.identifier,
-                     {
-                        id: field.id,
-                        identifier: field.identifier,
-                        name: field.name,
-                        type: field.type,
-                        value: field.value,
-                        raw: field?.raw ?? undefined,
-                        deletable: field.deletable
-                     }
-                  ])
-               )
+               dataFields: checkDataFieldForETA(convertedGender.Data.DataFields, convertedGender)
             },
             200
          );

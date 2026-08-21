@@ -155,7 +155,7 @@ export default new OpenAPIHono().openapi(
             ...node,
             genderId: gender.id,
             gender: gender.name,
-            DataFields: Object.fromEntries(
+            dataFields: Object.fromEntries(
                handleDataFieldsMerge({
                   domain: gender.Domains.Data.DataFields,
                   primaryGender: gender.Data.DataFields,
@@ -179,20 +179,7 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: Object.fromEntries(
-                  checkDataFieldForETA(gender.Data.DataFields, node).map((field) => [
-                     field.identifier,
-                     {
-                        id: field.id,
-                        identifier: field.identifier,
-                        name: field.name,
-                        type: field.type,
-                        value: field.value,
-                        raw: field?.raw ?? undefined,
-                        deletable: field.deletable
-                     }
-                  ])
-               )
+               dataFields: checkDataFieldForETA(node.dataFields, node)
             })),
             200
          );
