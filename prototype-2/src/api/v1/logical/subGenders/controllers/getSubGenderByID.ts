@@ -94,7 +94,7 @@ export default new OpenAPIHono().openapi(
                domainId: gender.domainId,
                name: gender.name,
                dataId: gender.dataId,
-               dataFields: checkDataFieldForETA(
+               dataFields: await checkDataFieldForETA(
                   convertedGender.Data.DataFields,
                   convertedGender.domainId
                )

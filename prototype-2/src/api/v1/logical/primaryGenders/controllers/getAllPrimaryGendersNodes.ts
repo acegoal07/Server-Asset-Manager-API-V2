@@ -169,7 +169,7 @@ export default new OpenAPIHono().openapi(
             }
          }));
 
-         return c.json(
+         const result = await Promise.all(
             convertedNodes.map(async (node) => ({
                id: node.id,
                name: node.name,
@@ -181,10 +181,14 @@ export default new OpenAPIHono().openapi(
                   name: sub.SubGenders.name,
                   priority: sub.priority
                })),
-               dataFields: await checkDataFieldForETA(node.Data.DataFields, gender.domainId)
-            })),
-            200
+               dataFields: await checkDataFieldForETA(
+                  node.Data.DataFields,
+                  gender.domainId
+               )
+            }))
          );
+
+         return c.json(result, 200);
       } catch (err) {
          return internalServerError(c, err);
       }
