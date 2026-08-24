@@ -46,6 +46,7 @@ async function getDomainData(id: number): Promise<object | null> {
 function renderEta(template: string, data: object): string {
    const vm = new NodeVM({
       console: 'off',
+      timeout: 1000,
       sandbox: {
          template,
          data
