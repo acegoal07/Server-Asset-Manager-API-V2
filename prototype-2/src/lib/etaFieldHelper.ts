@@ -16,7 +16,12 @@ async function getDomainData(id: number): Promise<object | null> {
       include: {
          PrimaryGenders: {
             include: {
-               Nodes: true
+               Nodes: true,
+               GenderHierarchy: {
+                  include: {
+                     SubGenders: true
+                  }
+               }
             }
          },
          SubGenders: true
@@ -30,7 +35,13 @@ async function getDomainData(id: number): Promise<object | null> {
             item.name,
             {
                ...item,
-               Nodes: Object.fromEntries(item.Nodes.map((node) => [node.name, node])) ?? []
+               Nodes: Object.fromEntries(item.Nodes.map((node) => [node.name, node])) ?? [],
+               SubGenders: Object.fromEntries(
+                  item.GenderHierarchy.map((sub) => [
+                     sub.SubGenders.name,
+                     { ...sub.SubGenders, priority: sub.priority }
+                  ])
+               )
             }
          ]) ?? []
       ),
