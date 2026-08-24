@@ -9,7 +9,6 @@ import { prisma } from './prisma';
  * @returns
  */
 async function getDomainData(id: number): Promise<object | null> {
-   // Get all initial domain information
    const initialDomain = await prisma.domains.findUnique({
       where: {
          id
