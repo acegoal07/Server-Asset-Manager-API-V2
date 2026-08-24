@@ -46,8 +46,6 @@ export async function checkDataFieldForETA(
    dataFields: Record<string, dataField>,
    domainId: number
 ): Promise<Record<string, dataField>> {
-   const eta = new Eta();
-
    const domainInfo = await getDomainData(domainId);
 
    if (!domainInfo) {
@@ -57,6 +55,8 @@ export async function checkDataFieldForETA(
          })
       );
    }
+
+   const eta = new Eta();
 
    return Object.fromEntries(
       Object.entries(dataFields).map(([key, field]) => {
