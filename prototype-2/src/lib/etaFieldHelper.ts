@@ -61,8 +61,7 @@ function renderEta(template: string, data: object): string {
          external: {
             modules: ['eta'],
             transitive: false
-         },
-         builtin: []
+         }
       }
    });
    return vm.run(
