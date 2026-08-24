@@ -5,8 +5,8 @@ import { prisma } from './prisma';
 
 /**
  * Gets the domain information
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
 async function getDomainData(id: number): Promise<object | null> {
    // Get all initial domain information
@@ -62,7 +62,7 @@ function renderEta(template: string, data: object): string {
             modules: ['eta'],
             transitive: false
          },
-         builtin: [],
+         builtin: []
       }
    });
    return vm.run(
@@ -112,5 +112,4 @@ export async function checkDataFieldForETA(
          }
       })
    );
-
 }
