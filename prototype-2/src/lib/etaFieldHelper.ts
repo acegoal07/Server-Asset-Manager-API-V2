@@ -54,12 +54,13 @@ async function renderEta(template: string, data: object, eta: Eta) {
 
       const global = context.global;
 
+      context.global.set('eta', eta);
+
       await global.set('domainInfo', new ivm.ExternalCopy(data).copyInto());
       await global.set('template', new ivm.ExternalCopy(template).copyInto());
-      await context.global.set('eta', eta);
 
       const script = await isolate.compileScript(`
-         result = eta.renderString(template, domainInfo);
+         eta.renderString(template, domainInfo);
       `);
 
       return await script.run(context, {
