@@ -37,7 +37,7 @@
       "dotenv": "^17.4.2",
       "eta": "^4.6.0",
       "hono": "^4.12.32",
-      "isolated-vm": "^7.0.1",
+      "vm2": "^3.11.6",
       "zod": "^4.4.3"
    },
    "devDependencies": {

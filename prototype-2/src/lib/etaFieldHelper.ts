@@ -1,5 +1,4 @@
-import { Eta } from 'eta';
-import ivm from 'isolated-vm';
+import { NodeVM } from 'vm2';
 
 import { dataField } from './dataFieldHelpers';
 import { prisma } from './prisma';
@@ -39,36 +38,30 @@ async function getDomainData(id: number): Promise<object | null> {
 
 /**
  * Runs the eta render in an isolated environment to prevent unauthorised access
- * @param template 
- * @param data 
- * @param eta 
- * @returns 
+ * @param template
+ * @param data
+ * @param eta
+ * @returns
  */
-async function renderEta(template: string, data: object, eta: Eta) {
-   const isolate = new ivm.Isolate({
-      memoryLimit: 32
+function renderEta(template: string, data: object): string {
+   const vm = new NodeVM({
+      console: 'off',
+      sandbox: {
+         template,
+         data
+      },
+      require: {
+         external: {
+            modules: ['eta'],
+            transitive: false
+         },
+         builtin: [],
+      }
    });
-
-   try {
-      const context = await isolate.createContext();
-
-      const global = context.global;
-
-      context.global.set('eta', eta);
-
-      await global.set('domainInfo', new ivm.ExternalCopy(data).copyInto());
-      await global.set('template', new ivm.ExternalCopy(template).copyInto());
-
-      const script = await isolate.compileScript(`
-         eta.renderString(template, domainInfo);
-      `);
-
-      return await script.run(context, {
-         timeout: 100
-      });
-   } finally {
-      isolate.dispose();
-   }
+   return vm.run(
+      `const { Eta } = require('eta');const eta = new Eta();module.exports = eta.renderString(template, data);`,
+      'eta-render.js'
+   );
 }
 
 /**
@@ -91,32 +84,26 @@ export async function checkDataFieldForETA(
       );
    }
 
-   const eta = new Eta();
-
    return Object.fromEntries(
-      await Promise.all(
-         Object.entries(dataFields).map(async ([key, field]) => {
-            if (
-               field.type !== 'eta' ||
-               !field.value
-            ) {
-               return [key, field];
-            }
+      Object.entries(dataFields).map(([key, field]) => {
+         if (field.type !== 'eta' || !field.value) {
+            return [key, field];
+         }
 
-            try {
-               return [
-                  key,
-                  {
-                     ...field,
-                     value: await renderEta(field.value, domainInfo, eta),
-                     raw: field.value
-                  }
-               ];
-            } catch {
-               return [key, field];
-            }
-         })
-      )
+         try {
+            return [
+               key,
+               {
+                  ...field,
+                  value: renderEta(field.value, domainInfo),
+                  raw: field.value
+               }
+            ];
+         } catch (error) {
+            console.log(error);
+            return [key, field];
+         }
+      })
    );
 
 }
