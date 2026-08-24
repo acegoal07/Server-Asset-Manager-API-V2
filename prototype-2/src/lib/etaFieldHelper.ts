@@ -47,6 +47,7 @@ function renderEta(template: string, data: object): string {
    const vm = new NodeVM({
       console: 'off',
       timeout: 1000,
+      allowAsync: false,
       sandbox: {
          template,
          data
