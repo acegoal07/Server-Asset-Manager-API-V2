@@ -3,6 +3,11 @@ import { NodeVM } from 'vm2';
 import { dataField } from './dataFieldHelpers';
 import { prisma } from './prisma';
 
+/**
+ * Gets the domain information
+ * @param id 
+ * @returns 
+ */
 async function getDomainData(id: number): Promise<object | null> {
    // Get all initial domain information
    const initialDomain = await prisma.domains.findUnique({
